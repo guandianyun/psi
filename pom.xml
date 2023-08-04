@@ -1,0 +1,405 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.bytechainx.psi</groupId>
+	<artifactId>psi-opensource</artifactId>
+	<version>2.1.0</version>
+	<packaging>pom</packaging>
+	<name>psi-opensource</name>
+
+	<modules>
+        <module>psi-common</module>
+        <module>psi-trader</module>
+	<module>psi-web</module>
+	<module>psi-fund</module>
+	<module>psi-purchase</module>
+	<module>psi-sale</module>
+    	</modules>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.11.0</version>
+			</dependency>
+			<!-- jfinal -->
+		<dependency>
+			<groupId>com.jfinal</groupId>
+			<artifactId>jfinal</artifactId>
+			<version>5.1.1</version>
+		</dependency>
+
+		<!-- jfinal-undertow 开发、部署一体化 web 服务器 -->
+		<dependency>
+			<groupId>com.jfinal</groupId>
+			<artifactId>jfinal-undertow</artifactId>
+			<version>2.8</version>
+		</dependency>
+
+		<!-- 开发 WebSockets 时开启下面的依赖 -->
+		<!-- <dependency> <groupId>io.undertow</groupId> <artifactId>undertow-websockets-jsr</artifactId> 
+			<version>2.0.32.Final</version> </dependency> -->
+		<dependency>
+			<groupId>com.jfinal</groupId>
+			<artifactId>jfinal-weixin</artifactId>
+			<version>3.4</version>
+		</dependency>
+
+		<!-- cos 文件上传 -->
+		<dependency>
+			<groupId>com.jfinal</groupId>
+			<artifactId>cos</artifactId>
+			<version>2022.2</version>
+		</dependency>
+
+		<!-- junit 单元测试 -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.java-websocket/Java-WebSocket -->
+		<dependency>
+			<groupId>org.java-websocket</groupId>
+			<artifactId>Java-WebSocket</artifactId>
+			<version>1.4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>2.0.6</version>
+		</dependency>
+
+
+		<!-- log4j 日志 -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.15</version>
+		</dependency>
+
+		<!-- ehcache 缓存 -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache-core</artifactId>
+			<version>2.6.11</version>
+		</dependency>
+
+		<!-- druid 数据源连接池 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.0.29</version>
+		</dependency>
+
+		<!-- log4j 日志 -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
+		<!-- mysql 驱动 -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.44</version>
+		</dependency>
+
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>3.7.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>de.ruedigermoeller</groupId>
+			<artifactId>fst</artifactId>
+			<version>2.29</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.68</version>
+		</dependency>
+
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>4.6.8</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.10.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-jobs</artifactId>
+			<version>2.2.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>17.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.28</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.belerweb</groupId>
+			<artifactId>pinyin4j</artifactId>
+			<version>2.5.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.heqiao2010</groupId>
+			<artifactId>lunar</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			<version>5.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.3</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.huifu.adapay.core/adapay-core-sdk -->
+		<dependency>
+			<groupId>com.huifu.adapay.core</groupId>
+			<artifactId>adapay-core-sdk</artifactId>
+			<version>1.2.10</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.huifu.adapay/adapay-java-sdk -->
+		<dependency>
+			<groupId>com.huifu.adapay</groupId>
+			<artifactId>adapay-java-sdk</artifactId>
+			<version>1.2.10</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.huifu.adapay</groupId>
+			<artifactId>adapay-sdk-merchant</artifactId>
+			<version>1.2.7</version>
+			<scope>system</scope>
+			<systemPath>D:/eclipse/Workspaces/Oomph/psi-common/src/main/resources/lib/adapay-sdk-merchant-1.2.7.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.2</version>
+		</dependency>
+		<dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.5</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>5.1.20.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.paho</groupId>
+			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+			<version>1.2.5</version>
+		</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<directory>target</directory>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<outputDirectory>target/classes</outputDirectory>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 不包含使用插件在测试完成后再拷贝资源文件过去防止冲突 -->
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.6.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+					<compilerId>csharp</compilerId>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-compiler-csharp</artifactId>
+						<version>1.6</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12</version>
+				<configuration>
+					<forkMode>once</forkMode>
+					<argLine>-XX:PermSize=256M</argLine>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${basedir}/classes/lib</directory>
+							<includes>
+								<include>**/*.jar</include>
+							</includes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<!-- Source folder -->
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<defaultGoal>compile</defaultGoal>
+	</build>
+
+
+	<!-- 使用阿里 maven 库 -->
+	<repositories>
+		<repository>
+			<id>ali-maven</id>
+			<url>https://maven.aliyun.com/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+
+
+	</repositories>
+
+</project>

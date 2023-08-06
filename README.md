@@ -1,7 +1,7 @@
 <p></p>
 <p></p>
 
-![输入图片说明](readme-pic/logo.png)
+![输入图片说明](https://gitee.com/o88o/psi/raw/master/readme-pic/logo.png)
 
 <div align="center">
 
@@ -69,7 +69,7 @@
 
 * 采用主流 Java 架构，具备高拓展性、灵活性，避免 PHP 架构的缺点；
 * 代码简洁，低成本二次开发，有更多时间陪老婆孩子或女友；
-* 产品用户体验好，可以快速学习适用。
+* 产品用户体验好，可以快速学习并上手学习。
 
 
 ## 1.4 愿景
@@ -128,22 +128,22 @@ _（注意：演示环境已屏蔽管理权限和相关操作）_
 ## 2.5 产品截图
 
 **首页：**
-![首页](readme-pic/demo-home.png "首页")
+![首页](https://gitee.com/o88o/psi/raw/master/readme-pic/demo-home.png "首页")
 
 **收银台：**
-![收银台](readme-pic/demo-shouyin.png "收银台")
+![收银台](https://gitee.com/o88o/psi/raw/master/readme-pic/demo-shouyin.png "收银台")
 
 **打印模板：**
-![打印模板](readme-pic/demo-print.png "打印模板")
+![打印模板](https://gitee.com/o88o/psi/raw/master/readme-pic/demo-print.png "打印模板")
 
 **系统设置：**
-![系统设置](readme-pic/demo-setting.png "系统设置")
+![系统设置](https://gitee.com/o88o/psi/raw/master/readme-pic/demo-setting.png "系统设置")
 
 **新增销售单：**
-![新增销售单](readme-pic/demo-salecadd.png "新增销售单")
+![新增销售单](https://gitee.com/o88o/psi/raw/master/readme-pic/demo-salecadd.png "新增销售单")
 
 **销售单列表：**
-![销售单列表](readme-pic/demo-saleorder.png "销售单列表")
+![销售单列表](https://gitee.com/o88o/psi/raw/master/readme-pic/demo-saleorder.png "销售单列表")
 
 # 三、常见问题
 
@@ -159,7 +159,7 @@ _（注意：演示环境已屏蔽管理权限和相关操作）_
 
 如果你想跟我们的交流开源，你有任何 管店云 产品上的想法、意见或建议，或商务上的合作需求，请扫码添加 管店云 项目团队沟通：
 
-![输入图片说明](readme-pic/contact.png)
+![输入图片说明](https://gitee.com/o88o/psi/raw/master/readme-pic/contact.png)
 
 # 六、捐赠支持
 
@@ -169,7 +169,7 @@ _（注意：演示环境已屏蔽管理权限和相关操作）_
 
 您的捐赠将用于支付该项目的一些费用支出，并激励开发者们以便更好的推动项目的发展，同时欢迎捐赠**公网服务器**用于提高在线演示系统体验。
 
-![输入图片说明](readme-pic/paychannel.png "收款码")
+![输入图片说明](https://gitee.com/o88o/psi/raw/master/readme-pic/paychannel.png "收款码")
 
 ## 7.2 长期捐赠
 

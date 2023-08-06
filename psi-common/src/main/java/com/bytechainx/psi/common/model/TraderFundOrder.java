@@ -45,11 +45,11 @@ public class TraderFundOrder extends BaseTraderFundOrder<TraderFundOrder> {
 			return null;
 		}
 		Record order = Db.findFirstByCache(CommonConstant.CACHE_NAME_ONE_MINUTE_STORE, "record."+refOrderType.name().replaceAll("_", ".")+".id."+getRefOrderId(), "select * from "+refOrderType.name()+" where id = ?", getRefOrderId());
-		if(refOrderType.getValue() == RefOrderTypeEnum.sale_book_order.getValue() || refOrderType.getValue() == RefOrderTypeEnum.sale_order.getValue()
+		if(refOrderType.getValue() == RefOrderTypeEnum.sale_order.getValue()
 				|| refOrderType.getValue() == RefOrderTypeEnum.sale_reject_order.getValue() || refOrderType.getValue() == RefOrderTypeEnum.trader_receipt_order.getValue()) { // 销售类
 			CustomerInfo customerInfo = CustomerInfo.dao.findById(order.getInt("customer_info_id"));
 			order.put("handler", customerInfo);
-		} else if(refOrderType.getValue() == RefOrderTypeEnum.purchase_book_order.getValue() || refOrderType.getValue() == RefOrderTypeEnum.purchase_order.getValue()
+		} else if(refOrderType.getValue() == RefOrderTypeEnum.purchase_order.getValue()
 				|| refOrderType.getValue() == RefOrderTypeEnum.purchase_reject_order.getValue() || refOrderType.getValue() == RefOrderTypeEnum.trader_pay_order.getValue()) {
 			SupplierInfo supplierInfo = SupplierInfo.dao.findById(order.getInt("supplier_info_id"));
 			order.put("handler", supplierInfo);

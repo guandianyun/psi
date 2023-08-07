@@ -19,7 +19,7 @@ public class _Generator {
 	 */
 	public static DataSource getDataSource() {
 		CommonConfig config = new CommonConfig();
-		config.useFirstFound("app-config-pro.txt", "app-config-dev.txt");
+		config.useFirstFound("commonConfig/app-config-dev.txt");
 
 		DruidPlugin druidPlugin = config.getDruidPlugin();
 		druidPlugin.start();

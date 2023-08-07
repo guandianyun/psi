@@ -83,7 +83,7 @@
 
 开源演示地址：[https://guanxdian.cn/demo](https://guanxdian.cn/demo)
 
-默认账号密码：15888888888，667788
+默认账号密码：添加微信领取 `guanxdian`
 
 _（注意：演示环境已屏蔽管理权限和相关操作）_
 

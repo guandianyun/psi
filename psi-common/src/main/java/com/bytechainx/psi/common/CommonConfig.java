@@ -142,7 +142,7 @@ public  class CommonConfig extends JFinalConfig {
 	 * 抽取成独立的方法，便于 _Generator 中重用该方法，减少代码冗余
 	 */
 	public DruidPlugin getDruidPlugin() {
-		return new DruidPlugin(getProperty("jdbcUrl"), getProperty("user"), getProperty("password").trim());
+		return new DruidPlugin(getProperty("mysql.jdbcUrl"), getProperty("mysql.user"), getProperty("mysql.password").trim());
 	}
 	
 	

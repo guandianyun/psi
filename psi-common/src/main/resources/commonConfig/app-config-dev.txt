@@ -1,0 +1,30 @@
+# db config
+mysql.jdbcUrl = jdbc:mysql://localhost/psi_opensource?useSSL=false&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull
+mysql.user = root
+mysql.password = root
+
+pc.web.domain=http://127.0.0.1:8080
+
+resource.upload.path=D:\\eclipse\\Workspaces\\Oomph\\psi-core\\src\\main\\webapp\\resources\\uploads
+resource.upload.domain=http://127.0.0.1:8080/resources/uploads
+resource.domain=http://127.0.0.1:8080/resources
+
+redis.ip=127.0.0.1
+redis.port=6379
+redis.password=
+
+lodop.cloud.script.url1=http://192.168.0.104:8000/CLodopfuncs.js
+lodop.cloud.script.url2=http://192.168.0.104:8000/CLodopfuncs.js
+
+lodop.local.script.url1=http://localhost:8000/CLodopfuncs.js
+lodop.local.script.url2=http://localhost:18000/CLodopfuncs.js
+
+//掌骏短信
+sms.junmei.user.id=
+sms.junmei.user.user=
+sms.junmei.user.pwd=
+
+// summail赛邮短信
+sms.submail.app.id=
+sms.submail.app.key=
+

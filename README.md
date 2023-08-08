@@ -18,7 +18,7 @@
 
 **<p align="center">【📣最近通知】还有什么想要产品/技术上友好的建议或意见，请跟我们联系，将纳入开源贡献者并官网致谢，还会收到社区奖励的小礼品哦！~</p>**
 
-**<p align="center">管店云 V2.0 正式发布啦，源代码会陆续发布出来，欢迎大家提前体验！<a href="https://guanxdian.cn/demo" target="_blank">点击立即体验~</a></p>**
+**<p align="center">管店云 V2.0 正式发布啦，源代码会陆续发布出来，欢迎大家提前体验！<a href="https://www.guanxdian.com" target="_blank">点击立即体验~</a></p>**
 
 
 **<p align="center">如果您觉得我们的开源项目很有帮助，请点击 :star: Star 支持 管店云 开源团队:heart:</p>**
@@ -81,7 +81,7 @@
 
 ## 2.1 在线体验
 
-开源演示地址：[https://guanxdian.cn/demo](https://guanxdian.cn/demo)
+开源演示地址：[https://www.guanxdian.com](https://www.guanxdian.com)
 
 默认账号密码：添加微信领取 `guanxdian`
 

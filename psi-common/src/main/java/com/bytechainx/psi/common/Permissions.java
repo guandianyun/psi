@@ -375,14 +375,6 @@ public enum Permissions {
 	setting_system_reset("系统重置", Modules.core), 
 	setting_system_operLog("操作日志", Modules.core),
 	
-	// 系统重置权限点
-	setting_system_reset_show("查看", Modules.core), // 系统重置-查看
-	setting_system_reset_create("重置", Modules.core), // 系统重置-重置
-	
-	// 数据恢复权限点
-	setting_system_restore_show("查看", Modules.core), // 数据恢复-查看
-	setting_system_restore_create("恢复", Modules.core), // 数据恢复-恢复
-	
 	// 操作日志权限点
 	setting_system_operLog_show("查看", Modules.core), // 操作日志-查看
 		

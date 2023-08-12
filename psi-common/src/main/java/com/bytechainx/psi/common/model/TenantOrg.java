@@ -37,5 +37,9 @@ public class TenantOrg extends BaseTenantOrg<TenantOrg> {
 		return TenantConfig.dao.findByKeyCache(configEnum);
 	}
 	
+	public TenantOrg findTop() {
+		return TenantOrg.dao.findFirst("select * from tenant_org limit 1");
+	}
+	
 }
 

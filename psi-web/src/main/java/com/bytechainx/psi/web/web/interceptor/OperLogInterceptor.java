@@ -14,6 +14,7 @@ import com.bytechainx.psi.common.model.TenantOperLog;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Interceptor;
 import com.jfinal.aop.Invocation;
+import com.jfinal.kit.ThreadPoolKit;
 
 import cn.hutool.extra.servlet.ServletUtil;
 
@@ -29,7 +30,7 @@ public class OperLogInterceptor implements Interceptor {
 	public void intercept(Invocation ai) {
 		ai.invoke();
 		// ACTION执行后记录日志，多线程记录，提升访问性能
-		new Thread(() -> writeOperLog(ai)).start();
+		ThreadPoolKit.execute( () -> writeOperLog(ai));
 	}
 
 	/**

@@ -15,8 +15,8 @@ public class InventoryStockLog extends BaseInventoryStockLog<InventoryStockLog> 
 	 * 查询商品单品对应的单据库存记录
 	 * @return
 	 */
-	public InventoryStockLog findByOrderId(Integer orderId, Integer orderType, Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId, Integer warehouseId) {
-		return InventoryStockLog.dao.findFirst("select * from inventory_stock_log where order_id = ? and order_type = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? and inventory_warehouse_id = ? limit 1", orderId, orderType, spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
+	public InventoryStockLog findByOrderId(Integer orderId, Integer orderType, Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId) {
+		return InventoryStockLog.dao.findFirst("select * from inventory_stock_log where order_id = ? and order_type = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? limit 1", orderId, orderType, spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
 	}
 	
 	public GoodsUnit getUnit() {

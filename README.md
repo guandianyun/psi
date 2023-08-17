@@ -89,8 +89,8 @@ _（注意：演示环境已屏蔽管理权限和相关操作）_
 
 ## 2.2 技术栈
 
-* 前端技术栈：bootstrap、jquery、echarts、layer；
-* 后端技术栈：jfinal、redis；
+* 前端技术栈：Bootstrap、JQuery、Echarts、Layer；
+* 后端技术栈：JFinal、Redis；
 
 ## 2.3 项目结构
 
@@ -101,7 +101,6 @@ _（注意：演示环境已屏蔽管理权限和相关操作）_
 ├── psi-fund	      // 资金财务模块
 ├── psi-purchase	      // 进货、库存模块
 ├── psi-sale            // 销售相关模块
-├── psi-trader	      // 关键业务模块
 ├── psi-web            // PC端业务模块
 
 ```

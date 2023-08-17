@@ -1,8 +1,12 @@
 package com.bytechainx.psi.web.web.controller.fund;
 
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.bytechainx.psi.common.EnumConstant.AuditStatusEnum;
@@ -12,16 +16,19 @@ import com.bytechainx.psi.common.EnumConstant.RejectTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.TenantConfigEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
+import com.bytechainx.psi.common.kit.DateUtil;
 import com.bytechainx.psi.common.model.SaleOrder;
 import com.bytechainx.psi.common.model.TenantConfig;
 import com.bytechainx.psi.common.model.TenantPrintTemplate;
 import com.bytechainx.psi.common.model.TraderReceiptOrder;
+import com.bytechainx.psi.common.model.TraderReceiptOrderFund;
 import com.bytechainx.psi.common.model.TraderReceiptOrderRef;
 import com.bytechainx.psi.fund.service.BookReceiptOrderService;
 import com.bytechainx.psi.sale.service.SaleOrderService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.fund.BookReceiptOrderEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -43,6 +50,8 @@ public class BookReceiptOrderController extends BaseController {
 	private BookReceiptOrderService receiptOrderService;
 	@Inject
 	private SaleOrderService saleOrderService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -156,8 +165,15 @@ public class BookReceiptOrderController extends BaseController {
 	*/
 	@Permission(Permissions.fund_book_receiptOrder_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/fund/book/receiptOrder/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderReceiptOrder receiptOrder = getModel(TraderReceiptOrder.class, "", true);
+		List<TraderReceiptOrderFund> orderFundList = new ArrayList<>();
+		List<TraderReceiptOrderRef> orderRefList = new ArrayList<>();
+		
+		parserParams(receiptOrder, orderFundList, orderRefList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new BookReceiptOrderEvent("create"), receiptOrder, orderFundList, orderRefList);
+		
+		renderJson(ret);
 	}
 
 	/**
@@ -216,8 +232,15 @@ public class BookReceiptOrderController extends BaseController {
 	*/
 	@Permission(Permissions.fund_book_receiptOrder_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/fund/book/receiptOrder/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderReceiptOrder receiptOrder = getModel(TraderReceiptOrder.class, "", true);
+		List<TraderReceiptOrderFund> orderFundList = new ArrayList<>();
+		List<TraderReceiptOrderRef> orderRefList = new ArrayList<>();
+		
+		parserParams(receiptOrder, orderFundList, orderRefList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new BookReceiptOrderEvent("update"), receiptOrder, orderFundList, orderRefList);
+		
+		renderJson(ret);
 	}
 
 
@@ -231,8 +254,12 @@ public class BookReceiptOrderController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/fund/book/receiptOrder/disable", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new BookReceiptOrderEvent("disable"), ids);
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -258,8 +285,18 @@ public class BookReceiptOrderController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/fund/book/receiptOrder/audit", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		AuditStatusEnum auditStatus = AuditStatusEnum.getEnum(getInt("audit_status"));
+		if(auditStatus == null) {
+			renderJson(Ret.fail("审核状态不正确"));
+			return;
+		}
+		String auditDesc = get("audit_desc");
+		Ret ret = traderEventProducer.request(getAdminId(), new BookReceiptOrderEvent("audit"), ids, auditStatus, auditDesc, getAdminId());
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -444,6 +481,64 @@ public class BookReceiptOrderController extends BaseController {
 		renderJson(ret);
 	}
 	
+private void parserParams(TraderReceiptOrder receiptOrder, List<TraderReceiptOrderFund> orderFundList, List<TraderReceiptOrderRef> orderRefList) {
+		
+		Integer[] orderFundIds = getParaValuesToInt("order_fund_id");
+		Integer[] balanceAccountIds = getParaValuesToInt("order_fund_balance_account_id");
+		String[] orderFundAmounts = getParaValues("order_fund_amount");
+		String[] orderFundFundTimes = getParaValues("order_fund_fund_time");
+		
+		Integer[] saleOrderIds = getParaValuesToInt("sale_order_id");
+		String[] receiptAmounts = getParaValues("receipt_amount");
+		String[] receiptDiscountAmounts = getParaValues("receipt_discount_amount");
+		
+		if(balanceAccountIds != null && balanceAccountIds.length > 0) {
+			for (int index = 0; index < balanceAccountIds.length; index++) {
+				if(orderFundAmounts == null || orderFundAmounts[index] == null || StringUtils.isEmpty(orderFundAmounts[index]) || new BigDecimal(orderFundAmounts[index]).compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
+				}
+				TraderReceiptOrderFund fund = new TraderReceiptOrderFund();
+				if(orderFundIds != null) {
+					fund.setId(orderFundIds[index]);
+				}
+				Integer accountId = balanceAccountIds[index];
+				fund.setTraderBalanceAccountId(accountId);
+				fund.setAmount(new BigDecimal(orderFundAmounts[index]));
+				
+				if(orderFundFundTimes != null && orderFundFundTimes[index] != null && StringUtils.isNotEmpty(orderFundFundTimes[index])) {
+					fund.setFundTime(DateUtil.getDayDate(orderFundFundTimes[index]));
+				} else {
+					fund.setFundTime(new Date());
+				}
+				orderFundList.add(fund);
+			}
+		}
+		
+		if(receiptAmounts != null && receiptAmounts.length > 0) {
+			for (int index = 0; index < receiptAmounts.length; index++) {
+				if(receiptAmounts == null || receiptAmounts[index] == null || StringUtils.isEmpty(receiptAmounts[index]) || new BigDecimal(receiptAmounts[index]).compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
+				}
+				TraderReceiptOrderRef ref = new TraderReceiptOrderRef();
+				Integer saleOrderId = saleOrderIds[index];
+				ref.setSaleOrderId(saleOrderId);
+				ref.setAmount(new BigDecimal(receiptAmounts[index]));
+				if(receiptOrder != null) {
+					ref.setTraderReceiptOrderId(receiptOrder.getId());
+				}
+				if(receiptDiscountAmounts == null || StringUtils.isEmpty(receiptDiscountAmounts[index])) {
+					ref.setDiscountAmount(BigDecimal.ZERO);
+				} else {
+					ref.setDiscountAmount(new BigDecimal(receiptDiscountAmounts[index]));
+				}
+				orderRefList.add(ref);
+			}
+		}
+		
+		receiptOrder.setOrderImg(StringUtils.join(getParaValues("order_imgs"), ","));
+		receiptOrder.setMakeManId(getAdminId());
+		receiptOrder.setLastManId(getAdminId());
+	}
 	
 	/**
 	 * 查询条件

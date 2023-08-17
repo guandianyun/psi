@@ -1,12 +1,16 @@
 package com.bytechainx.psi.web.web.controller.sale;
 
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSONObject;
 import com.bytechainx.psi.common.EnumConstant.AuditStatusEnum;
+import com.bytechainx.psi.common.EnumConstant.FundTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.OrderPayStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.OrderStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.RejectDealTypeEnum;
@@ -14,13 +18,20 @@ import com.bytechainx.psi.common.EnumConstant.RejectReasonTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.TenantConfigEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
+import com.bytechainx.psi.common.kit.DateUtil;
+import com.bytechainx.psi.common.model.CustomerInfo;
 import com.bytechainx.psi.common.model.SaleRejectOrder;
+import com.bytechainx.psi.common.model.SaleRejectOrderCost;
+import com.bytechainx.psi.common.model.SaleRejectOrderFee;
+import com.bytechainx.psi.common.model.SaleRejectOrderFund;
+import com.bytechainx.psi.common.model.SaleRejectOrderGoods;
 import com.bytechainx.psi.common.model.TenantConfig;
 import com.bytechainx.psi.common.model.TenantPrintTemplate;
 import com.bytechainx.psi.sale.service.SaleRejectOrderService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.sale.SaleRejectOrderEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -39,6 +50,8 @@ public class SaleRejectOrderController extends BaseController {
 
 	@Inject
 	private SaleRejectOrderService rejectOrderService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -170,8 +183,20 @@ public class SaleRejectOrderController extends BaseController {
 	*/
 	@Permission(Permissions.sale_sale_rejectOrder_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/sale/sale/rejectOrder/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		SaleRejectOrder saleRejectOrder = getModel(SaleRejectOrder.class, "", true);
+		List<SaleRejectOrderGoods> orderGoodList = new ArrayList<>();
+		List<SaleRejectOrderFund> orderFundList = new ArrayList<>();
+		List<SaleRejectOrderFee> orderFeeList = new ArrayList<>();
+		List<SaleRejectOrderCost> orderCostList = new ArrayList<>();
+		
+		Ret ret = parserParams(saleRejectOrder, orderGoodList, orderFundList, orderFeeList, orderCostList);
+		if(ret.isFail()) {
+			renderJson(ret);
+			return;
+		}
+		ret = traderEventProducer.request(getAdminId(), new SaleRejectOrderEvent("create"), saleRejectOrder, orderGoodList, orderFundList, orderFeeList, orderCostList);
+		
+		renderJson(ret);
 	}
 
 	/**
@@ -225,8 +250,20 @@ public class SaleRejectOrderController extends BaseController {
 	*/
 	@Permission(Permissions.sale_sale_rejectOrder_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/sale/sale/rejectOrder/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		SaleRejectOrder saleRejectOrder = getModel(SaleRejectOrder.class, "", true);
+		List<SaleRejectOrderGoods> orderGoodList = new ArrayList<>();
+		List<SaleRejectOrderFund> orderFundList = new ArrayList<>();
+		List<SaleRejectOrderFee> orderFeeList = new ArrayList<>();
+		List<SaleRejectOrderCost> orderCostList = new ArrayList<>();
+		
+		Ret ret = parserParams(saleRejectOrder, orderGoodList, orderFundList, orderFeeList, orderCostList);
+		if(ret.isFail()) {
+			renderJson(ret);
+			return;
+		}
+		ret = traderEventProducer.request(getAdminId(), new SaleRejectOrderEvent("update"), saleRejectOrder, orderGoodList, orderFundList, orderFeeList, orderCostList);
+		
+		renderJson(ret);
 	}
 
 
@@ -240,8 +277,12 @@ public class SaleRejectOrderController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/sale/sale/rejectOrder/disable", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new SaleRejectOrderEvent("disable"), ids);
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -267,8 +308,18 @@ public class SaleRejectOrderController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/sale/sale/rejectOrder/audit", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		AuditStatusEnum auditStatus = AuditStatusEnum.getEnum(getInt("audit_status"));
+		if(auditStatus == null) {
+			renderJson(Ret.fail("审核状态不正确"));
+			return;
+		}
+		String auditDesc = get("audit_desc");
+		Ret ret = traderEventProducer.request(getAdminId(), new SaleRejectOrderEvent("audit"), ids, auditStatus, auditDesc, getAdminId());
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -418,6 +469,155 @@ public class SaleRejectOrderController extends BaseController {
 		renderJson(Ret.ok());
 	}
 	
+	private Ret parserParams(SaleRejectOrder saleRejectOrder, List<SaleRejectOrderGoods> orderGoodList, List<SaleRejectOrderFund> orderFundList, List<SaleRejectOrderFee> orderFeeList, List<SaleRejectOrderCost> orderCostList) {
+		Integer[] goodsIds = getParaValuesToInt("goods_id");
+		Integer[] goodsInfoIds = getParaValuesToInt("goods_info_id");
+		String[] goodsSpecIds = getParaValues("goods_spec_id");
+		Integer[] unitIds = getParaValuesToInt("goods_unit_id");
+		Integer[] rejectDealTypes = getParaValuesToInt("reject_deal_type");
+		
+		String[] goodsPrices = getParaValues("goods_price");
+		String[] goodsDiscounts = getParaValues("goods_discount");
+		String[] goodsDiscountAmounts = getParaValues("goods_discount_amount");
+		String[] goodsBuyNumbers = getParaValues("goods_buy_number");
+		String[] goodsTotalAmounts = getParaValues("goods_total_amount");
+		String[] goodsRemarks = getParaValues("goods_remark");
+		
+		Integer[] orderFundIds = getParaValuesToInt("order_fund_id");
+		Integer[] orderFundReceiptTypes = getParaValuesToInt("order_fund_pay_type");
+		Integer[] balanceAccountIds = getParaValuesToInt("order_fund_balance_account_id");
+		String[] orderFundAmounts = getParaValues("order_fund_amount");
+		String[] orderFundPayTimes = getParaValues("order_fund_pay_time");
+		
+		String[] feeIds = getParaValues("fee_id"); // 其他费用
+		String[] feeAmounts = getParaValues("fee_amount");
+		
+		String[] costIds = getParaValues("cost_id"); // 成本费用
+		String[] costAmounts = getParaValues("cost_amount");
+		
+		for (int index = 0; index < goodsInfoIds.length; index++) {
+			if(goodsInfoIds[index] == null) {
+				continue;
+			}
+			SaleRejectOrderGoods goods = new SaleRejectOrderGoods();
+			if(goodsIds != null) {
+				goods.setId(goodsIds[index]);
+			}
+			
+			
+			goods.setAmount(new BigDecimal(goodsTotalAmounts[index]));
+			goods.setPrice(new BigDecimal(goodsPrices[index]));
+			goods.setBuyNumber(new BigDecimal(goodsBuyNumbers[index]));
+			goods.setDiscount(new BigDecimal(goodsDiscounts[index]));
+			goods.setDiscountAmount(new BigDecimal(goodsDiscountAmounts[index]));
+			goods.setGoodsInfoId(goodsInfoIds[index]);
+			if(goodsRemarks != null) {
+				goods.setRemark(goodsRemarks[index]);
+			}
+			goods.setUnitId(unitIds[index]);
+			goods.setRejectDealType(rejectDealTypes[index]);
+			
+			goods.setSpec1Id(0);
+			goods.setSpecOption1Id(0);
+			goods.setSpec2Id(0);
+			goods.setSpecOption2Id(0);
+			goods.setSpec3Id(0);
+			goods.setSpecOption3Id(0);
+			
+			if(goodsSpecIds != null) {
+				String specstring = goodsSpecIds[index];// 多个规格使用逗号隔开,格式：规格ID:规格值ID, 如：11:22|33:44
+				String[] specList = StringUtils.split(specstring, "|");
+				if(specList != null &&  specList.length > 0) {
+					String[] spec = StringUtils.split(specList[0], ":"); 
+					goods.setSpec1Id(Integer.parseInt((spec[0])));
+					goods.setSpecOption1Id(Integer.parseInt((spec[1])));
+					
+				}
+				if(specList != null && specList.length > 1) {
+					String[] spec = StringUtils.split(specList[1], ":"); 
+					goods.setSpec2Id(Integer.parseInt((spec[0])));
+					goods.setSpecOption2Id(Integer.parseInt((spec[1])));
+				}
+				if(specList != null && specList.length > 2) {
+					String[] spec = StringUtils.split(specList[2], ":"); 
+					goods.setSpec3Id(Integer.parseInt((spec[0])));
+					goods.setSpecOption3Id(Integer.parseInt((spec[1])));
+				}
+			}
+			orderGoodList.add(goods);
+		}
+		if(balanceAccountIds != null && balanceAccountIds.length > 0) {
+			for (int index = 0; index < balanceAccountIds.length; index++) {
+				if(orderFundAmounts == null || orderFundAmounts[index] == null || StringUtils.isEmpty(orderFundAmounts[index]) || new BigDecimal(orderFundAmounts[index]).compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
+				}
+				SaleRejectOrderFund fund = new SaleRejectOrderFund();
+				if(orderFundIds != null) {
+					fund.setId(orderFundIds[index]);
+				}
+				Integer accountId = balanceAccountIds[index];
+				Integer receiptType = null;
+				if(orderFundReceiptTypes != null) {
+					receiptType = orderFundReceiptTypes[index];
+				}
+				if(receiptType == null || accountId == 0) { // 新的资金支付没有这个类型
+					if(accountId == 0) { //账户ID为0，则表示是余额扣款
+						fund.setReceiptType(FundTypeEnum.balance.getValue());
+						CustomerInfo customerInfo = saleRejectOrder.getCustomerInfo();
+						fund.setBalanceAccountId(customerInfo.getTraderBookAccountId());
+						
+					} else {
+						fund.setReceiptType(FundTypeEnum.cash.getValue());
+						fund.setBalanceAccountId(accountId); // 本单收款为结算帐户ID，余款扣款为往来帐户ID，核销清账为收款单ID
+					}
+				} else {
+					fund.setReceiptType(receiptType);
+					fund.setBalanceAccountId(accountId);
+				}
+				
+				fund.setAmount(new BigDecimal(orderFundAmounts[index]));
+				
+				if(orderFundPayTimes != null && orderFundPayTimes[index] != null && StringUtils.isNotEmpty(orderFundPayTimes[index])) {
+					fund.setReceiptTime(DateUtil.getDayDate(orderFundPayTimes[index]));
+				} else {
+					fund.setReceiptTime(new Date());
+				}
+				orderFundList.add(fund);
+			}
+		}
+		
+		if(feeIds != null && feeIds.length > 0) {
+			for (int index = 0; index < feeIds.length; index++) {
+				if(feeAmounts == null || feeAmounts[index] == null || StringUtils.isEmpty(feeAmounts[index])) {
+					continue;
+				}
+				SaleRejectOrderFee fee = new SaleRejectOrderFee();
+				fee.setAmount(new BigDecimal(feeAmounts[index]));
+				fee.setTraderFundType(Integer.parseInt(feeIds[index]));
+				
+				orderFeeList.add(fee);
+			}
+		}
+		
+		if(costIds != null && costIds.length > 0) {
+			for (int index = 0; index < costIds.length; index++) {
+				if(costAmounts == null || costAmounts[index] == null || StringUtils.isEmpty(costAmounts[index])) {
+					continue;
+				}
+				SaleRejectOrderCost cost = new SaleRejectOrderCost();
+				cost.setAmount(new BigDecimal(costAmounts[index]));
+				cost.setTraderFundType(Integer.parseInt(costIds[index]));
+				
+				orderCostList.add(cost);
+			}
+		}
+		
+		saleRejectOrder.setOrderImg(StringUtils.join(getParaValues("order_imgs"), ","));
+		saleRejectOrder.setMakeManId(getAdminId());
+		saleRejectOrder.setLastManId(getAdminId());
+		
+		return Ret.ok();
+	}
 	
 	/**
 	 * 导出

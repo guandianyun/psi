@@ -1,6 +1,7 @@
 package com.bytechainx.psi.web.web.controller.sale;
 
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import com.bytechainx.psi.common.EnumConstant.AuditStatusEnum;
@@ -8,7 +9,6 @@ import com.bytechainx.psi.common.EnumConstant.DataStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.OrderStatusEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
 import com.bytechainx.psi.common.dto.UserSession;
@@ -22,6 +22,8 @@ import com.bytechainx.psi.sale.service.CustomerCategoryService;
 import com.bytechainx.psi.sale.service.CustomerInfoService;
 import com.bytechainx.psi.sale.service.CustomerPriceLevelService;
 import com.bytechainx.psi.sale.service.SaleOrderService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.sale.CustomerInfoEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -46,6 +48,8 @@ public class CustomerInfoController extends BaseController {
 	private CustomerPriceLevelService customerPriceLevelService;
 	@Inject
 	private SaleOrderService saleOrderService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -162,8 +166,21 @@ public class CustomerInfoController extends BaseController {
 	*/
 	@Permission(Permissions.sale_customer_info_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/sale/customer/info/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		CustomerInfo info = getModel(CustomerInfo.class, "", true);
+		info.setMakeManId(getAdminId());
+		info.setLastManId(getAdminId());
+		if(info.getDiscount() != null) {
+			info.setDiscount(info.getDiscount().divide(new BigDecimal(10), 2, BigDecimal.ROUND_HALF_UP));
+		} else {
+			info.setDiscount(BigDecimal.ONE);
+		}
+		BigDecimal openBalance = get("open_balance") == null ? null : new BigDecimal(get("open_balance") ); // 期初欠款
+		if(openBalance != null) {
+			info.put("open_balance", openBalance.multiply(new BigDecimal(getInt("amount_type")))); // 欠款为正数，余额为负数
+		}
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new CustomerInfoEvent("create"), info);
+		renderJson(ret);
 	}
 
 
@@ -193,8 +210,17 @@ public class CustomerInfoController extends BaseController {
 	*/
 	@Permission(Permissions.sale_customer_info_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/sale/customer/info/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		CustomerInfo info = getModel(CustomerInfo.class, "", true);
+		info.setLastManId(getAdminId());
+		if(info.getDiscount() != null) {
+			info.setDiscount(info.getDiscount().divide(new BigDecimal(10), 2, BigDecimal.ROUND_HALF_UP));
+		}
+		BigDecimal openBalance = get("open_balance") == null ? null : new BigDecimal(get("open_balance") ); // 期初欠款
+		if(openBalance != null) {
+			info.put("open_balance", openBalance.multiply(new BigDecimal(getInt("amount_type"))));// 欠款为正数，余额为负数
+		}
+		Ret ret = traderEventProducer.request(getAdminId(), new CustomerInfoEvent("update"), info);
+		renderJson(ret);
 	}
 
 

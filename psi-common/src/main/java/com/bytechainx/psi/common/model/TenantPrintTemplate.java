@@ -141,7 +141,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        colList.add(getColMeta("order_bar_code", "进货单号(条码)", "string", "single-item"));
 	        colList.add(getColMeta("book_order_code", "订单号", "string", "item"));
 	        colList.add(getColMeta("order_time", "到货日期", "date", "item"));
-	        colList.add(getColMeta("warehouse_name", "入库仓库", "string", "item"));
 	        colList.add(getColMeta("supplier_name", "供应商名称", "string", "item"));
 	        colList.add(getColMeta("supplier_mobile", "供应商电话", "string", "item"));
 	        colList.add(getColMeta("supplier_address", "供应商地址", "string", "item"));
@@ -156,7 +155,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        colList.add(getColMeta("order_bar_code", "退货单号(条码)", "string", "single-item"));
 	        colList.add(getColMeta("sale_order_code", "进货单号", "string", "item"));
 	        colList.add(getColMeta("order_time", "退货日期", "date", "item"));
-	        colList.add(getColMeta("warehouse_name", "退货仓库", "string", "item"));
 	        colList.add(getColMeta("supplier_name", "供应商名称", "string", "item"));
 	        colList.add(getColMeta("supplier_mobile", "供应商电话", "string", "item"));
 	        colList.add(getColMeta("supplier_address", "供应商地址", "string", "item"));
@@ -170,8 +168,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("order_code", "调拨单号", "string", "item"));
 	        colList.add(getColMeta("order_bar_code", "调拨单号(条码)", "string", "single-item"));
 	        colList.add(getColMeta("order_time", "调拨日期", "date", "item"));
-	        colList.add(getColMeta("out_warehouse_name", "调出仓库", "string", "item"));
-	        colList.add(getColMeta("in_warehouse_name", "调入仓库", "string", "item"));
 	        colList.add(getColMeta("company_full_name", "公司全称", "string", "item"));
             colList.add(getColMeta("company_name", "公司名称", "string", "item"));
             colList.add(getColMeta("company_mobile", "公司电话", "string", "item"));
@@ -182,7 +178,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("order_code", "盘点单号", "string", "item"));
 	        colList.add(getColMeta("order_bar_code", "盘点单号(条码)", "string", "single-item"));
 	        colList.add(getColMeta("order_time", "盘点日期", "date", "item"));
-	        colList.add(getColMeta("warehouse_name", "盘点仓库", "string", "item"));
 	        colList.add(getColMeta("company_full_name", "公司全称", "string", "item"));
             colList.add(getColMeta("company_name", "公司名称", "string", "item"));
             colList.add(getColMeta("company_mobile", "公司电话", "string", "item"));
@@ -232,8 +227,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_transfer_number", "已转销售量", "number", "item"));
-	        colList.add(getColMeta("goods_remain_number", "未转销售量", "number", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
 	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
@@ -252,11 +245,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_warehouse_name", "出货仓库", "string", "item"));
-	        colList.add(getColMeta("goods_batch", "批次", "string", "item"));
-	        colList.add(getColMeta("goods_quality", "生产日期", "string", "item"));
-	        colList.add(getColMeta("goods_quality_day", "保质期", "number", "item"));
-	        colList.add(getColMeta("goods_expire_time", "到期时间", "date", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
 	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
@@ -276,11 +264,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
 	        colList.add(getColMeta("goods_reject_deal", "处理方式", "string", "item"));
-	        colList.add(getColMeta("goods_warehouse_name", "退货仓库", "string", "item"));
-	        colList.add(getColMeta("goods_batch", "批次", "string", "item"));
-	        colList.add(getColMeta("goods_quality", "生产日期", "string", "item"));
-	        colList.add(getColMeta("goods_quality_day", "保质期", "number", "item"));
-	        colList.add(getColMeta("goods_expire_time", "到期时间", "date", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
 	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
@@ -299,8 +282,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_transfer_number", "已转销售量", "number", "item"));
-	        colList.add(getColMeta("goods_remain_number", "未转销售量", "number", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
 	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
@@ -319,10 +300,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_batch", "批次", "string", "item"));
-	        colList.add(getColMeta("goods_quality", "生产日期", "string", "item"));
-	        colList.add(getColMeta("goods_quality_day", "保质期", "number", "item"));
-	        colList.add(getColMeta("goods_expire_time", "到期时间", "date", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
 	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
@@ -342,10 +319,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_batch", "批次", "string", "item"));
-	        colList.add(getColMeta("goods_quality", "生产日期", "string", "item"));
-	        colList.add(getColMeta("goods_quality_day", "保质期", "number", "item"));
-	        colList.add(getColMeta("goods_expire_time", "到期时间", "date", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
 	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
@@ -364,10 +337,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_batch", "批次", "string", "item"));
-	        colList.add(getColMeta("goods_quality", "生产日期", "string", "item"));
-	        colList.add(getColMeta("goods_quality_day", "保质期", "number", "item"));
-	        colList.add(getColMeta("goods_expire_time", "到期时间", "date", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_swap_number", "调拨数量", "number", "item"));
 	        colList.add(getColMeta("goods_current_number", "现存数量", "double", "item"));
@@ -377,10 +346,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
 	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_batch", "批次", "string", "item"));
-	        colList.add(getColMeta("goods_quality", "生产日期", "string", "item"));
-	        colList.add(getColMeta("goods_quality_day", "保质期", "number", "item"));
-	        colList.add(getColMeta("goods_expire_time", "到期时间", "date", "item"));
 	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("goods_check_number", "盘点数量", "number", "item"));
 	        colList.add(getColMeta("goods_profit_loss_number", "盈亏数量", "double", "item"));
@@ -422,9 +387,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             colList.add(getColMeta("total_number", "商品总数", "number", "item"));
             colList.add(getColMeta("goods_amount", "商品金额合计", "double", "item"));
             colList.add(getColMeta("goods_amount_cn", "商品金额合计(大写)", "string", "item"));
-            colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
 			
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_order.getValue()) {
@@ -446,9 +408,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
                 	colList.add(getColMeta("fee_amount_"+fund.getId(), fund.getName(), "double", "item"));
     			}
             }
-            colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("express_order", "快递单号", "string", "item"));
             colList.add(getColMeta("express_name", "快递公司", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
@@ -472,9 +431,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
                 	colList.add(getColMeta("fee_amount_"+fund.getId(), fund.getName(), "double", "item"));
     			}
             }
-            colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
             
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_book_order.getValue()) {
@@ -490,9 +446,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             colList.add(getColMeta("total_number", "商品总数", "number", "item"));
             colList.add(getColMeta("goods_amount", "商品金额合计", "double", "item"));
             colList.add(getColMeta("goods_amount_cn", "商品金额合计(大写)", "string", "item"));
-            colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
             
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_order.getValue()) {
@@ -514,9 +467,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
                 	colList.add(getColMeta("fee_amount_"+fund.getId(), fund.getName(), "double", "item"));
     			}
             }
-            colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
 	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_reject_order.getValue()) {
@@ -538,9 +488,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
                 	colList.add(getColMeta("fee_amount_"+fund.getId(), fund.getName(), "double", "item"));
     			}
             }
-            colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
 	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_swap.getValue()) {
@@ -556,9 +503,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             colList.add(getColMeta("discount_amount", "优惠金额", "double", "item"));
             colList.add(getColMeta("check_amount", "实际核销", "double", "item"));
             colList.add(getColMeta("remain_amount", "剩余金额", "double", "item"));
-			colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
 			
 		} else if(orderType == PrintTemplateOrderTypeEnum.trader_pay_order.getValue()) {
@@ -568,9 +512,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             colList.add(getColMeta("discount_amount", "优惠金额", "double", "item"));
             colList.add(getColMeta("check_amount", "实际核销", "double", "item"));
             colList.add(getColMeta("remain_amount", "剩余金额", "double", "item"));
-			colList.add(getColMeta("store_name", "门店名称", "string", "item"));
-            colList.add(getColMeta("store_address", "门店地址", "string", "item"));
-            colList.add(getColMeta("store_mobile", "门店电话", "string", "item"));
             colList.add(getColMeta("remark", "备注", "string", "item"));
 		}
 		return colList;

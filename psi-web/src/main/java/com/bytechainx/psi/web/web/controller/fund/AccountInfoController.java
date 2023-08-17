@@ -11,9 +11,10 @@ import org.apache.commons.lang.StringUtils;
 import com.bytechainx.psi.common.EnumConstant.DataStatusEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.model.TraderBalanceAccount;
 import com.bytechainx.psi.fund.service.AccountInfoService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.fund.AccountInfoEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -33,6 +34,8 @@ public class AccountInfoController extends BaseController {
 
 	@Inject
 	private AccountInfoService accountInfoService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -89,8 +92,10 @@ public class AccountInfoController extends BaseController {
 	*/
 	@Permission(Permissions.fund_account_info_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/fund/account/info/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderBalanceAccount balanceAccount = getModel(TraderBalanceAccount.class, "", true);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new AccountInfoEvent("create"), balanceAccount);
+		renderJson(ret);
 	}
 
 	/**
@@ -117,8 +122,10 @@ public class AccountInfoController extends BaseController {
 	*/
 	@Permission(Permissions.fund_account_info_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/fund/account/info/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderBalanceAccount balanceAccount = getModel(TraderBalanceAccount.class, "", true);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new AccountInfoEvent("update"), balanceAccount);
+		renderJson(ret);
 	}
 
 

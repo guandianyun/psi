@@ -49,6 +49,7 @@ import com.bytechainx.psi.common.kit.DateUtil;
 import com.bytechainx.psi.common.kit.StrUtil;
 import com.bytechainx.psi.common.model._MappingKit;
 import com.bytechainx.psi.common.plugin.QuartzPlugin;
+import com.bytechainx.psi.web.job.OrderCodeBuilderJob;
 import com.bytechainx.psi.web.web.interceptor.OperLogInterceptor;
 import com.bytechainx.psi.web.web.interceptor.PermissionInterceptor;
 import com.bytechainx.psi.web.web.interceptor.ViewContextInterceptor;
@@ -192,9 +193,7 @@ public class AppConfig extends CommonConfig {
 		
 		//定时任务
 		quartzJobs = new QuartzPlugin();
-//		quartzJobs.add("0 0/10 * * * ?", new WithdrawJob()); // 每隔10分钟执行一次
-//		quartzJobs.add("*/3 * * * * ?", new UrlschemeGeneratorJob()); // 每隔3秒钟执行一次
-//		quartzJobs.add("0 0 10 * * ?", new ServiceExpireJob());  // 每天上午10点执行一次
+		quartzJobs.add("0 0/1 * * * ?", new OrderCodeBuilderJob()); // 每隔1分钟执行一次
 //		
 		me.add(quartzJobs);
 		

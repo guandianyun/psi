@@ -7,7 +7,6 @@ import java.util.List;
 import com.bytechainx.psi.common.EnumConstant.FundFlowEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
 import com.bytechainx.psi.common.dto.UserSession;
@@ -17,6 +16,8 @@ import com.bytechainx.psi.common.model.TraderBookAccount;
 import com.bytechainx.psi.common.model.TraderBookAccountLogs;
 import com.bytechainx.psi.common.model.TraderCustomerReceivable;
 import com.bytechainx.psi.fund.service.BookCustomerBillService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.sale.CustomerInfoEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Inject;
 import com.jfinal.core.Path;
@@ -33,6 +34,8 @@ public class BookCustomerBillController extends BaseController {
 
 	@Inject
 	private BookCustomerBillService customerBillService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -127,8 +130,13 @@ public class BookCustomerBillController extends BaseController {
 	 */
 	@Permission(Permissions.fund_book_customerBill_openBalance)
 	public void updateOpenBalance() {
-		String responseJson = TraderCenterApi.requestApi("/sale/customer/info/updateOpenBalance", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		Integer customerId = getInt("customer_info_id");
+		BigDecimal openBalance = get("open_balance") == null ? null : new BigDecimal(get("open_balance") ); // 期初欠款
+		if(openBalance != null) {
+			openBalance = openBalance.multiply(new BigDecimal(getInt("amount_type")));// 欠款为正数，余额为负数
+		}
+		Ret ret = traderEventProducer.request(getAdminId(), new CustomerInfoEvent("updateOpenBalance"), customerId, openBalance);
+		renderJson(ret);
 	}
 	
 	/**

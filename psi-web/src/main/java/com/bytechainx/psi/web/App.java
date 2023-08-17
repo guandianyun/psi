@@ -9,8 +9,7 @@ import com.jfinal.server.undertow.UndertowServer;
 public class App {
 	
 	public static void main(String[] args) {
-		UndertowServer undertowServer = UndertowServer.create(AppConfig.class);
-		undertowServer.start();
+		UndertowServer.start(AppConfig.class);
 	}
 
 }

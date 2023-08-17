@@ -1,19 +1,24 @@
 package com.bytechainx.psi.web.web.controller.fund;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bytechainx.psi.common.EnumConstant.DataStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.OrderStatusEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.model.TraderBalanceAccount;
 import com.bytechainx.psi.common.model.TraderTransferOrder;
 import com.bytechainx.psi.fund.service.AccountInfoService;
 import com.bytechainx.psi.fund.service.AccountTransferService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.fund.AccountTransferEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Inject;
 import com.jfinal.core.Path;
 import com.jfinal.kit.Kv;
+import com.jfinal.kit.Ret;
 import com.jfinal.plugin.activerecord.Page;
 
 
@@ -27,6 +32,8 @@ public class AccountTransferController extends BaseController {
 	private AccountTransferService transferService;
 	@Inject
 	private AccountInfoService accountInfoService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -93,8 +100,12 @@ public class AccountTransferController extends BaseController {
 	*/
 	@Permission(Permissions.fund_account_transfer_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/fund/account/transfer/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderTransferOrder transferOrder = getModel(TraderTransferOrder.class, "", true);
+		transferOrder.setMakeManId(getAdminId());
+		transferOrder.setLastManId(getAdminId());
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new AccountTransferEvent("create"), transferOrder);
+		renderJson(ret);
 	}
 
 
@@ -124,8 +135,12 @@ public class AccountTransferController extends BaseController {
 	*/
 	@Permission(Permissions.fund_account_transfer_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/fund/account/transfer/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderTransferOrder transferOrder = getModel(TraderTransferOrder.class, "", true);
+		transferOrder.setMakeManId(getAdminId());
+		transferOrder.setLastManId(getAdminId());
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new AccountTransferEvent("update"), transferOrder);
+		renderJson(ret);
 	}
 
 
@@ -134,8 +149,16 @@ public class AccountTransferController extends BaseController {
 	*/
 	@Permission(Permissions.fund_account_transfer_disable)
 	public void disable() {
-		String responseJson = TraderCenterApi.requestApi("/fund/account/transfer/disable", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		Integer id = getInt("id");
+		if(id == null || id <= 0) {
+			renderJson(Ret.fail("ID不能为空"));
+			return;
+		}
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new AccountTransferEvent("disable"), ids);
+		renderJson(ret);
 	}
 	
 	

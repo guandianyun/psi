@@ -1,8 +1,12 @@
 package com.bytechainx.psi.web.web.controller.fund;
 
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.bytechainx.psi.common.EnumConstant.AuditStatusEnum;
@@ -12,16 +16,19 @@ import com.bytechainx.psi.common.EnumConstant.RejectTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.TenantConfigEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
+import com.bytechainx.psi.common.kit.DateUtil;
 import com.bytechainx.psi.common.model.PurchaseOrder;
 import com.bytechainx.psi.common.model.TenantConfig;
 import com.bytechainx.psi.common.model.TenantPrintTemplate;
 import com.bytechainx.psi.common.model.TraderPayOrder;
+import com.bytechainx.psi.common.model.TraderPayOrderFund;
 import com.bytechainx.psi.common.model.TraderPayOrderRef;
 import com.bytechainx.psi.fund.service.BookPayOrderService;
 import com.bytechainx.psi.purchase.service.PurchaseOrderService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.fund.BookPayOrderEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -43,6 +50,8 @@ public class BookPayOrderController extends BaseController {
 	private BookPayOrderService payOrderService;
 	@Inject
 	private PurchaseOrderService purchaseOrderService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -156,8 +165,15 @@ public class BookPayOrderController extends BaseController {
 	*/
 	@Permission(Permissions.fund_book_payOrder_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/fund/book/payOrder/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderPayOrder payOrder = getModel(TraderPayOrder.class, "", true);
+		List<TraderPayOrderFund> orderFundList = new ArrayList<>();
+		List<TraderPayOrderRef> orderRefList = new ArrayList<>();
+		
+		parserParams(payOrder, orderFundList, orderRefList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new BookPayOrderEvent("create"), payOrder, orderFundList, orderRefList);
+		
+		renderJson(ret);
 	}
 
 	/**
@@ -216,8 +232,15 @@ public class BookPayOrderController extends BaseController {
 	*/
 	@Permission(Permissions.fund_book_payOrder_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/fund/book/payOrder/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderPayOrder payOrder = getModel(TraderPayOrder.class, "", true);
+		List<TraderPayOrderFund> orderFundList = new ArrayList<>();
+		List<TraderPayOrderRef> orderRefList = new ArrayList<>();
+		
+		parserParams(payOrder, orderFundList, orderRefList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new BookPayOrderEvent("update"), payOrder, orderFundList, orderRefList);
+		
+		renderJson(ret);
 	}
 
 
@@ -231,8 +254,12 @@ public class BookPayOrderController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/fund/book/payOrder/disable", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new BookPayOrderEvent("disable"), ids);
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -258,8 +285,18 @@ public class BookPayOrderController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/fund/book/payOrder/audit", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		AuditStatusEnum auditStatus = AuditStatusEnum.getEnum(getInt("audit_status"));
+		if(auditStatus == null) {
+			renderJson(Ret.fail("审核状态不正确"));
+			return;
+		}
+		String auditDesc = get("audit_desc");
+		Ret ret = traderEventProducer.request(getAdminId(), new BookPayOrderEvent("audit"), ids, auditStatus, auditDesc, getAdminId());
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -473,5 +510,65 @@ public class BookPayOrderController extends BaseController {
 		}
 		return condKv;
 	}
+	
+	private void parserParams(TraderPayOrder payOrder, List<TraderPayOrderFund> orderFundList, List<TraderPayOrderRef> orderRefList) {
+		
+		Integer[] orderFundIds = getParaValuesToInt("order_fund_id");
+		Integer[] balanceAccountIds = getParaValuesToInt("order_fund_balance_account_id");
+		String[] orderFundAmounts = getParaValues("order_fund_amount");
+		String[] orderFundFundTimes = getParaValues("order_fund_fund_time");
+		
+		Integer[] purchaseOrderIds = getParaValuesToInt("purchase_order_id");
+		String[] payAmounts = getParaValues("pay_amount");
+		String[] payDiscountAmounts = getParaValues("pay_discount_amount");
+		
+		if(balanceAccountIds != null && balanceAccountIds.length > 0) {
+			for (int index = 0; index < balanceAccountIds.length; index++) {
+				if(orderFundAmounts == null || orderFundAmounts[index] == null || StringUtils.isEmpty(orderFundAmounts[index]) || new BigDecimal(orderFundAmounts[index]).compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
+				}
+				TraderPayOrderFund fund = new TraderPayOrderFund();
+				if(orderFundIds != null) {
+					fund.setId(orderFundIds[index]);
+				}
+				Integer accountId = balanceAccountIds[index];
+				fund.setTraderBalanceAccountId(accountId);
+				fund.setAmount(new BigDecimal(orderFundAmounts[index]));
+				
+				if(orderFundFundTimes != null && orderFundFundTimes[index] != null && StringUtils.isNotEmpty(orderFundFundTimes[index])) {
+					fund.setFundTime(DateUtil.getDayDate(orderFundFundTimes[index]));
+				} else {
+					fund.setFundTime(new Date());
+				}
+				orderFundList.add(fund);
+			}
+		}
+		
+		if(payAmounts != null && payAmounts.length > 0) {
+			for (int index = 0; index < payAmounts.length; index++) {
+				if(payAmounts == null || payAmounts[index] == null || StringUtils.isEmpty(payAmounts[index]) || new BigDecimal(payAmounts[index]).compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
+				}
+				TraderPayOrderRef ref = new TraderPayOrderRef();
+				Integer purchaseOrderId = purchaseOrderIds[index];
+				ref.setPurchaseOrderId(purchaseOrderId);
+				ref.setAmount(new BigDecimal(payAmounts[index]));
+				if(payOrder != null) {
+					ref.setTraderPayOrderId(payOrder.getId());
+				}
+				if(payDiscountAmounts == null || StringUtils.isEmpty(payDiscountAmounts[index])) {
+					ref.setDiscountAmount(BigDecimal.ZERO);
+				} else {
+					ref.setDiscountAmount(new BigDecimal(payDiscountAmounts[index]));
+				}
+				orderRefList.add(ref);
+			}
+		}
+		
+		payOrder.setOrderImg(StringUtils.join(getParaValues("order_imgs"), ","));
+		payOrder.setMakeManId(getAdminId());
+		payOrder.setLastManId(getAdminId());
+	}
+	
 
 }

@@ -1,16 +1,26 @@
 package com.bytechainx.psi.web.web.controller.fund;
 
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.bytechainx.psi.common.EnumConstant.AuditStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.FundFlowEnum;
 import com.bytechainx.psi.common.EnumConstant.OrderStatusEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
+import com.bytechainx.psi.common.kit.DateUtil;
 import com.bytechainx.psi.common.model.TraderIncomeExpenses;
+import com.bytechainx.psi.common.model.TraderIncomeExpensesFund;
 import com.bytechainx.psi.fund.service.FlowExpensesService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.fund.FlowExpensesEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -29,6 +39,8 @@ public class FlowExpensesController extends BaseController {
 
 	@Inject
 	private FlowExpensesService expensesService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -143,8 +155,15 @@ public class FlowExpensesController extends BaseController {
 	*/
 	@Permission(Permissions.fund_flow_expenses_create)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/fund/flow/expenses/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderIncomeExpenses incomeExpenses = getModel(TraderIncomeExpenses.class, "", true);
+		incomeExpenses.setFundFlow(FundFlowEnum.expenses.getValue());
+		List<TraderIncomeExpensesFund> orderFundList = new ArrayList<>();
+		
+		parserParams(incomeExpenses, orderFundList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new FlowExpensesEvent("create"), incomeExpenses, orderFundList);
+		
+		renderJson(ret);
 	}
 
 	/**
@@ -199,8 +218,15 @@ public class FlowExpensesController extends BaseController {
 	*/
 	@Permission(Permissions.fund_flow_expenses_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/fund/flow/expenses/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		TraderIncomeExpenses incomeExpenses = getModel(TraderIncomeExpenses.class, "", true);
+		incomeExpenses.setFundFlow(FundFlowEnum.expenses.getValue());
+		List<TraderIncomeExpensesFund> orderFundList = new ArrayList<>();
+		
+		parserParams(incomeExpenses, orderFundList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new FlowExpensesEvent("update"), incomeExpenses, orderFundList);
+		
+		renderJson(ret);
 	}
 
 
@@ -214,8 +240,12 @@ public class FlowExpensesController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/fund/flow/expenses/disable", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new FlowExpensesEvent("disable"), ids);
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -241,8 +271,18 @@ public class FlowExpensesController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/fund/flow/expenses/audit", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		AuditStatusEnum auditStatus = AuditStatusEnum.getEnum(getInt("audit_status"));
+		if(auditStatus == null) {
+			renderJson(Ret.fail("审核状态不正确"));
+			return;
+		}
+		String auditDesc = get("audit_desc");
+		Ret ret = traderEventProducer.request(getAdminId(), new FlowExpensesEvent("audit"), ids, auditStatus, auditDesc, getAdminId());
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -278,6 +318,40 @@ public class FlowExpensesController extends BaseController {
 		String endTime = get("end_time");
 		Ret ret = expensesService.export(getAdminId(), startTime, endTime, condKv);
 		renderJson(ret);
+	}
+	
+	private void parserParams(TraderIncomeExpenses incomeExpenses, List<TraderIncomeExpensesFund> orderFundList) {
+		
+		Integer[] orderFundIds = getParaValuesToInt("order_fund_id");
+		Integer[] balanceAccountIds = getParaValuesToInt("order_fund_balance_account_id");
+		String[] orderFundAmounts = getParaValues("order_fund_amount");
+		String[] orderFundFundTimes = getParaValues("order_fund_fund_time");
+		
+		if(balanceAccountIds != null && balanceAccountIds.length > 0) {
+			for (int index = 0; index < balanceAccountIds.length; index++) {
+				if(orderFundAmounts == null || orderFundAmounts[index] == null || StringUtils.isEmpty(orderFundAmounts[index]) || new BigDecimal(orderFundAmounts[index]).compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
+				}
+				TraderIncomeExpensesFund fund = new TraderIncomeExpensesFund();
+				if(orderFundIds != null) {
+					fund.setId(orderFundIds[index]);
+				}
+				Integer accountId = balanceAccountIds[index];
+				fund.setTraderBalanceAccountId(accountId);
+				fund.setAmount(new BigDecimal(orderFundAmounts[index]));
+				
+				if(orderFundFundTimes != null && orderFundFundTimes[index] != null && StringUtils.isNotEmpty(orderFundFundTimes[index])) {
+					fund.setFundTime(DateUtil.getDayDate(orderFundFundTimes[index]));
+				} else {
+					fund.setFundTime(new Date());
+				}
+				orderFundList.add(fund);
+			}
+		}
+		
+		incomeExpenses.setOrderImg(StringUtils.join(getParaValues("order_imgs"), ","));
+		incomeExpenses.setMakeManId(getAdminId());
+		incomeExpenses.setLastManId(getAdminId());
 	}
 	
 	

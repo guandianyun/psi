@@ -13,7 +13,6 @@ import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
 import com.bytechainx.psi.common.model.TenantAdmin;
 import com.bytechainx.psi.common.service.setting.TenantAdminService;
 import com.bytechainx.psi.common.service.setting.TenantRoleService;
-import com.bytechainx.psi.purchase.service.StockWarehouseService;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -34,8 +33,6 @@ public class TenantAdminController extends BaseController {
 	private TenantAdminService adminService;
 	@Inject
 	private TenantRoleService roleService;
-	@Inject
-	private StockWarehouseService warehouseService;
 
 	/**
 	* 首页

@@ -1,26 +1,32 @@
 package com.bytechainx.psi.web.web.controller.inventory;
 
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.alibaba.fastjson.JSONObject;
+import com.bytechainx.psi.common.EnumConstant.AuditStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.OrderStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.TenantConfigEnum;
 import com.bytechainx.psi.common.Permissions;
 import com.bytechainx.psi.common.annotation.Permission;
-import com.bytechainx.psi.common.api.TraderCenterApi;
 import com.bytechainx.psi.common.dto.ConditionFilter;
 import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
 import com.bytechainx.psi.common.dto.UserSession;
 import com.bytechainx.psi.common.model.InventoryChecking;
+import com.bytechainx.psi.common.model.InventoryCheckingGoods;
 import com.bytechainx.psi.common.model.TenantAdmin;
 import com.bytechainx.psi.common.model.TenantConfig;
 import com.bytechainx.psi.common.model.TenantPrintTemplate;
 import com.bytechainx.psi.common.service.goods.GoodsInfoService;
 import com.bytechainx.psi.common.service.setting.TenantAdminService;
 import com.bytechainx.psi.purchase.service.StockCheckingService;
-import com.bytechainx.psi.purchase.service.StockWarehouseService;
+import com.bytechainx.psi.web.epc.TraderEventProducer;
+import com.bytechainx.psi.web.epc.event.inventory.StockCheckingEvent;
 import com.bytechainx.psi.web.web.controller.base.BaseController;
 import com.jfinal.aop.Before;
 import com.jfinal.aop.Inject;
@@ -40,11 +46,11 @@ public class StockCheckingController extends BaseController {
 	@Inject
 	private StockCheckingService checkingService;
 	@Inject
-	private StockWarehouseService warehouseService;
-	@Inject
 	private TenantAdminService adminService;
 	@Inject
 	private GoodsInfoService goodsInfoService;
+	@Inject
+	private TraderEventProducer traderEventProducer;
 
 	/**
 	* 首页
@@ -187,8 +193,13 @@ public class StockCheckingController extends BaseController {
 	@Permission(Permissions.inventory_stock_checking_create)
 	@Before(Tx.class)
 	public void create() {
-		String responseJson = TraderCenterApi.requestApi("/inventory/stock/checking/create", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		InventoryChecking stockChecking = getModel(InventoryChecking.class, "", true);
+		List<InventoryCheckingGoods> orderGoodList = new ArrayList<>();
+		parserParams(stockChecking, orderGoodList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new StockCheckingEvent("create"), stockChecking, orderGoodList);
+		
+		renderJson(ret);
 	}
 
 
@@ -244,8 +255,14 @@ public class StockCheckingController extends BaseController {
 	*/
 	@Permission(Permissions.inventory_stock_checking_update)
 	public void update() {
-		String responseJson = TraderCenterApi.requestApi("/inventory/stock/checking/update", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		InventoryChecking stockChecking = getModel(InventoryChecking.class, "", true);
+		List<InventoryCheckingGoods> orderGoodList = new ArrayList<>();
+		
+		parserParams(stockChecking, orderGoodList);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new StockCheckingEvent("update"), stockChecking, orderGoodList);
+		
+		renderJson(ret);
 	}
 
 
@@ -259,8 +276,12 @@ public class StockCheckingController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/inventory/stock/checking/disable", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		Ret ret = traderEventProducer.request(getAdminId(), new StockCheckingEvent("disable"), ids);
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -286,8 +307,18 @@ public class StockCheckingController extends BaseController {
 			renderJson(Ret.fail("ID不能为空"));
 			return;
 		}
-		String responseJson = TraderCenterApi.requestApi("/inventory/stock/checking/audit", getAdminId(), getParaMap());
-		renderJson(responseJson);
+		List<Integer> ids = new ArrayList<>();
+		ids.add(id);
+		
+		AuditStatusEnum auditStatus = AuditStatusEnum.getEnum(getInt("audit_status"));
+		if(auditStatus == null) {
+			renderJson(Ret.fail("审核状态不正确"));
+			return;
+		}
+		String auditDesc = get("audit_desc");
+		Ret ret = traderEventProducer.request(getAdminId(), new StockCheckingEvent("audit"), ids, auditStatus, auditDesc, getAdminId());
+		
+		renderJson(ret);
 	}
 	
 	/**
@@ -304,6 +335,66 @@ public class StockCheckingController extends BaseController {
 		Ret ret = checkingService.delete(id);
 
 		renderJson(ret);
+	}
+	
+	private void parserParams(InventoryChecking stockChecking, List<InventoryCheckingGoods> orderGoodList) {
+		Integer[] goodsInfoIds = getParaValuesToInt("goods_info_id");
+		String[] checkNumbers = getParaValues("check_number");
+		String[] currentNumbers = getParaValues("current_number");
+		String[] goodsRemarks = getParaValues("goods_remark");
+		String[] goodsSpecIds = getParaValues("goods_spec_id");
+		Integer[] unitIds = getParaValuesToInt("unit_id");
+		String[] goodsBatchs = getParaValues("goods_batch");
+		String[] goodsQualitys = getParaValues("goods_quality");
+		
+		for (int index = 0; index < goodsInfoIds.length; index++) {
+			if(goodsInfoIds[index] == null) {
+				continue;
+			}
+			InventoryCheckingGoods goods = new InventoryCheckingGoods();
+			if(goodsBatchs != null && goodsBatchs.length > 0) {
+				goods.setBatch(goodsBatchs[index]);
+			}
+			if(goodsQualitys != null && goodsQualitys.length > 0) {
+				goods.setQuality(goodsQualitys[index]);
+			}
+			goods.setCheckNumber(new BigDecimal(checkNumbers[index]));
+			goods.setConvertNumber(BigDecimal.ZERO);
+			goods.setGoodsInfoId(goodsInfoIds[index]);
+			goods.setRemark(goodsRemarks[index]);
+			goods.setUnitId(unitIds[index]);
+			goods.setCurrentNumber(new BigDecimal(currentNumbers[index]));
+			
+			goods.setSpec1Id(0);
+			goods.setSpecOption1Id(0);
+			goods.setSpec2Id(0);
+			goods.setSpecOption2Id(0);
+			goods.setSpec3Id(0);
+			goods.setSpecOption3Id(0);
+			
+			String specstring = goodsSpecIds[index];// 多个规格使用逗号隔开,格式：规格ID:规格值ID, 如：11:22|33:44
+			String[] specList = StringUtils.split(specstring, "|");
+			if(specList != null &&  specList.length > 0) {
+				String[] spec = StringUtils.split(specList[0], ":"); 
+				goods.setSpec1Id(Integer.parseInt((spec[0])));
+				goods.setSpecOption1Id(Integer.parseInt((spec[1])));
+				
+			}
+			if(specList != null && specList.length > 1) {
+				String[] spec = StringUtils.split(specList[1], ":"); 
+				goods.setSpec2Id(Integer.parseInt((spec[0])));
+				goods.setSpecOption2Id(Integer.parseInt((spec[1])));
+			}
+			if(specList != null && specList.length > 2) {
+				String[] spec = StringUtils.split(specList[2], ":"); 
+				goods.setSpec3Id(Integer.parseInt((spec[0])));
+				goods.setSpecOption3Id(Integer.parseInt((spec[1])));
+			}
+			orderGoodList.add(goods);
+		}
+		stockChecking.setOrderImg(StringUtils.join(getParaValues("order_imgs"), ","));
+		stockChecking.setMakeManId(getAdminId());
+		stockChecking.setLastManId(getAdminId());
 	}
 	
 	/**

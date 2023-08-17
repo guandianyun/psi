@@ -35,13 +35,9 @@ import com.bytechainx.psi.common.model.SaleOrderGoods;
 import com.bytechainx.psi.common.model.TenantAdmin;
 import com.bytechainx.psi.common.model.TraderBalanceAccount;
 import com.bytechainx.psi.common.service.msg.MsgNoticeService;
-import com.bytechainx.psi.purchase.service.PurchaseBookOrderService;
 import com.bytechainx.psi.purchase.service.PurchaseOrderService;
 import com.bytechainx.psi.purchase.service.StatPurchaseService;
-import com.bytechainx.psi.purchase.service.StockGoodsQualityService;
 import com.bytechainx.psi.purchase.service.StockInfoService;
-import com.bytechainx.psi.purchase.service.StockWarehouseService;
-import com.bytechainx.psi.sale.service.SaleBookOrderService;
 import com.bytechainx.psi.sale.service.SaleOrderService;
 import com.bytechainx.psi.sale.service.StatHotSaleService;
 import com.bytechainx.psi.sale.service.StatSaleService;
@@ -67,21 +63,13 @@ public class DashboardController extends BaseController {
 	@Inject
 	private MsgNoticeService msgNoticeService;
 	@Inject
-	private StockWarehouseService warehouseService;
-	@Inject
 	private StatSaleService statSaleService;
 	@Inject
-	private SaleBookOrderService saleBookOrderService;
-	@Inject
 	private SaleOrderService saleOrderService;
-	@Inject
-	private PurchaseBookOrderService purchaseBookOrderService;
 	@Inject
 	private PurchaseOrderService purchaseOrderService;
 	@Inject
 	private StockInfoService stockInfoService;
-	@Inject
-	private StockGoodsQualityService stockGoodsQualityService;
 	@Inject
 	private StatPurchaseService statPurchaseService;
 	@Inject

@@ -114,10 +114,10 @@ public class SaleRejectOrderController extends BaseController {
 		int pageNumber = getInt("pageNumber", 1);
 		pageSize = getPageSize();
 		Integer customerInfoId = getInt("customer_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		Kv condKv = Kv.create();
 		condKv.set("customer_info_id", customerInfoId);
-		condKv.set("tenant_store_id", tenantStoreId);
+		
 		condKv.set("make_man_id", getAdminId()); // 只显示当前用户的草稿单
 		condKv.set("order_status", OrderStatusEnum.draft.getValue());
 		String startTime = get("start_time");
@@ -644,7 +644,6 @@ public class SaleRejectOrderController extends BaseController {
 		
 		String keyword = get("keyword");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.sale_sale); // 添加门店过滤条件
 		condKv.set("customer_info_id", customerInfoId);
 		condKv.set("handler_id", handlerId);
 		condKv.set("order_code,remark", keyword); // 多字段模糊查询

@@ -1031,13 +1031,6 @@ public final class EnumConstant {
 		
 		sale_order_odd_type(OrderOddTypeEnum.subJiao.getValue()+"", "销售单抹零"),
 		
-		cashier_show_goods_pic("true", "显示商品图片"),
-		cashier_show_goods_stock("true", "显示商品库存"),
-		cashier_hide_zerostock_goods("false", "隐藏售罄商品"),
-		cashier_sale_order_create_print("false", "开单并打印"),
-		cashier_receipt_fund_voice_broadcast("true", "收款语音播报"),
-		cashier_default_out_warehouse_id("", "默认出库仓库"),
-		
 		;
 		
 		private String value; // 默认值
@@ -1754,10 +1747,10 @@ public final class EnumConstant {
 	
 	/** 消息数据类型 **/
 	public enum MsgDataTypeEnum {
-		sale_book_order_audit(1, "待审核销售订单"), sale_book_order(2, "销售订单"), sale_order_audit(3, "待审核销售单"), sale_order_warehouse(4, "待出库销售单"),
-		purchase_book_order_audit(5, "待审核进货订单"), purchase_book_order(6, "进货订单"), purchase_order_audit(7, "待审核进货单"), purchase_order(8, "进货单"),
-		recepit_order_audit(9, "待审核收款单"), pay_order_audit(10, "待审核付款单"), income_order_audit(11, "待审核日常收入单"), expenses_order_audit(12, "待审核日常支出单"),
-		purchase_reject_order_audit(13, "进货退货单"), sale_reject_order_audit(14, "销售退货单"), sale_book_order_warning(15, "销售订单交货提醒");
+		sale_order_audit(1, "待审核销售单"), sale_order_warehouse(2, "待出库销售单"),
+		purchase_order_audit(3, "待审核进货单"), purchase_order(4, "进货单"),
+		recepit_order_audit(5, "待审核收款单"), pay_order_audit(6, "待审核付款单"), income_order_audit(7, "待审核日常收入单"), expenses_order_audit(8, "待审核日常支出单"),
+		purchase_reject_order_audit(9, "进货退货单"), sale_reject_order_audit(10, "销售退货单"), sale_book_order_warning(11, "销售订单交货提醒");
 
 		private int value;
 
@@ -1822,8 +1815,8 @@ public final class EnumConstant {
 	/** 打印模板单据类型 **/
 	public enum PrintTemplateOrderTypeEnum {
 
-		goods_tag(0, "商品标签"),sale_book_order(1, "销售订单"), sale_order(2, "销售单"), sale_reject_order(3, "销售退货单"), purchase_book_order(4, "进货订单"), purchase_order(5, "进货单"), purchase_reject_order(6, "进货退货单"), 
-		inventory_swap(7, "调拨单"), inventory_checking(8, "盘点单"), trader_receipt_order(9, "收款单"), trader_pay_order(10, "付款单");
+		goods_tag(0, "商品标签"),sale_order(1, "销售单"), sale_reject_order(2, "销售退货单"), purchase_order(3, "进货单"), purchase_reject_order(4, "进货退货单"), 
+		inventory_checking(5, "盘点单"), trader_receipt_order(6, "收款单"), trader_pay_order(7, "付款单");
 
 		private int value;
 

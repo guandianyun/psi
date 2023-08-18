@@ -97,9 +97,9 @@ public class StatPurchaseController extends BaseController {
 		int pageNumber = getInt("pageNumber", 1);
 		pageSize = getPageSize();
 		Integer supplierInfoId = getInt("supplier_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		Kv condKv = Kv.create();
-		condKv.set("tenant_store_id", tenantStoreId);
+		
 		condKv.set("supplier_info_id", supplierInfoId);
 		condKv.set("order_status", OrderStatusEnum.normal.getValue());
 		condKv.set("audit_status", AuditStatusEnum.pass.getValue());

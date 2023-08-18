@@ -71,7 +71,6 @@ public class CustomerInfoController extends BaseController {
 		Boolean hideDebtFlag = getBoolean("hide_debt_flag", false); // 隐藏无欠款客户
 		String keyword = get("keyword");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.sale_customer); // 添加门店过滤条件
 		condKv.set("customer_price_level_id", priceLevelId);
 		condKv.set("customer_category_id", customerCategoryId);
 		condKv.set("name,contact,mobile,remark", keyword); // 多字段模糊查询

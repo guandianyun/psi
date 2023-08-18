@@ -15,8 +15,6 @@ public enum Permissions {
 	fund("资金", Modules.core), 
 	goods("商品", Modules.core), 
 	setting("设置", Modules.core), 
-	appstore("应用", Modules.core),
-	cash("收银台", Modules.core),
 	sensitiveData("敏感数据", Modules.core),
 	
 	
@@ -59,7 +57,6 @@ public enum Permissions {
 	sale_customer_info_delete("删除", Modules.core), // 客户管理-删除
 	sale_customer_info_disable("停用", Modules.core), // 客户管理-停用
 	sale_customer_info_updateSaleman("修改所属业务员", Modules.core), // 客户管理-修改所属业务员
-	sale_customer_info_updateStore("修改所属门店", Modules.core), // 客户管理-修改所属门店
 	sale_customer_info_createImport("导入", Modules.core), // 客户管理-导入
 	
 	// 价格等级权限点
@@ -76,11 +73,9 @@ public enum Permissions {
 	sale_stat("统计", Modules.core), 
 	sale_stat_sale("销售统计", Modules.core),
 	sale_stat_hotSale("热销分析", Modules.core),
-	sale_stat_storeSale("门店统计", Modules.core),
 	
 	sale_stat_sale_show("查看", Modules.core), // 销售统计
 	sale_stat_hotSale_show("查看", Modules.core), // 热销分析
-	sale_stat_storeSale_show("查看", Modules.core), // 门店统计
 	
 	
 	// -------------------------库存-----------------------------------//
@@ -127,7 +122,6 @@ public enum Permissions {
 	inventory_stock_info("库存查询", Modules.core),
 	inventory_stock_checking("盘点", Modules.core),
 	inventory_stock_swap("调拨", Modules.core),
-	inventory_stock_warehouse("仓库管理", Modules.core),
 	
 	// 库存查询权限点
 	inventory_stock_info_show("查看", Modules.core), // 库存查询-查看
@@ -140,21 +134,6 @@ public enum Permissions {
 	inventory_stock_checking_update("修改", Modules.core), // 库存盘点-修改
 	inventory_stock_checking_audit("审核", Modules.core), // 库存盘点-审核
 	inventory_stock_checking_disable("作废", Modules.core), // 库存盘点-作废
-	
-	// 库存调拨权限点
-	inventory_stock_swap_show("查看", Modules.core), // 库存调拨-查看
-	inventory_stock_swap_create("新增", Modules.core), // 库存调拨-新增
-	inventory_stock_swap_update("修改", Modules.core), // 库存调拨-修改
-	inventory_stock_swap_audit("审核", Modules.core), // 库存调拨-审核
-	inventory_stock_swap_disable("作废", Modules.core), // 库存调拨-作废
-	
-	// 仓库管理权限点
-	inventory_stock_warehouse_show("查看", Modules.core), // 仓库管理-查看
-	inventory_stock_warehouse_create("新增", Modules.core), // 仓库管理-新增
-	inventory_stock_warehouse_update("修改", Modules.core), // 仓库管理-修改
-	inventory_stock_warehouse_delete("删除", Modules.core), // 仓库管理-删除
-	inventory_stock_warehouse_disable("删除", Modules.core), // 仓库管理-停用
-	inventory_stock_warehouse_unlock("仓库解锁", Modules.core), // 仓库管理-仓库解锁
 	
 	// 库存统计
 	inventory_stat("统计", Modules.core), 
@@ -305,36 +284,6 @@ public enum Permissions {
 	goods_goods_printTag_create("新增", Modules.core), // 打印条码-新增
 	goods_goods_printTag_delete("删除", Modules.core), // 打印条码-删除
 	
-	
-	goods_mall("商城管理", Modules.core), 
-	goods_mall_goods("商品上架", Modules.core), 
-	goods_mall_setting("商城设置", Modules.core), 
-	goods_mall_notice("商城公告", Modules.core), 
-	goods_mall_user("商城用户", Modules.core),
-	goods_mall_xcx("小程序管理", Modules.core),
-	
-	// 商品上下架管理
-	goods_mall_goods_show("查看", Modules.core), // 商品上下架管理-商品查看
-	goods_mall_goods_update("描述修改", Modules.core), // 商品上下架管理-商品描述修改
-	goods_mall_goods_push("商品上架", Modules.core), // 商品上下架管理-商品上架
-	
-	// 商城设置
-	goods_mall_setting_show("查看", Modules.core), // 商户信息-查看
-	goods_mall_setting_update("修改", Modules.core), // 商户信息-修改
-	
-	// 商城公告
-	goods_mall_notice_show("查看", Modules.core), // 商城公告-查看
-	goods_mall_notice_update("修改", Modules.core), // 商城公告-修改
-	goods_mall_notice_create("新增", Modules.core), // 商城公告-新增
-	goods_mall_notice_delete("删除", Modules.core), // 商城公告-新增
-	
-	// 商城公告
-	goods_mall_user_show("查看", Modules.core), // 商城用户-查看
-
-	// 小程序管理
-	goods_mall_xcx_show("查看", Modules.core), // 小程序管理-查看
-		
-	
 	// -------------------------设置-----------------------------------//
 	setting_tenant("商户管理", Modules.core), 
 	setting_tenant_info("商户信息", Modules.core),
@@ -379,34 +328,6 @@ public enum Permissions {
 	setting_system_operLog_show("查看", Modules.core), // 操作日志-查看
 		
 		
-	// -------------------------应用-----------------------------------//
-	appstore_subscribe("订阅应用", Modules.core),
-	appstore_subscribe_appstore("应用市场", Modules.core),
-	appstore_subscribe_info("我的订阅", Modules.core),
-	appstore_subscribe_log("购买记录", Modules.core),
-	
-	// 应用市场
-	appstore_subscribe_appstore_show("查看", Modules.core), // 应用市场-查看
-	appstore_subscribe_appstore_create("订购应用", Modules.core), // 应用市场-订购应用
-	
-	// 我的订阅
-	appstore_subscribe_info_show("查看", Modules.core), // 我的订阅-查看
-	appstore_subscribe_info_renew("系统续费", Modules.core), // 我的订阅-系统续费
-	appstore_subscribe_info_buySms("购买短信", Modules.core), // 我的订阅-购买短信
-	appstore_subscribe_info_buyAccount("订购帐户", Modules.core), // 我的订阅-订购帐户
-	appstore_subscribe_info_setting("应用设置", Modules.core), // 我的订阅-应用设置
-	
-	// 购买记录
-	appstore_subscribe_log_show("查看", Modules.core), // 购买记录-查看
-	
-	//----------------------收银台----------------------------------//
-	cash_cash("收银台", Modules.core), // 收银台
-	
-	cash_cash_cashier("收银台", Modules.core), // 收银台-收银
-	
-	cash_cash_cashier_create("开单收款", Modules.core), // 收银台-收款开单
-	cash_cash_cashier_setting("收银设置", Modules.core), // 收银台-设置
-	
 	// -------------------------敏感数据-----------------------------------//
 	sensitiveData_price("价格权限", Modules.core),
 	sensitiveData_customer("客户权限", Modules.core),

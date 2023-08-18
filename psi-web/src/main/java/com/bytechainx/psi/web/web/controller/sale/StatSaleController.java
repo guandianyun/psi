@@ -99,7 +99,6 @@ public class StatSaleController extends BaseController {
 		pageSize = getPageSize();
 		Integer customerInfoId = getInt("customer_info_id");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.sale_sale);
 		condKv.set("customer_info_id", customerInfoId);
 		condKv.set("order_status", OrderStatusEnum.normal.getValue());
 		condKv.set("audit_status", AuditStatusEnum.pass.getValue());

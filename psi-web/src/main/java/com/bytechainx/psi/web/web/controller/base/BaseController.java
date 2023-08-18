@@ -3,16 +3,12 @@ package com.bytechainx.psi.web.web.controller.base;
 import org.apache.commons.lang.StringUtils;
 
 import com.bytechainx.psi.common.CommonConstant;
-import com.bytechainx.psi.common.Permissions;
-import com.bytechainx.psi.common.dto.ConditionFilter;
-import com.bytechainx.psi.common.dto.ConditionFilter.Operator;
 import com.bytechainx.psi.common.dto.UserSession;
 import com.bytechainx.psi.common.model.TenantAdmin;
 import com.bytechainx.psi.common.model.TenantOrg;
 import com.jfinal.core.Controller;
 import com.jfinal.core.NotAction;
 import com.jfinal.core.paragetter.JsonRequest;
-import com.jfinal.kit.Kv;
 import com.jfinal.plugin.ehcache.CacheKit;
 import com.jfinal.plugin.redis.Cache;
 import com.jfinal.plugin.redis.Redis;
@@ -159,38 +155,6 @@ public abstract class BaseController extends Controller {
 			return maxPageSize;
 		}
 		return pageSize;
-	}
-	
-	/**
-	 * 添加门店查询条件
-	 * @param storeId
-	 * @param condKv
-	 */
-	protected void conditionFilterStore(Kv condKv, Permissions permission) {
-		if(permission == null) {
-			return;
-		}
-		UserSession session = getUserSession();
-		if((permission.name().equals(Permissions.sale_sale.name()) && session.hasOper(Permissions.sensitiveData_order_showSaleOrder)) 
-				|| (permission.name().equals(Permissions.inventory_purchase.name()) && session.hasOper(Permissions.sensitiveData_order_showPurchaseOrder))
-				|| (permission.name().equals(Permissions.fund_book.name()) && session.hasOper(Permissions.sensitiveData_order_showFundOrder))
-				|| (permission.name().equals(Permissions.fund_flow.name()) && session.hasOper(Permissions.sensitiveData_order_showFlowOrder))
-				|| (permission.name().equals(Permissions.inventory_stock.name()) && session.hasOper(Permissions.sensitiveData_order_showStockOrder))
-				|| (permission.name().equals(Permissions.sale_customer.name()) && session.hasOper(Permissions.sensitiveData_customer_showSaleman))) { // 具有查看他人单据权限
-			
-			Integer handlerId = getInt("handler_id");
-			if(handlerId != null && handlerId > 0) {
-				condKv.set("handler_id", handlerId);
-			}
-			
-		} else { // 没有查看他人单据权限，只查询自己的
-			TenantAdmin currentAdmin = getCurrentAdmin();
-			ConditionFilter filter = new ConditionFilter();
-			filter.setOperator(Operator.more);
-			filter.setValue(currentAdmin.getId());
-			condKv.set("(handler_id = ? or make_man_id = ?)", filter);
-		}
-		
 	}
 	
 }

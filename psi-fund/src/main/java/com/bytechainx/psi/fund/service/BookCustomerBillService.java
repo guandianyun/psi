@@ -101,7 +101,7 @@ public class BookCustomerBillService extends CommonService {
 	* 对账单列表明细
 	 * @param customerInfoId2 
 	*/
-	public Page<TraderCustomerReceivable> paginateByList(Integer tenantStoreId, Integer customerInfoId, String startDay, String endDay, Integer pageNumber, int pageSize) {
+	public Page<TraderCustomerReceivable> paginateByList(Integer customerInfoId, String startDay, String endDay, Integer pageNumber, int pageSize) {
 		StringBuffer where = new StringBuffer();
 		List<Object> params = new ArrayList<Object>();
 		where.append("where 1 = 1 ");
@@ -241,7 +241,7 @@ public class BookCustomerBillService extends CommonService {
 	 * @param endTime
 	 * @return
 	 */
-	public Ret exportList(Integer handlerId, Integer tenantStoreId, Integer customerInfoId, String startDay, String endDay) {
+	public Ret exportList(Integer handlerId, Integer customerInfoId, String startDay, String endDay) {
 		CustomerInfo customerInfo = CustomerInfo.dao.findById(customerInfoId);
 		String fileName = customerInfo.getName() +"-客户对账明细-"+DateUtil.getSecondNumber(new Date());
 		TenantExportLog exportLog = new TenantExportLog();
@@ -268,11 +268,11 @@ public class BookCustomerBillService extends CommonService {
 					orderList.add(openBalanceReceivable);
 					
 					int pageNumber = 1;
-					Page<TraderCustomerReceivable> page = paginateByList(tenantStoreId, customerInfoId, startDay, endDay, pageNumber, 500);
+					Page<TraderCustomerReceivable> page = paginateByList(customerInfoId, startDay, endDay, pageNumber, 500);
 					while (!page.getList().isEmpty() && orderList.size() < 10000) { // 最大不能超过10000
 						orderList.addAll(page.getList());
 						pageNumber += 1;
-						page = paginateByList(tenantStoreId, customerInfoId, startDay, endDay, pageNumber, 200);
+						page = paginateByList(customerInfoId, startDay, endDay, pageNumber, 200);
 					}
 					StringBuffer headersBuffer = new StringBuffer();
 					StringBuffer columnsBuffer = new StringBuffer();

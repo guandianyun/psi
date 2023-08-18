@@ -114,10 +114,10 @@ public class SaleOrderController extends BaseController {
 		int pageNumber = getInt("pageNumber", 1);
 		pageSize = getPageSize();
 		Integer customerInfoId = getInt("customer_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		Kv condKv = Kv.create();
 		condKv.set("customer_info_id", customerInfoId);
-		condKv.set("tenant_store_id", tenantStoreId);
+		
 		condKv.set("make_man_id", getAdminId()); // 只显示当前用户的草稿单
 		condKv.set("order_status", OrderStatusEnum.draft.getValue());
 		String startTime = get("start_time");
@@ -185,7 +185,6 @@ public class SaleOrderController extends BaseController {
 	@Permission(Permissions.sale_sale_order_create)
 	public void create() {
 		SaleOrder saleOrder = getModel(SaleOrder.class, "", true);
-		saleOrder.put("yunpay_auth_code", get("yunpay_auth_code"));
 		List<SaleOrderGoods> orderGoodList = new ArrayList<>();
 		List<SaleOrderFund> orderFundList = new ArrayList<>();
 		List<SaleOrderFee> orderFeeList = new ArrayList<>();
@@ -640,7 +639,6 @@ public class SaleOrderController extends BaseController {
 		
 		String keyword = get("keyword");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.sale_sale); // 添加门店过滤条件
 		condKv.set("customer_info_id", customerInfoId);
 		condKv.set("handler_id", handlerId);
 		condKv.set("order_code,remark", keyword); // 多字段模糊查询

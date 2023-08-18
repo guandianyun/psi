@@ -87,14 +87,10 @@ public class BookSupplierBillService extends CommonService {
 	/**
 	* 对账单列表明细
 	*/
-	public Page<TraderSupplierPayable> paginateByList(Integer tenantStoreId, Integer supplierInfoId, String startDay, String endDay, Integer pageNumber, int pageSize) {
+	public Page<TraderSupplierPayable> paginateByList(Integer supplierInfoId, String startDay, String endDay, Integer pageNumber, int pageSize) {
 		StringBuffer where = new StringBuffer();
 		List<Object> params = new ArrayList<Object>();
 		where.append("where 1 = 1 ");
-		if(tenantStoreId != null && tenantStoreId > 0) {
-			where.append(" and tenant_store_id = ?");
-			params.add(tenantStoreId);
-		}
 		if(supplierInfoId != null && supplierInfoId > 0) {
 			where.append(" and supplier_info_id = ?");
 			params.add(supplierInfoId);
@@ -144,8 +140,7 @@ public class BookSupplierBillService extends CommonService {
 			openBalance = payable.getNewAmount().subtract(payable.getTakeAmount()).subtract(payable.getDiscountAmount());
 			openBalance = openBalance.add(supplierInfo.getTraderBookAccount().getOpenBalance()); // 加上供应商初始期初
 		} else {
-			TraderBookAccount sumOpenBalance = TraderBookAccount.dao.findFirst("select sum(open_balance) as open_balance from trader_book_account where tenant_org_id = " 
-					+ " and id in (select trader_book_account_id from supplier_info where tenant_org_id = "  + " and data_status = " + DataStatusEnum.enable.getValue() + ")");
+			TraderBookAccount sumOpenBalance = TraderBookAccount.dao.findFirst("select sum(open_balance) as open_balance from trader_book_account where id in (select trader_book_account_id from supplier_info where data_status = " + DataStatusEnum.enable.getValue() + ")");
 			openBalance = payable.getNewAmount().subtract(payable.getTakeAmount()).subtract(payable.getDiscountAmount());
 			openBalance = openBalance.add(sumOpenBalance.getOpenBalance()); // 加上供应商初始期初
 		}
@@ -223,7 +218,7 @@ public class BookSupplierBillService extends CommonService {
 	 * 导出明细
 	 * @return
 	 */
-	public Ret exportList(Integer handlerId, Integer tenantStoreId, Integer supplierInfoId, String startDay, String endDay) {
+	public Ret exportList(Integer handlerId, Integer supplierInfoId, String startDay, String endDay) {
 		SupplierInfo supplierInfo = SupplierInfo.dao.findById(supplierInfoId);
 		String fileName = supplierInfo.getName() +"-供应商对账明细-"+DateUtil.getSecondNumber(new Date());
 		TenantExportLog exportLog = new TenantExportLog();
@@ -250,11 +245,11 @@ public class BookSupplierBillService extends CommonService {
 					orderList.add(openBalancePayable);
 					
 					int pageNumber = 1;
-					Page<TraderSupplierPayable> page = paginateByList(tenantStoreId, supplierInfoId, startDay, endDay, pageNumber, 500);
+					Page<TraderSupplierPayable> page = paginateByList(supplierInfoId, startDay, endDay, pageNumber, 500);
 					while (!page.getList().isEmpty() && orderList.size() < 10000) { // 最大不能超过10000
 						orderList.addAll(page.getList());
 						pageNumber += 1;
-						page = paginateByList(tenantStoreId, supplierInfoId, startDay, endDay, pageNumber, 200);
+						page = paginateByList(supplierInfoId, startDay, endDay, pageNumber, 200);
 					}
 					StringBuffer headersBuffer = new StringBuffer();
 					StringBuffer columnsBuffer = new StringBuffer();

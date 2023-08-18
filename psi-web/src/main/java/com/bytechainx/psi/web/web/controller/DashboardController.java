@@ -111,7 +111,6 @@ public class DashboardController extends BaseController {
 		Page<SaleOrder> saleOrderPage = CacheKit.get(CommonConstant.CACHE_NAME_ONE_MINUTE_STORE, "home.stat.saleOrderPage");
 		if(saleOrderPage == null) {
 			Kv condKv = Kv.create();
-			conditionFilterStore(condKv, Permissions.sale_sale); // 添加门店过滤条件
 			condKv.set("order_status", OrderStatusEnum.normal.getValue());
 			condKv.set("audit_status", AuditStatusEnum.pass.getValue());
 			ConditionFilter filter = new ConditionFilter();
@@ -127,7 +126,6 @@ public class DashboardController extends BaseController {
 		Page<PurchaseOrder> purchaseOrderPage = CacheKit.get(CommonConstant.CACHE_NAME_ONE_MINUTE_STORE, "home.stat.purchaseOrderPage");
 		if(purchaseOrderPage == null) {
 			Kv condKv = Kv.create();
-			conditionFilterStore(condKv, Permissions.sale_sale); // 添加门店过滤条件
 			condKv.set("order_status", OrderStatusEnum.normal.getValue());
 			condKv.set("audit_status", AuditStatusEnum.pass.getValue());
 			ConditionFilter filter = new ConditionFilter();

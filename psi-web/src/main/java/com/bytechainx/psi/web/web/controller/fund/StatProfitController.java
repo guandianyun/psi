@@ -41,7 +41,7 @@ public class StatProfitController extends BaseController {
 	@Permission(Permissions.fund_stat_profit)
 	public void list() {
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, null); // 添加门店过滤条件
+		
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		

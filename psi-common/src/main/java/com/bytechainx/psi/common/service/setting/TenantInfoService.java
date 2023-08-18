@@ -28,6 +28,8 @@ public class TenantInfoService extends CommonService {
 		if(StringUtils.isEmpty(tenantOrg.getMobile())) {
 			return Ret.fail("服务电话不能为空");
 		}
+		TenantOrg _tenantOrg = TenantOrg.dao.findCacheById();
+		tenantOrg.setId(_tenantOrg.getId());
 		tenantOrg.setUpdatedAt(new Date());
 		tenantOrg.update();
 		

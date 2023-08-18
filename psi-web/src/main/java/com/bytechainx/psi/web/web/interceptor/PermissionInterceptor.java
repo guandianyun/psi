@@ -29,12 +29,6 @@ public class PermissionInterceptor implements Interceptor {
 			redirectLogin(controller);
 			return;
 		}
-		// 判断租户是否到期
-		Integer tenantId = controller.getSessionAttr(CommonConstant.SESSION_TENANT_ID);
-		if(tenantId == null) {
-			redirectLogin(controller);
-			return;
-		}
 		// 判断是否有权限
 		Permissions[] operCodes = {};
 		Method method = inv.getMethod();
@@ -54,7 +48,7 @@ public class PermissionInterceptor implements Interceptor {
 	 * @param controller
 	 */
 	public void redirectLogin(BaseController controller) {
-		String url = controller.getCookie(CommonConstant.COOKIE_TENANT_URL_CODE);
+		String url = "/";
 		if(controller.isJsonRequest()) {
 			controller.renderJson(Ret.fail("登录超时，请重新登录").set("loginUrl", url));
 		} else if (controller.isAjaxHtmlRequest()) {

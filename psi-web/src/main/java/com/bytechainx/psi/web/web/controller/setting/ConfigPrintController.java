@@ -45,7 +45,7 @@ public class ConfigPrintController extends BaseController {
 	public void list() {
 		int pageNumber = getInt("pageNumber", 1);
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, null); // 添加门店过滤条件
+		
 		Page<TenantPrintTemplate> page = configPrintService.paginate(condKv, pageNumber, maxPageSize);
 		
 		JSONObject orderPrintConfig = TenantConfig.dao.findJsonByKeyCahce(TenantConfigEnum.create_order_print_confirm);
@@ -54,6 +54,15 @@ public class ConfigPrintController extends BaseController {
 		setAttr("orderPrintConfig", orderPrintConfig);
 		
 	}
+	
+	/**
+	 * 打印机设置
+	 */
+	@Permission(Permissions.setting_config_print_printerSetting)
+	public void loadPrinterList() {
+
+	}
+
 	
 	/**
 	* 查询
@@ -79,7 +88,7 @@ public class ConfigPrintController extends BaseController {
 	public void importTplList() {
 		int pageNumber = getInt("pageNumber", 1);
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, null); // 添加门店过滤条件
+		
 		Page<TenantPrintTemplate> page = configPrintService.paginate(condKv, pageNumber, maxPageSize);
 		
 		setAttr("page", page);

@@ -1,7 +1,6 @@
 package com.bytechainx.psi.common.model;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -156,12 +155,8 @@ public class GoodsInfo extends BaseGoodsInfo<GoodsInfo> {
 		return GoodsPrice.dao.findFirst("select * from goods_price where goods_info_id = ? and unit_id = ? limit 1", getId(), unitId);
 	}
 	
-	public InventoryStock getGoodsStock(Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId, Integer warehouseId) {
-		return InventoryStock.dao.findFirst("select * from inventory_stock where goods_info_id = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? and inventory_warehouse_id = ? limit 1", getId(), spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
-	}
-	
-	private InventoryStock getGoodsStock(Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId) {
-		return InventoryStock.dao.findFirst("select ifnull(sum(stock),0) as sum_stock from inventory_stock where goods_info_id = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? limit 1", getId(), spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
+	public InventoryStock getGoodsStock(Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId) {
+		return InventoryStock.dao.findFirst("select * from inventory_stock where goods_info_id = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? limit 1", getId(), spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
 	}
 	
 	public BigDecimal getGoodsSumStock() {
@@ -183,11 +178,10 @@ public class GoodsInfo extends BaseGoodsInfo<GoodsInfo> {
 	 * @param spec3Id
 	 * @param specOption3Id
 	 * @param unitId
-	 * @param warehouseId
 	 * @return
 	 */
-	public GoodsStockConfig getGoodsStockConfig(Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId, Integer warehouseId) {
-		return GoodsStockConfig.dao.findFirst("select * from goods_stock_config where goods_info_id = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? and inventory_warehouse_id = ? limit 1", getId(), spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
+	public GoodsStockConfig getGoodsStockConfig(Integer spec1Id, Integer specOption1I, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId) {
+		return GoodsStockConfig.dao.findFirst("select * from goods_stock_config where goods_info_id = ? and spec_1_id = ? and spec_option_1_id = ? and spec_2_id = ? and spec_option_2_id = ? and spec_3_id = ? and spec_option_3_id = ? and unit_id = ? limit 1", getId(), spec1Id, specOption1I, spec2Id, specOption2Id, spec3Id, specOption3Id, unitId);
 	}
 	/**
 	 * 商品关联的属性
@@ -374,141 +368,6 @@ public class GoodsInfo extends BaseGoodsInfo<GoodsInfo> {
 		return _resultList;
 	}
 	
-	public List<Map<String, Object>> getGoodsSpecAllList(Integer customerId) {
-		return findGoodsSpecAllList(getId() ,customerId);
-	}
-	
-	public List<Map<String, Object>> findGoodsSpecAllList(Integer goodsId, Integer customerId) {
-		GoodsInfo goodsInfo = GoodsInfo.dao.findById(goodsId);
-		if(!goodsInfo.getSpecFlag()) { // 是否多规格
-			return null;
-		}
-		List<GoodsSpecRef> specRefList = GoodsSpecRef.dao.find("select * from goods_spec_ref where goods_info_id = ? order by position", goodsId);
-		if(specRefList == null || specRefList.isEmpty()) {
-			return null;
-		}
-		
-		GoodsSpecRef firstGoodsSpecRef = specRefList.get(0);
-		GoodsSpec firstGoodsSpec = firstGoodsSpecRef.getGoodsSpec();
-		List<GoodsSpecOptions> firstSpecOptionList = firstGoodsSpecRef.getSpecValueList();
-		
-		List<GoodsSpecOptions> secondSpecOptionList = new ArrayList<>();
-		GoodsSpecRef secondGoodsSpecRef = null;
-		if(specRefList.size() > 1) {
-			secondGoodsSpecRef = specRefList.get(1);
-			secondSpecOptionList = secondGoodsSpecRef.getSpecValueList();
-		}
-		List<GoodsSpecOptions> thirdSpecOptionList = new ArrayList<>();
-		GoodsSpecRef thirdGoodsSpecRef = null;
-		if(specRefList.size() > 2) {
-			thirdGoodsSpecRef = specRefList.get(2);
-			thirdSpecOptionList = thirdGoodsSpecRef.getSpecValueList();
-		}
-		List<Map<String, Object>> resultList = new ArrayList<>(); // 返回结果，三三组合，Key为ID组合，Value为规格选项名称
-		for (GoodsSpecOptions first : firstSpecOptionList) {
-			if(secondSpecOptionList.isEmpty()) { // 只有一个规格
-				Map<String, Object> map = settingGoodsSku(customerId, goodsInfo, firstGoodsSpec, first, null, null, null, null);
-				resultList.add(map);
-				continue;
-			}
-			GoodsSpec secondGoodsSpec = secondGoodsSpecRef.getGoodsSpec();
-			for (GoodsSpecOptions second : secondSpecOptionList) {
-				if(thirdSpecOptionList.isEmpty()) {// 只有两个规格
-					Map<String, Object> map = settingGoodsSku(customerId, goodsInfo, firstGoodsSpec, first, secondGoodsSpec, second, null, null);
-					resultList.add(map);
-					continue;
-				}
-				GoodsSpec thirdGoodsSpec = thirdGoodsSpecRef.getGoodsSpec();
-				for (GoodsSpecOptions third : thirdSpecOptionList) {
-					Map<String, Object> map = settingGoodsSku(customerId, goodsInfo, firstGoodsSpec, first, secondGoodsSpec, second, thirdGoodsSpec, third);
-					resultList.add(map);
-				}
-			}
-		}
-		return resultList;
-	}
-
-	/**商品SKU，用于小程序
-	 * @param tenantOrgId
-	 * @param customerId
-	 * @param goodsInfo
-	 * @param firstGoodsSpecRef
-	 * @param firstGoodsSpec
-	 * @param first
-	 * @return
-	 */
-	public Map<String, Object> settingGoodsSku(Integer customerId, GoodsInfo goodsInfo, GoodsSpec firstGoodsSpec, GoodsSpecOptions first, GoodsSpec secondGoodsSpec, GoodsSpecOptions second, GoodsSpec thirdGoodsSpec, GoodsSpecOptions third) {
-		Map<String, Object> map = new HashMap<>();
-		map.put("skuId", firstGoodsSpec.getId()+":"+first.getId());
-		map.put("skuImage", "");
-		List<Map<String, String>> specInfoList = new ArrayList<>(); 
-		
-		Map<String, String> firstSpecInfo = new HashMap<>();
-		firstSpecInfo.put("specId", firstGoodsSpec.getId()+"");
-		firstSpecInfo.put("specTitle", firstGoodsSpec.getName());
-		firstSpecInfo.put("specValueId", first.getId()+"");
-		firstSpecInfo.put("specValue", first.getOptionValue());
-		specInfoList.add(firstSpecInfo);
-		
-		if(secondGoodsSpec != null) {
-			Map<String, String> secondSpecInfo = new HashMap<>();
-			secondSpecInfo.put("specId", secondGoodsSpec.getId()+"");
-			secondSpecInfo.put("specTitle", secondGoodsSpec.getName());
-			secondSpecInfo.put("specValueId", second.getId()+"");
-			secondSpecInfo.put("specValue", second.getOptionValue());
-			specInfoList.add(secondSpecInfo);
-		}
-		if(thirdGoodsSpec != null) {
-			Map<String, String> thirdSpecInfo = new HashMap<>();
-			thirdSpecInfo.put("specId", thirdGoodsSpec.getId()+"");
-			thirdSpecInfo.put("specTitle", thirdGoodsSpec.getName());
-			thirdSpecInfo.put("specValueId", third.getId()+"");
-			thirdSpecInfo.put("specValue", third.getOptionValue());
-			specInfoList.add(thirdSpecInfo);
-		}
-		
-		map.put("specInfo", specInfoList);
-		
-		InventoryStock inventoryStock = null;
-		if(thirdGoodsSpec != null) {
-			inventoryStock = goodsInfo.getGoodsStock(firstGoodsSpec.getId(), first.getId(), secondGoodsSpec.getId(), second.getId(), thirdGoodsSpec.getId(), third.getId(), goodsInfo.getSaleMainUnit().getId());
-		} else if(secondGoodsSpec != null) {
-			inventoryStock = goodsInfo.getGoodsStock(firstGoodsSpec.getId(), first.getId(), secondGoodsSpec.getId(), second.getId(), 0, 0, goodsInfo.getSaleMainUnit().getId());
-		} else {
-			inventoryStock = goodsInfo.getGoodsStock(firstGoodsSpec.getId(), first.getId(), 0, 0, 0, 0, goodsInfo.getSaleMainUnit().getId());
-		}
-		
-		Map<String, BigDecimal> stockInfo = new HashMap<>();
-		stockInfo.put("stockQuantity", inventoryStock.getBigDecimal("sum_stock"));
-		stockInfo.put("safeStockQuantity", BigDecimal.ZERO);
-		stockInfo.put("soldQuantity", BigDecimal.ZERO);
-		map.put("stockInfo", stockInfo);
-		
-		GoodsPrice goodsPrice = null;
-		if(thirdGoodsSpec != null) {
-			goodsPrice = GoodsPrice.dao.findBySpec(goodsInfo.getId(), firstGoodsSpec.getId(), first.getId(), secondGoodsSpec.getId(), second.getId(), thirdGoodsSpec.getId(), third.getId(), goodsInfo.getSaleMainUnit().getId());
-		} else if(secondGoodsSpec != null) {
-			goodsPrice = GoodsPrice.dao.findBySpec(goodsInfo.getId(), firstGoodsSpec.getId(), first.getId(), secondGoodsSpec.getId(), second.getId(), 0, 0, goodsInfo.getSaleMainUnit().getId());
-		} else {
-			goodsPrice = GoodsPrice.dao.findBySpec(goodsInfo.getId(), firstGoodsSpec.getId(), first.getId(), 0, 0, 0, 0, goodsInfo.getSaleMainUnit().getId());
-		}
-		BigDecimal salePrice = BigDecimal.ZERO;
-		BigDecimal linePrice = BigDecimal.ZERO;
-		if(goodsPrice != null) {
-			salePrice = goodsPrice.getCustomerSalePrice(customerId);
-			if(salePrice == null) {
-				salePrice = goodsPrice.getRetailSalePrice();
-			}
-			if(salePrice == null) {
-				salePrice = BigDecimal.ZERO;
-			}
-			linePrice = salePrice.multiply(new BigDecimal(1.2), new MathContext(BigDecimal.ROUND_HALF_DOWN));
-		}
-		map.put("salePrice", salePrice.multiply(new BigDecimal(100)).stripTrailingZeros().toPlainString());// 获取客户对应的销售价
-		map.put("linePrice", linePrice.multiply(new BigDecimal(100)).stripTrailingZeros().toPlainString());
-		
-		return map;
-	}
 
 	public void setGoodsImages(String[] thumbs, String[] originals) {
 		if(thumbs == null || thumbs.length <= 0) {

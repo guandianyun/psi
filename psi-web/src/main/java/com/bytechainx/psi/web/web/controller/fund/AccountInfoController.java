@@ -181,7 +181,6 @@ public class AccountInfoController extends BaseController {
 	*/
 	@Permission({Permissions.fund_account, Permissions.inventory_purchase, Permissions.sale_sale})
 	public void listByJson() {
-		Integer storeId = getInt("tenant_store_id"); // 只查询门店关联的结算帐户
 		String keyword = get("keyword");
 		Boolean payFlag = getBoolean("pay_flag"); // 是否帐户支付，为了区分小余额的使用类型，支付就是 扣款，收入就是存款
 		BigDecimal accountBalance = new BigDecimal(get("account_balance", "0"));
@@ -189,12 +188,6 @@ public class AccountInfoController extends BaseController {
 		condKv.set("data_status", DataStatusEnum.enable.getValue());
 		condKv.set("name,code", keyword);
 		Page<TraderBalanceAccount> page = accountInfoService.paginate(condKv, 1, maxPageSize);
-		if (storeId == null || storeId == 0) {
-			appendAccount(accountBalance, page.getList(), keyword, payFlag);
-
-			renderJson(Ret.ok().set("data", page.getList()));
-			return;
-		}
 		List<TraderBalanceAccount> accountList = new ArrayList<>();
 		for (TraderBalanceAccount account : page.getList()) {
 			accountList.add(account);

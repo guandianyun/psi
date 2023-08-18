@@ -4,13 +4,9 @@ package com.bytechainx.psi.common.service.setting;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.bytechainx.psi.common.BizException;
 import com.bytechainx.psi.common.CommonConfig;
 import com.bytechainx.psi.common.EnumConstant.DataStatusEnum;
 import com.bytechainx.psi.common.EnumConstant.FlagEnum;
@@ -19,7 +15,6 @@ import com.bytechainx.psi.common.EnumConstant.GoodsAttrTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.PrintModeTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.PrintTemplateOrderTypeEnum;
 import com.bytechainx.psi.common.EnumConstant.SalePayTypeEnum;
-import com.bytechainx.psi.common.kit.PackageUtil;
 import com.bytechainx.psi.common.kit.PinYinUtil;
 import com.bytechainx.psi.common.model.CustomerCategory;
 import com.bytechainx.psi.common.model.CustomerInfo;
@@ -37,11 +32,6 @@ import com.bytechainx.psi.common.model.TraderBookAccount;
 import com.bytechainx.psi.common.model.TraderFundType;
 import com.bytechainx.psi.common.service.base.CommonService;
 import com.jfinal.kit.Ret;
-import com.jfinal.log.Log;
-import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Model;
-import com.jfinal.plugin.activerecord.Table;
-import com.jfinal.plugin.activerecord.TableMapping;
 
 import cn.hutool.core.io.FileUtil;
 
@@ -51,102 +41,6 @@ import cn.hutool.core.io.FileUtil;
 */
 public class SystemResetService extends CommonService {
 
-	private static final Log LOG = Log.getLog(SystemResetService.class);
-	// 无需备份和恢复的数据表
-	public static String[] exclued_tables = { "system_region", "system_module", "system_oper", "system_holiday", "tenant_org", "tenant_account", "tenant_product_order", "tenant_sms_order",
-			"tenant_pay_order","tenant_pay_order_log", "tenant_merchant", "tenant_trader_order", "tenant_module","tenant_db_log", "tenant_db_backup", "tenant_oper_log", "tenant_admin", "tenant_role", "tenant_role_oper_ref", "customer_weixin_mobile", "customer_weixin_user",
-			"system_bank", "system_business_category", "tenant_wxmp_config", "tenant_merchant_info", "tenant_merchant_account", "tenant_merchant_credential", "tenant_merchant_certification", "system_weixin_open", "tenant_weixin_xcx", "tenant_weixin_xcx_audit"};
-	// 清除基础数据的表
-	public static String[] clear_data_tables = {"inventory_checking","inventory_swap","purchase_book_order","purchase_order",
-			"purchase_reject_order","sale_book_order","sale_order","sale_reject_order",
-			"inventory_stock","inventory_batch_quality_stock","inventory_batch_quality_stock", "inventory_stock_log", 
-			"trader_pay_order", "trader_receipt_order", "trader_income_expenses", "trader_transfer_order", "trader_fund_order", 
-			"trader_book_account_logs", "trader_customer_receivable", "trader_supplier_payable","goods_print_tag","mall_notice"};
-	
-	/**
-	 * 系统重置
-	 * @param tenantOrgId
-	 * @param adminId
-	 * @param dataType 0:系统初始化，1：清除单据
-	 * @return
-	 */
-	public Ret resetData(int adminId, Integer dataType, String ip) {
-		// 开始清空数据
-		if(dataType == 0) { // 系统初始化
-			systemInitData();
-		} else if(dataType == 1) { // 清除单据
-			cleanOrderData();
-		}
-		
-		return Ret.ok("系统重置成功");
-	}
-
-	/**
-	 * 清除单据
-	 * @param tenantOrgId
-	 */
-	private void cleanOrderData() {
-		for (int i = 0; i < clear_data_tables.length; i++) {
-			try {
-				String tableName = clear_data_tables[i];
-				
-				Db.delete("delete from " + tableName + " ");
-				
-			} catch (Exception e) {
-				LOG.error("删除租户数据异常", e);
-				throw new BizException("删除租户数据异常"+e.getMessage());
-			}
-		}
-		
-		Db.update("update trader_balance_account set balance = 0 where tenant_org_id = "  );
-		Db.update("update trader_balance_store_ref set balance = 0 where tenant_org_id = "  );
-		Db.update("update trader_book_account set in_amount = 0, out_amount= 0, pay_amount = 0  where tenant_org_id = "  );
-	}
-
-	/**
-	 * 系统初始化
-	 * @param tenantOrgId
-	 */
-	private void systemInitData() {
-		cleanAll();
-		initTenantData();
-	}
-	
-	/**
-	 * 删除租户数据
-	 * @param tenantOrgId
-	 * @return
-	 * @throws Exception
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Ret cleanAll() {
-		// 不需要清除的数据
-		Set<String> excluedOrgIdTable = new HashSet<String>();
-		for (int i = 0; i < exclued_tables.length; i++) {
-			excluedOrgIdTable.add(exclued_tables[i]);
-		}
-
-		String packageName = "com.bytechainx.psi.common.model";
-		List<String> classNames = PackageUtil.getClassName(packageName, true);
-		for (int i = 0; i < classNames.size(); i++) {
-			try {
-				Table table = TableMapping.me().getTable((Class<? extends Model>) Class.forName(classNames.get(i)));
-				if(table == null) {
-					continue;
-				}
-				String tableName = table.getName();
-				if (excluedOrgIdTable.contains(tableName)) {
-					continue;
-				}
-				Db.delete("delete from " + tableName + " ");
-			} catch (Exception e) {
-				LOG.error("删除租户数据异常", e);
-				throw new BizException("删除租户数据异常"+e.getMessage());
-			}
-		}
-		return Ret.ok();
-	}
-	
 	/**
 	 * 初始化租户的基本数据
 	 * @param tenantOrgId

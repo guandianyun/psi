@@ -27,6 +27,7 @@ import com.bytechainx.psi.common.model.SaleRejectOrderGoods;
 import com.bytechainx.psi.common.model.TenantAdmin;
 import com.bytechainx.psi.common.model.TenantConfig;
 import com.jfinal.kit.Kv;
+import com.jfinal.kit.ThreadPoolKit;
 
 public class CommonService {
 
@@ -35,34 +36,30 @@ public class CommonService {
 	 * 更新库存告警状态
 	 */
 	protected void updateStockWarn(List<?> orderGoodsList) {
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-				for (Object model : orderGoodsList) {
-					if(model instanceof InventoryCheckingGoods) {
-						InventoryCheckingGoods _model = (InventoryCheckingGoods)model;
-						updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
-					} else if(model instanceof PurchaseOrderGoods) {
-						PurchaseOrderGoods _model = (PurchaseOrderGoods)model;
-						updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
+		ThreadPoolKit.execute( () -> {
+			for (Object model : orderGoodsList) {
+				if(model instanceof InventoryCheckingGoods) {
+					InventoryCheckingGoods _model = (InventoryCheckingGoods)model;
+					updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
+				} else if(model instanceof PurchaseOrderGoods) {
+					PurchaseOrderGoods _model = (PurchaseOrderGoods)model;
+					updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
 
-					} else if(model instanceof PurchaseRejectOrderGoods) {
-						PurchaseRejectOrderGoods _model = (PurchaseRejectOrderGoods)model;
-						updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
+				} else if(model instanceof PurchaseRejectOrderGoods) {
+					PurchaseRejectOrderGoods _model = (PurchaseRejectOrderGoods)model;
+					updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
 
-					} else if(model instanceof SaleOrderGoods) {
-						SaleOrderGoods _model = (SaleOrderGoods)model;
-						updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
+				} else if(model instanceof SaleOrderGoods) {
+					SaleOrderGoods _model = (SaleOrderGoods)model;
+					updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
 
-					} else if(model instanceof SaleRejectOrderGoods) {
-						SaleRejectOrderGoods _model = (SaleRejectOrderGoods)model;
-						updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
+				} else if(model instanceof SaleRejectOrderGoods) {
+					SaleRejectOrderGoods _model = (SaleRejectOrderGoods)model;
+					updateStockWarn(_model.getGoodsInfoId(), _model.getSpec1Id(), _model.getSpecOption1Id(),_model.getSpec2Id(), _model.getSpecOption2Id(),_model.getSpec3Id(), _model.getSpecOption3Id(), _model.getUnitId());
 
-					}
 				}
 			}
-		};
-		thread.start();
+		});
 	}
 
 	private void updateStockWarn(Integer goodsId, Integer spec1Id, Integer specOption1Id, Integer spec2Id, Integer specOption2Id, Integer spec3Id, Integer specOption3Id, Integer unitId) {
@@ -96,28 +93,23 @@ public class CommonService {
 	 * @param saleOrder
 	 */
 	protected void sendSaleOrderNotice(SaleOrder saleOrder) {
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-				if (saleOrder.getAuditStatus() != AuditStatusEnum.pass.getValue()) {
-					return;
-				}
-				//{config_open:'true',customer_delivery_ai_notice:'true', customer_delivery_sms_notice:'false', customer_delivery_weixin_notice:'false'}
-				JSONObject noticeConfig = TenantConfig.dao.findJsonByKeyCahce(TenantConfigEnum.customer_delivery_notice_config);
-				if(!noticeConfig.getBooleanValue("config_open")) { // 是否开启
-					return;
-				}
-				CustomerInfo customerInfo = saleOrder.getCustomerInfo();
-				if(noticeConfig.getBooleanValue("customer_delivery_weixin_notice")) { // 微信通知
-				}
-				if(noticeConfig.getBooleanValue("customer_delivery_sms_notice")) { // 短信通知
-					String content = "尊敬的"+customerInfo.getName()+"，您订购的商品("+saleOrder.getOrderGoodsStr()+")已发货，请注意查收";
-					SmsKit.sendNoticeSms(customerInfo.getMobile(), content);
-				}
+		ThreadPoolKit.execute( () -> {
+			if (saleOrder.getAuditStatus() != AuditStatusEnum.pass.getValue()) {
+				return;
 			}
-		};
-		
-		thread.start();
+			//{config_open:'true',customer_delivery_ai_notice:'true', customer_delivery_sms_notice:'false', customer_delivery_weixin_notice:'false'}
+			JSONObject noticeConfig = TenantConfig.dao.findJsonByKeyCahce(TenantConfigEnum.customer_delivery_notice_config);
+			if(!noticeConfig.getBooleanValue("config_open")) { // 是否开启
+				return;
+			}
+			CustomerInfo customerInfo = saleOrder.getCustomerInfo();
+			if(noticeConfig.getBooleanValue("customer_delivery_weixin_notice")) { // 微信通知
+			}
+			if(noticeConfig.getBooleanValue("customer_delivery_sms_notice")) { // 短信通知
+				String content = "尊敬的"+customerInfo.getName()+"，您订购的商品("+saleOrder.getOrderGoodsStr()+")已发货，请注意查收";
+				SmsKit.sendNoticeSms(customerInfo.getMobile(), content);
+			}
+		});
 	}
 	
 	/**

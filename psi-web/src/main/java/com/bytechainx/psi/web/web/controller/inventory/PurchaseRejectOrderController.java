@@ -116,10 +116,10 @@ public class PurchaseRejectOrderController extends BaseController {
 		int pageNumber = getInt("pageNumber", 1);
 		pageSize = getPageSize();
 		Integer supplierInfoId = getInt("supplier_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		Kv condKv = Kv.create();
 		condKv.set("supplier_info_id", supplierInfoId);
-		condKv.set("tenant_store_id", tenantStoreId);
+		
 		condKv.set("make_man_id", getAdminId()); // 只显示当前用户的草稿单
 		condKv.set("order_status", OrderStatusEnum.draft.getValue());
 		String startTime = get("start_time");
@@ -171,8 +171,8 @@ public class PurchaseRejectOrderController extends BaseController {
 	*/
 	@Permission(Permissions.inventory_purchase_rejectOrder_create)
 	public void add() {
-		String orderIds = get("order_ids"); // 进货订单，订单转进货单，多个逗号隔开
-		PurchaseRejectOrder purchaseRejectOrder = transferBookOrder(orderIds);
+		String orderIds = get("order_ids"); // 进货单退货，多个逗号隔开
+		PurchaseRejectOrder purchaseRejectOrder = transferOrder(orderIds);
 		
 		Kv condKv = Kv.create();
 		condKv.set("order_status", OrderStatusEnum.draft.getValue());
@@ -360,7 +360,7 @@ public class PurchaseRejectOrderController extends BaseController {
 	 * 订单转进货单
 	 * @param orderIds
 	 */
-	private PurchaseRejectOrder transferBookOrder(String orderIds) {
+	private PurchaseRejectOrder transferOrder(String orderIds) {
 		if(StringUtils.isEmpty(orderIds)) {
 			return null;
 		}
@@ -371,8 +371,8 @@ public class PurchaseRejectOrderController extends BaseController {
 			if(StringUtils.isEmpty(idstring)) {
 				continue;
 			}
-			Integer bookOrderId = Integer.parseInt(idstring);
-			PurchaseOrder purchaseOrder = PurchaseOrder.dao.findById(bookOrderId);
+			Integer orderId = Integer.parseInt(idstring);
+			PurchaseOrder purchaseOrder = PurchaseOrder.dao.findById(orderId);
 			if(purchaseRejectOrder == null) {
 				purchaseRejectOrder = new PurchaseRejectOrder();
 				purchaseRejectOrder._setOrPut(purchaseOrder);
@@ -653,7 +653,6 @@ public class PurchaseRejectOrderController extends BaseController {
 		
 		String keyword = get("keyword");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.inventory_purchase); // 添加门店过滤条件
 		condKv.set("supplier_info_id", supplierInfoId);
 		condKv.set("handler_id", handlerId);
 		condKv.set("order_code,remark", keyword); // 多字段模糊查询

@@ -69,7 +69,6 @@ public class BookCustomerBillController extends BaseController {
 	@Permission(Permissions.fund_book_customerBill_show)
 	public void show() {
 		Integer customerInfoId = getInt("customer_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
 		if(customerInfoId == null || customerInfoId <= 0) {
 			renderError(404);
 			return;
@@ -80,13 +79,12 @@ public class BookCustomerBillController extends BaseController {
 			return;
 		}
 		Kv condKv = Kv.create();
-		condKv.set("tenant_store_id", tenantStoreId);
 		condKv.set("customer_info_id", customerInfoId);
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		
 		Page<TraderCustomerReceivable> customerReceivablePage = customerBillService.paginate(startTime, endTime, condKv, 1, 1);
-		Page<TraderCustomerReceivable> page = customerBillService.paginateByList(tenantStoreId, customerInfoId, startTime, endTime, 1, pageSize);
+		Page<TraderCustomerReceivable> page = customerBillService.paginateByList(customerInfoId, startTime, endTime, 1, pageSize);
 		BigDecimal openBalance = customerBillService.getOpenBalance(customerInfoId+"", startTime);
 		
 		setAttr("openBalance", openBalance);
@@ -109,8 +107,7 @@ public class BookCustomerBillController extends BaseController {
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		Integer customerInfoId = getInt("customer_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
-		Page<TraderCustomerReceivable> page = customerBillService.paginateByList(tenantStoreId, customerInfoId, startTime, endTime, pageNumber, pageSize);
+		Page<TraderCustomerReceivable> page = customerBillService.paginateByList(customerInfoId, startTime, endTime, pageNumber, pageSize);
 		BigDecimal openBalance = customerBillService.getOpenBalance(customerInfoId+"", startTime);
 		
 		setAttr("openBalance", openBalance);
@@ -172,8 +169,8 @@ public class BookCustomerBillController extends BaseController {
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		Integer customerInfoId = getInt("customer_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
-		Ret ret = customerBillService.exportList(getAdminId(), tenantStoreId, customerInfoId, startTime, endTime);
+		
+		Ret ret = customerBillService.exportList(getAdminId(), customerInfoId, startTime, endTime);
 		renderJson(ret);
 	}
 	
@@ -185,9 +182,7 @@ public class BookCustomerBillController extends BaseController {
 	 */
 	private Kv conditions() {
 		Integer customerInfoId = getInt("customer_info_id");
-		
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, null); // 添加门店过滤条件
 		if(customerInfoId != null && customerInfoId > 0) {
 			condKv.set("customer_info_id", customerInfoId);
 		} else {

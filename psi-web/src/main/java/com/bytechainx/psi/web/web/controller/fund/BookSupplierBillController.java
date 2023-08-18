@@ -65,7 +65,7 @@ public class BookSupplierBillController extends BaseController {
 	@Permission(Permissions.fund_book_supplierBill_show)
 	public void show() {
 		Integer supplierInfoId = getInt("supplier_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		if(supplierInfoId == null || supplierInfoId <= 0) {
 			renderError(404);
 			return;
@@ -76,13 +76,13 @@ public class BookSupplierBillController extends BaseController {
 			return;
 		}
 		Kv condKv = Kv.create();
-		condKv.set("tenant_store_id", tenantStoreId);
+		
 		condKv.set("supplier_info_id", supplierInfoId);
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		
 		Page<TraderSupplierPayable> supplierPayablePage = supplierBillService.paginate(startTime, endTime, condKv, 1, 1);
-		Page<TraderSupplierPayable> page = supplierBillService.paginateByList(tenantStoreId, supplierInfoId, startTime, endTime, 1, pageSize);
+		Page<TraderSupplierPayable> page = supplierBillService.paginateByList(supplierInfoId, startTime, endTime, 1, pageSize);
 		BigDecimal openBalance = supplierBillService.getOpenBalance(supplierInfoId, startTime);
 		
 		setAttr("openBalance", openBalance);
@@ -104,8 +104,8 @@ public class BookSupplierBillController extends BaseController {
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		Integer supplierInfoId = getInt("supplier_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
-		Page<TraderSupplierPayable> page = supplierBillService.paginateByList(tenantStoreId, supplierInfoId, startTime, endTime, pageNumber, pageSize);
+		
+		Page<TraderSupplierPayable> page = supplierBillService.paginateByList(supplierInfoId, startTime, endTime, pageNumber, pageSize);
 		BigDecimal openBalance = supplierBillService.getOpenBalance(supplierInfoId, startTime);
 		
 		setAttr("openBalance", openBalance);
@@ -166,8 +166,8 @@ public class BookSupplierBillController extends BaseController {
 		String startTime = get("start_time");
 		String endTime = get("end_time");
 		Integer supplierInfoId = getInt("supplier_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
-		Ret ret = supplierBillService.exportList(getAdminId(), tenantStoreId, supplierInfoId, startTime, endTime);
+		
+		Ret ret = supplierBillService.exportList(getAdminId(), supplierInfoId, startTime, endTime);
 		renderJson(ret);
 	}
 	
@@ -181,7 +181,7 @@ public class BookSupplierBillController extends BaseController {
 		Integer supplierInfoId = getInt("supplier_info_id");
 		
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, null); // 添加门店过滤条件
+		
 		condKv.set("supplier_info_id", supplierInfoId);
 		return condKv;
 	}

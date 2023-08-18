@@ -37,20 +37,14 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 		Integer orderType = getOrderType();
 		if(orderType == PrintTemplateOrderTypeEnum.goods_tag.getValue()) {
 			
-		} else if(orderType == PrintTemplateOrderTypeEnum.sale_book_order.getValue()) {
-			
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_order.getValue()) {
 			
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_reject_order.getValue()) {
 			
-		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_book_order.getValue()) {
-	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_order.getValue()) {
 			
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_reject_order.getValue()) {
 	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_swap.getValue()) {
-			
 		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_checking.getValue()) {
 			
 		} else if(orderType == PrintTemplateOrderTypeEnum.trader_receipt_order.getValue()) {
@@ -76,21 +70,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        colList.add(getColMeta("unit_name", "单位", "string", "item"));
 	        colList.add(getColMeta("price", "销售价", "double", "item"));
 	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.sale_book_order.getValue()) {
-			colList.add(getColMeta("order_code", "订单号", "string", "item"));
-	        colList.add(getColMeta("order_bar_code", "订单号(条码)", "string", "single-item"));
-	        colList.add(getColMeta("customer_name", "客户姓名", "string", "item"));
-	        colList.add(getColMeta("customer_mobile", "客户电话", "string", "item"));
-	        colList.add(getColMeta("customer_address", "客户地址", "string", "item"));
-	        colList.add(getColMeta("customer_remark", "客户备注", "string", "item"));
-	        colList.add(getColMeta("order_time", "订货日期", "date", "item"));
-	        colList.add(getColMeta("expected_time", "交货日期", "date", "item"));
-	        colList.add(getColMeta("company_full_name", "公司全称", "string", "item"));
-            colList.add(getColMeta("company_name", "公司名称", "string", "item"));
-            colList.add(getColMeta("company_mobile", "公司电话", "string", "item"));
-            colList.add(getColMeta("handler_name", "业务员", "string", "item"));
-            colList.add(getColMeta("handler_mobile", "业务员电话", "string", "item"));
-			
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_order.getValue()) {
 			colList.add(getColMeta("order_code", "销售单号", "string", "item"));
 	        colList.add(getColMeta("order_bar_code", "销售单号(条码)", "string", "single-item"));
@@ -122,20 +101,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             colList.add(getColMeta("handler_name", "退货员", "string", "item"));
             colList.add(getColMeta("handler_mobile", "退货员电话", "string", "item"));
             
-		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_book_order.getValue()) {
-			colList.add(getColMeta("order_code", "订单号", "string", "item"));
-	        colList.add(getColMeta("order_bar_code", "订单号(条码)", "string", "single-item"));
-	        colList.add(getColMeta("order_time", "订货日期", "date", "item"));
-	        colList.add(getColMeta("expected_time", "预计到货", "date", "item"));
-	        colList.add(getColMeta("supplier_name", "供应商名称", "string", "item"));
-	        colList.add(getColMeta("supplier_mobile", "供应商电话", "string", "item"));
-	        colList.add(getColMeta("supplier_address", "供应商地址", "string", "item"));
-	        colList.add(getColMeta("company_full_name", "公司全称", "string", "item"));
-            colList.add(getColMeta("company_name", "公司名称", "string", "item"));
-            colList.add(getColMeta("company_mobile", "公司电话", "string", "item"));
-            colList.add(getColMeta("handler_name", "进货员", "string", "item"));
-            colList.add(getColMeta("handler_mobile", "进货员电话", "string", "item"));
-            
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_order.getValue()) {
 			colList.add(getColMeta("order_code", "进货单号", "string", "item"));
 	        colList.add(getColMeta("order_bar_code", "进货单号(条码)", "string", "single-item"));
@@ -163,16 +128,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             colList.add(getColMeta("company_mobile", "公司电话", "string", "item"));
             colList.add(getColMeta("handler_name", "退货员", "string", "item"));
             colList.add(getColMeta("handler_mobile", "退货员电话", "string", "item"));
-	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_swap.getValue()) {
-			colList.add(getColMeta("order_code", "调拨单号", "string", "item"));
-	        colList.add(getColMeta("order_bar_code", "调拨单号(条码)", "string", "single-item"));
-	        colList.add(getColMeta("order_time", "调拨日期", "date", "item"));
-	        colList.add(getColMeta("company_full_name", "公司全称", "string", "item"));
-            colList.add(getColMeta("company_name", "公司名称", "string", "item"));
-            colList.add(getColMeta("company_mobile", "公司电话", "string", "item"));
-            colList.add(getColMeta("handler_name", "调拨员", "string", "item"));
-            colList.add(getColMeta("handler_mobile", "调拨员电话", "string", "item"));
             
 		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_checking.getValue()) {
 			colList.add(getColMeta("order_code", "盘点单号", "string", "item"));
@@ -223,24 +178,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 		Integer orderType = getOrderType();
 		if(orderType == PrintTemplateOrderTypeEnum.goods_tag.getValue()) {
 			
-		} else if(orderType == PrintTemplateOrderTypeEnum.sale_book_order.getValue()) {
-			colList.add(getColMeta("goods_name", "品名", "string", "item"));
-	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
-	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
-	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
-	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
-	        colList.add(getColMeta("goods_discount", "折扣", "double", "item"));
-	        colList.add(getColMeta("goods_discount_amount", "折后单价", "double", "item"));//折扣后的单价
-	        colList.add(getColMeta("goods_discount_total", "优惠", "double", "item"));
-	        colList.add(getColMeta("goods_total_amount", "金额", "double", "item"));
-	        colList.add(getColMeta("goods_remark", "备注", "string", "item"));
-	        // 商品属性
-	        List<GoodsAttribute> attributeList = GoodsAttribute.dao.findAll();
-	        for (GoodsAttribute goodsAttribute : attributeList) {
-	        	colList.add(getColMeta("goods_attribute_"+goodsAttribute.getId(), goodsAttribute.getName(), "string", "item"));
-			}
-	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_order.getValue()) {
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
@@ -278,24 +215,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        	colList.add(getColMeta("goods_attribute_"+goodsAttribute.getId(), goodsAttribute.getName(), "string", "item"));
 			}
 	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_book_order.getValue()) {
-			colList.add(getColMeta("goods_name", "品名", "string", "item"));
-	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
-	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
-	        colList.add(getColMeta("goods_buy_number", "数量", "number", "item"));
-	        colList.add(getColMeta("goods_price", "单价", "double", "item"));
-	        colList.add(getColMeta("goods_discount", "折扣", "double", "item"));
-	        colList.add(getColMeta("goods_discount_amount", "折后单价", "double", "item"));//折扣后的单价
-	        colList.add(getColMeta("goods_discount_total", "优惠", "double", "item"));
-	        colList.add(getColMeta("goods_total_amount", "金额", "double", "item"));
-	        colList.add(getColMeta("goods_remark", "备注", "string", "item"));
-	        // 商品属性
-	        List<GoodsAttribute> attributeList = GoodsAttribute.dao.findAll();
-	        for (GoodsAttribute goodsAttribute : attributeList) {
-	        	colList.add(getColMeta("goods_attribute_"+goodsAttribute.getId(), goodsAttribute.getName(), "string", "item"));
-			}
-			
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_order.getValue()) {
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
@@ -333,15 +252,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        	colList.add(getColMeta("goods_attribute_"+goodsAttribute.getId(), goodsAttribute.getName(), "string", "item"));
 			}
 	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_swap.getValue()) {
-			colList.add(getColMeta("goods_name", "品名", "string", "item"));
-	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
-	        colList.add(getColMeta("goods_bar_code", "条码", "string", "item"));
-	        colList.add(getColMeta("goods_unit_name", "单位", "string", "item"));
-	        colList.add(getColMeta("goods_swap_number", "调拨数量", "number", "item"));
-	        colList.add(getColMeta("goods_current_number", "现存数量", "double", "item"));
-	        colList.add(getColMeta("goods_remark", "备注", "string", "item"));
-	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_checking.getValue()) {
 			colList.add(getColMeta("goods_name", "品名", "string", "item"));
 	        colList.add(getColMeta("goods_spec", "规格", "string", "item"));
@@ -373,21 +283,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 		List<Kv> colList = new ArrayList<>();
 		Integer orderType = getOrderType();
 		if(orderType == PrintTemplateOrderTypeEnum.goods_tag.getValue()) {
-			
-		} else if(orderType == PrintTemplateOrderTypeEnum.sale_book_order.getValue()) {
-			colList.add(getColMeta("amount", "金额合计", "double", "item"));
-            colList.add(getColMeta("amount_cn", "金额合计(大写)", "double", "item"));
-            colList.add(getColMeta("discount", "折扣", "double", "item"));
-            colList.add(getColMeta("promotion_amount", "优惠金额", "double", "item"));
-            colList.add(getColMeta("discount_amount", "应收金额", "double", "item"));
-            colList.add(getColMeta("discount_amount_cn", "应收金额(大写)", "string", "item"));
-            colList.add(getColMeta("paid_amount", "已收订金", "double", "item"));
-            colList.add(getColMeta("remain_amount", "未收金额", "double", "item"));
-            colList.add(getColMeta("fund_list", "收款明细", "string", "item"));
-            colList.add(getColMeta("total_number", "商品总数", "number", "item"));
-            colList.add(getColMeta("goods_amount", "商品金额合计", "double", "item"));
-            colList.add(getColMeta("goods_amount_cn", "商品金额合计(大写)", "string", "item"));
-            colList.add(getColMeta("remark", "备注", "string", "item"));
 			
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_order.getValue()) {
 			colList.add(getColMeta("amount", "金额合计", "double", "item"));
@@ -433,21 +328,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             }
             colList.add(getColMeta("remark", "备注", "string", "item"));
             
-		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_book_order.getValue()) {
-			colList.add(getColMeta("amount", "金额合计", "double", "item"));
-            colList.add(getColMeta("amount_cn", "金额合计(大写)", "double", "item"));
-            colList.add(getColMeta("discount", "折扣", "double", "item"));
-            colList.add(getColMeta("promotion_amount", "优惠金额", "double", "item"));
-            colList.add(getColMeta("discount_amount", "应付金额", "double", "item"));
-            colList.add(getColMeta("discount_amount_cn", "应付金额(大写)", "string", "item"));
-            colList.add(getColMeta("paid_amount", "已付订金", "double", "item"));
-            colList.add(getColMeta("remain_amount", "未付金额", "double", "item"));
-            colList.add(getColMeta("fund_list", "付款明细", "string", "item"));
-            colList.add(getColMeta("total_number", "商品总数", "number", "item"));
-            colList.add(getColMeta("goods_amount", "商品金额合计", "double", "item"));
-            colList.add(getColMeta("goods_amount_cn", "商品金额合计(大写)", "string", "item"));
-            colList.add(getColMeta("remark", "备注", "string", "item"));
-            
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_order.getValue()) {
 			colList.add(getColMeta("amount", "金额合计", "double", "item"));
             colList.add(getColMeta("amount_cn", "金额合计(大写)", "double", "item"));
@@ -490,9 +370,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
             }
             colList.add(getColMeta("remark", "备注", "string", "item"));
 	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_swap.getValue()) {
-			colList.add(getColMeta("remark", "备注", "string", "item"));
-			
 		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_checking.getValue()) {
 			colList.add(getColMeta("remark", "备注", "string", "item"));
 			
@@ -526,13 +403,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 		Integer orderType = getOrderType();
 		if(orderType == PrintTemplateOrderTypeEnum.goods_tag.getValue()) {
 			
-		} else if(orderType == PrintTemplateOrderTypeEnum.sale_book_order.getValue()) {
-			colList.add(getColMeta("make_man", "制单人", "string", "item"));
-	        colList.add(getColMeta("make_man_mobile", "制单人电话", "string", "item"));
-	        colList.add(getColMeta("page_number", "页数", "string", "single-item"));
-	        colList.add(getColMeta("page_count", "共#页", "string", "single-item"));
-	        colList.add(getColMeta("page_current", "第#页", "string", "single-item"));
-	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.sale_order.getValue()) {
 			colList.add(getColMeta("make_man", "制单人", "string", "item"));
 	        colList.add(getColMeta("make_man_mobile", "制单人电话", "string", "item"));
@@ -547,13 +417,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        colList.add(getColMeta("page_count", "共#页", "string", "single-item"));
 	        colList.add(getColMeta("page_current", "第#页", "string", "single-item"));
 			
-		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_book_order.getValue()) {
-			colList.add(getColMeta("make_man", "制单人", "string", "item"));
-	        colList.add(getColMeta("make_man_mobile", "制单人电话", "string", "item"));
-	        colList.add(getColMeta("page_number", "页数", "string", "single-item"));
-	        colList.add(getColMeta("page_count", "共#页", "string", "single-item"));
-	        colList.add(getColMeta("page_current", "第#页", "string", "single-item"));
-	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_order.getValue()) {
 			colList.add(getColMeta("make_man", "制单人", "string", "item"));
 	        colList.add(getColMeta("make_man_mobile", "制单人电话", "string", "item"));
@@ -562,13 +425,6 @@ public class TenantPrintTemplate extends BaseTenantPrintTemplate<TenantPrintTemp
 	        colList.add(getColMeta("page_current", "第#页", "string", "single-item"));
 	        
 		} else if(orderType == PrintTemplateOrderTypeEnum.purchase_reject_order.getValue()) {
-			colList.add(getColMeta("make_man", "制单人", "string", "item"));
-	        colList.add(getColMeta("make_man_mobile", "制单人电话", "string", "item"));
-	        colList.add(getColMeta("page_number", "页数", "string", "single-item"));
-	        colList.add(getColMeta("page_count", "共#页", "string", "single-item"));
-	        colList.add(getColMeta("page_current", "第#页", "string", "single-item"));
-	        
-		} else if(orderType == PrintTemplateOrderTypeEnum.inventory_swap.getValue()) {
 			colList.add(getColMeta("make_man", "制单人", "string", "item"));
 	        colList.add(getColMeta("make_man_mobile", "制单人电话", "string", "item"));
 	        colList.add(getColMeta("page_number", "页数", "string", "single-item"));

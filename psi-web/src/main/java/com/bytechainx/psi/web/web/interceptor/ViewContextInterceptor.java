@@ -19,11 +19,8 @@ public class ViewContextInterceptor implements Interceptor {
 	public void intercept(Invocation ai) {
 		Controller controller = ai.getController();
 		controller.setAttr("session", controller.getSessionAttr(CommonConstant.SESSION_ID_KEY));
-		Integer tenantId = controller.getSessionAttr(CommonConstant.SESSION_TENANT_ID);
-		if(tenantId != null && tenantId > 0) {
-			TenantOrg currentTenant = TenantOrg.dao.findCacheById();
-			controller.setAttr("currentTenant", currentTenant);
-		}
+		TenantOrg currentTenant = TenantOrg.dao.findCacheById();
+		controller.setAttr("currentTenant", currentTenant);
 		/**
 		String methodName = ai.getMethodName();
 		if (StringUtils.contains(methodName, "add") || StringUtils.contains(methodName, "edit")) {

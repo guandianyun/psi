@@ -113,9 +113,8 @@ public class BookPayOrderController extends BaseController {
 		int pageNumber = getInt("pageNumber", 1);
 		pageSize = getPageSize();
 		Integer supplierInfoId = getInt("supplier_info_id");
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		Kv condKv = Kv.create();
-		condKv.set("tenant_store_id", tenantStoreId);
 		condKv.set("supplier_info_id", supplierInfoId);
 		condKv.set("make_man_id", getAdminId()); // 只显示当前用户的草稿单
 		condKv.set("order_status", OrderStatusEnum.draft.getValue());
@@ -491,7 +490,6 @@ public class BookPayOrderController extends BaseController {
 		
 		String keyword = get("keyword");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.fund_book); // 添加门店过滤条件
 		condKv.set("handler_id", handlerId);
 		condKv.set("supplier_info_id", supplierInfoId);
 		condKv.set("order_code,remark", keyword); // 多字段模糊查询

@@ -173,15 +173,16 @@ public class GoodsInfoController extends BaseController {
 		List<GoodsAttributeRef> goodsAttributeRefList = new ArrayList<>();
 		String[] attributeValues = getParaValues("goods_attribute_values");
 		Integer[] attributeIds = getParaValuesToInt("goods_attribute_ids");
-		for (int index = 0; index < attributeIds.length; index++) {
-			GoodsAttributeRef ref = new GoodsAttributeRef();
-			ref.setGoodsAttributeId(attributeIds[index]);
-			ref.setAttrValue(attributeValues[index]);
-			goodsAttributeRefList.add(ref);
+		if(attributeIds != null) {
+			for (int index = 0; index < attributeIds.length; index++) {
+				GoodsAttributeRef ref = new GoodsAttributeRef();
+				ref.setGoodsAttributeId(attributeIds[index]);
+				ref.setAttrValue(attributeValues[index]);
+				goodsAttributeRefList.add(ref);
+			}
 		}
 		
 		Ret ret = goodsInfoService.create(info,goodsSpecRefList,goodsAttributeRefList);
-		
 		renderJson(ret);
 	}
 

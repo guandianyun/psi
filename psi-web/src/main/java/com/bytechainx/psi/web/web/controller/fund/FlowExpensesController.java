@@ -100,9 +100,9 @@ public class FlowExpensesController extends BaseController {
 	public void draftListByJson() {
 		int pageNumber = getInt("pageNumber", 1);
 		pageSize = getPageSize();
-		Integer tenantStoreId = getInt("tenant_store_id");
+		
 		Kv condKv = Kv.create();
-		condKv.set("tenant_store_id", tenantStoreId);
+		
 		condKv.set("make_man_id", getAdminId()); // 只显示当前用户的草稿单
 		condKv.set("fund_flow", FundFlowEnum.expenses.getValue());
 		condKv.set("order_status", OrderStatusEnum.draft.getValue());
@@ -367,7 +367,6 @@ public class FlowExpensesController extends BaseController {
 		
 		String keyword = get("keyword");
 		Kv condKv = Kv.create();
-		conditionFilterStore(condKv, Permissions.fund_flow); // 添加门店过滤条件
 		condKv.set("handler_id", handlerId);
 		condKv.set("fund_flow", FundFlowEnum.expenses.getValue());
 		condKv.set("fund_type_id", fundTypeId);

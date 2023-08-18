@@ -90,7 +90,7 @@ _（注意：演示环境已屏蔽管理权限和相关操作）_
 ## 2.2 技术栈
 
 * 前端技术栈：Bootstrap、JQuery、Echarts、Layer；
-* 后端技术栈：JFinal、Redis；
+* 后端技术栈：JFinal、Redis、Mysql；
 
 ## 2.3 项目结构
 

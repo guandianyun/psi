@@ -29,7 +29,7 @@ public class TenantConfig extends BaseTenantConfig<TenantConfig> {
 		if(tenantConfigEnum == null) {
 			return null;
 		}
-		TenantConfig config = TenantConfig.dao.findFirstByCache(CommonConstant.CACHE_NAME_ONE_MINUTE_STORE, "tenant.config.key."+tenantConfigEnum.name()+".tenantOrgId."+"select * from tenant_config where attr_key = ? limit 1", tenantConfigEnum.name());
+		TenantConfig config = TenantConfig.dao.findFirstByCache(CommonConstant.CACHE_NAME_ONE_MINUTE_STORE, "tenant.config.key."+tenantConfigEnum.name(), "select * from tenant_config where attr_key = ? limit 1", tenantConfigEnum.name());
 		if(config == null) { // 数据库中没有，则获取默认值
 			config = new TenantConfig();
 			config.setAttrKey(tenantConfigEnum.name());

@@ -27,7 +27,7 @@ public class StockInfoService extends CommonService {
 
 		conditionFilter(conditionColumns, where, params);
 
-		return InventoryStock.dao.paginate(pageNumber, pageSize, "select tenant_org_id, goods_info_id, sum(stock) sum_stock, sum(reserve_stock) as sum_reserve_stock, sum(lock_stock) as sum_lock_stock ", "from inventory_stock "+where.toString()+" group by goods_info_id", params.toArray());
+		return InventoryStock.dao.paginate(pageNumber, pageSize, "select goods_info_id, sum(stock) sum_stock, sum(reserve_stock) as sum_reserve_stock, sum(lock_stock) as sum_lock_stock ", "from inventory_stock "+where.toString()+" group by goods_info_id", params.toArray());
 	}
 	
 	/**

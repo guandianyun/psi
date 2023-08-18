@@ -28,6 +28,7 @@ import com.bytechainx.psi.common.service.base.CommonService;
 import com.google.common.collect.Lists;
 import com.jfinal.kit.Kv;
 import com.jfinal.kit.Ret;
+import com.jfinal.kit.ThreadPoolKit;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 
@@ -252,9 +253,7 @@ public class FlowExpensesService extends CommonService {
 		exportLog.setHandlerId(handlerId);
 		exportLog.save();
 		
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
+		ThreadPoolKit.execute(() -> {
 				try {
 					List<TraderIncomeExpenses> orderList = Lists.newArrayList();
 					int pageNumber = 1;
@@ -303,9 +302,7 @@ public class FlowExpensesService extends CommonService {
 					
 					e.printStackTrace();
 				}
-			}
-		};
-		thread.start();
+			});
 		
 		return Ret.ok().set("targetId", exportLog.getId());
 	}

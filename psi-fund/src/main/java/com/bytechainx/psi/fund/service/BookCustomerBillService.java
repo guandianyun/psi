@@ -176,9 +176,7 @@ public class BookCustomerBillService extends CommonService {
 		exportLog.setHandlerId(handlerId);
 		exportLog.save();
 		
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
+		ThreadPoolKit.execute(() -> {
 				try {
 					List<TraderCustomerReceivable> orderList = Lists.newArrayList();
 					int pageNumber = 1;
@@ -223,9 +221,7 @@ public class BookCustomerBillService extends CommonService {
 					
 					e.printStackTrace();
 				}
-			}
-		};
-		thread.start();
+			});
 		
 		return Ret.ok().set("targetId", exportLog.getId());
 	}
@@ -253,9 +249,7 @@ public class BookCustomerBillService extends CommonService {
 		exportLog.setHandlerId(handlerId);
 		exportLog.save();
 		
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
+		ThreadPoolKit.execute(() -> {
 				try {
 					List<TraderCustomerReceivable> orderList = Lists.newArrayList();
 					BigDecimal openBalance = getOpenBalance(customerInfoId+"", startDay);
@@ -338,9 +332,7 @@ public class BookCustomerBillService extends CommonService {
 					
 					e.printStackTrace();
 				}
-			}
-		};
-		thread.start();
+			});
 		
 		return Ret.ok().set("targetId", exportLog.getId());
 	}

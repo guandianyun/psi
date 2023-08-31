@@ -1,0 +1,98 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h6 class="modal-title">修改密码</h6>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			<form id="account-editPwd-form" onsubmit="account.updatePwd();return false;">
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">原密码<span class="text-danger">*</span></span> 
+							<input type="password" class="form-control" name="old_password" id="account_old_password" placeholder="请输入原密码">
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">新密码<span class="text-danger">*</span></span> 
+							<input type="password" class="form-control" name="new_password" id="account_new_password" placeholder="请输入新密码">
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+				
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">重复密码<span class="text-danger">*</span></span> 
+							<input type="password" class="form-control" name="repeat_password" id="account_repeat_password" placeholder="请再次输入新密码">
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+				
+			</form>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+			<button type="button" class="btn btn-primary" onclick="account.updatePwd();">修改</button>
+		</div>
+	</div>
+</div>
+
+<script type="application/javascript">
+var account = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	var formId = "#account-editPwd-form";
+	
+	setTimeout(function() {
+		formInput.listenkeyUp(formId);
+	}, 500);
+	
+});
+
+account.updatePwd = function() {
+	var oldPassword = $("#account_old_password");
+	if($.trim(oldPassword.val()) == '') {
+		beekit.tips('原密码不能为空！', '#account_old_password');
+		oldPassword.focus();
+		return false;
+	}
+	var newPassword = $("#account_new_password");
+	if($.trim(newPassword.val()) == '') {
+		beekit.tips('新密码不能为空！', '#account_new_password');
+		newPassword.focus();
+		return false;
+	}
+	var repeatPassword = $("#account_repeat_password");
+	if($.trim(repeatPassword.val()) == '') {
+		beekit.tips('请重复输入密码！', '#account_repeat_password');
+		repeatPassword.focus();
+		return false;
+	}
+	if($.trim(newPassword.val()) != $.trim(repeatPassword.val())) {
+		beekit.tips('两次输入密码不一致！', '#account_repeat_password');
+		repeatPassword.focus();
+		return false;
+	}
+	
+	beekit.ajaxPost("/account/updatePwd", $("#account-editPwd-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+		}
+	});
+};
+
+</script>

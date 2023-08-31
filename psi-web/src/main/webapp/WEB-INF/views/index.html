@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>#(currentTenant.name??"管店云_10分钟快速上手的进销存系统")</title>
+		<link href="#(resourceDomain)/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<script src="#(resourceDomain)/libs/jquery/jquery-3.6.0.min.js"></script>
+		<script src="#(resourceDomain)/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script src="#(resourceDomain)/libs/layer/layer.js"></script>
+		<script src="#(resourceDomain)/js/bee.kit.js"></script>
+		<script src="#(resourceDomain)/js/form.validator.js"></script>
+		<link rel="stylesheet" href="#(resourceDomain)/libs/bootstrap/font/bootstrap-icons.css">
+		#if(tenantOrg.logo)
+		<link rel="shortcut icon " type="images/x-icon" href="#(resourceUploadDomain)#(tenantOrg.logo)">
+		#else
+		<link rel="shortcut icon " type="images/x-icon" href="#(resourceDomain)/img/logo.png">
+		#end
+
+		<link href="#(resourceDomain)/css/common.css" rel="stylesheet">
+		<style type="text/css">
+			body {
+				font: 14px/1.5 Microsoft YaHei, Helvetica, Tahoma;
+				align-items: center;
+				padding-top: 100px;
+				padding-bottom: 40px;
+				background-color: #516788;
+				overflow-x: hidden;
+				background-size: 100% 100%;
+				background: url(#(resourceDomain)/img/login_bg.png) top left no-repeat;
+			}
+			a {
+			    text-decoration: none;
+			}
+
+			.login-form {
+				max-width: 500px;
+				width: 500px;
+				height: 430px;
+				border-radius: 10px;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				background: #fff;
+				padding: 0 65px;
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<div class=" m-auto login-form mb-5 text-secondary">
+			<form method="POST">
+				<input type="hidden" name="urlCode" value="#(urlCode)">
+				<div class="row">
+					<div class="col text-center position-relative">
+						#if(tenantOrg.logo)
+						<img class="mb-4 mt-3" src="#(resourceUploadDomain)#(tenantOrg.logo)" width="50">
+						#else
+						<img class="mb-4 mt-3" src="#(resourceDomain)/img/logo.png"" width="50">
+						#end
+						<span class="fs-4 fw-bold" style="margin-left: 12px;">#(tenantOrg.name??"管店云")</span>
+						<span class="position-absolute translate-middle badge  bg-danger" style="font-size: 9px;top: 0; left: 115%;">
+							    <var>#(version)</var>
+						</span>
+					</div>
+				</div>
+
+				<div class="form-floating">
+					<input type="text" class="form-control" id="mobile" name="mobile" placeholder="请输入手机号">
+					<label for="mobile">手机号</label>
+				</div>
+				<div class="form-floating mt-3">
+					<input type="password" class="form-control" id="password" name="password" placeholder="请输入密码">
+					<label for="password">密码</label>
+				</div>
+
+				<div class="checkbox mb-3 text-end">
+					<label>
+						<a href="javascript:void(0)" id="forget-pwd">忘记密码?</a>
+					</label>
+				</div>
+				<button class="w-100 btn btn-lg btn-primary fs-6" type="button" id="login-btn">登录</button>
+				
+				<div class="row mt-5 text-center " style="color: #aaa;">
+					<div class="col">
+						技术支持：<a href="https://www.guanxdian.com" style="color: #aaa;" target="_blank">管店云&copy;让生意人管账更轻松</a>
+					</div>
+				</div>
+			</form>
+		</div>
+
+
+
+		<script type="application/javascript">
+			
+			if(window != top){
+				top.location.reload();
+			}
+		
+			$(function() {
+				$("#mobile").focus().keydown(function(event) {
+					if (event.keyCode == 13) {
+						$("#password").focus();
+					}
+				});
+				$("#password").keydown(function(event) {
+					if (event.keyCode == 13) {
+						login();
+					}
+				})
+				$("#login-btn").on("click", login);
+				
+				$("#forget-pwd").on("click", function(evt) {
+					beekit.modal("/forgetPwd");
+				});
+				
+			});
+			
+			function login() {
+				if($.trim($("#mobile").val()) == '') {
+					beekit.tips('手机号不能为空！', '#mobile');
+					$("#mobile").focus();
+					return false;
+				}
+				
+				if(formValidator.checkMobile($("#mobile").val()) == '') {
+					beekit.tips('请输入正确的手机号！', '#mobile');
+					$("#mobile").focus();
+					return false;
+				}
+				
+				if($.trim($("#password").val()) == '') {
+					beekit.tips('密码不能为空！', '#password');
+					$("#password").focus();
+					return false;
+				}
+				
+				beekit.ajaxPost("/login", $("form").serialize(), function(ret) {
+					beekit.msg(ret);
+					if (ret.state == "ok") {
+						if(ret.status == #(UserActiveStatusEnum.waiting.value)) {
+							setTimeout(function() {
+								beekit.redirect("/account/activeIndex");
+							}, 1000);
+						} else {
+							setTimeout(function() {
+								beekit.redirect("/dashboard/");
+							}, 1000);
+						}
+					}
+				});
+			}
+			
+		</script>
+
+	</body>
+</html>

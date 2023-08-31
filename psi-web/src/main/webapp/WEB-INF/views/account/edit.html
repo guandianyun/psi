@@ -1,0 +1,82 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h6 class="modal-title">账户信息</h6>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			<form id="account-edit-form" onsubmit="account.update();return false;">
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">员工姓名<span class="text-danger">*</span></span> 
+							<input type="text" maxlength="20" class="form-control" name="real_name" id="account_real_name" placeholder="请输入姓名" value="#(account.real_name??)">
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">手&nbsp;机&nbsp;号<span class="text-danger">*</span></span> 
+							<input type="text" class="form-control" maxlength="11" name="mobile" id="account_mobile" placeholder="请输入手机号" value="#(account.mobile??)">
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+			<button type="button" class="btn btn-primary" onclick="account.update();">修改</button>
+		</div>
+	</div>
+</div>
+
+<script type="application/javascript">
+var account = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	var formId = "#account-edit-form";
+	
+	setTimeout(function() {
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+});
+
+account.update = function() {
+	var realName = $("#account_real_name");
+	if($.trim(realName.val()) == '') {
+		beekit.tips('真实姓名不能为空！', '#account_real_name');
+		realName.focus();
+		return false;
+	}
+	var mobile = $("#account_mobile");
+	if($.trim(mobile.val()) == '') {
+		beekit.tips('手机号不能为空！', '#account_mobile');
+		mobile.focus();
+		return false;
+	}
+	if(!formValidator.checkMobile($("#account_mobile").val())) {
+		beekit.tips('请输入正确的手机号！', '#account_mobile');
+		mobile.focus();
+		return false;
+	}
+	
+	beekit.ajaxPost("/account/update", $("#account-edit-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+		}
+	});
+};
+
+</script>

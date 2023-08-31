@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>#(currentTenant.name??"管店云_10分钟快速上手的进销存系统")</title>
+		<link href="#(resourceDomain)/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+		<script src="#(resourceDomain)/libs/jquery/jquery-3.6.0.min.js"></script>
+		<script src="#(resourceDomain)/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+		<script src="#(resourceDomain)/libs/layer/layer.js"></script>
+		<script src="#(resourceDomain)/js/bee.kit.js"></script>
+		<script src="#(resourceDomain)/js/form.validator.js"></script>
+		<link rel="stylesheet" href="#(resourceDomain)/libs/bootstrap/font/bootstrap-icons.css">
+		#if(currentTenant.logo)
+		<link rel="shortcut icon " type="images/x-icon" href="#(resourceUploadDomain)#(currentTenant.logo)">
+		#else
+		<link rel="shortcut icon " type="images/x-icon" href="#(resourceDomain)/img/logo.png">
+		#end
+
+		<link href="#(resourceDomain)/css/common.css" rel="stylesheet">
+		<style type="text/css">
+			body {
+				font: 14px/1.5 Microsoft YaHei, Helvetica, Tahoma;
+				align-items: center;
+				padding-top: 100px;
+				padding-bottom: 40px;
+				background-color: #516788;
+				overflow-x: hidden;
+				background-size: 100% 100%;
+				background: url(#(resourceDomain)/img/login_bg.png) top left no-repeat;
+			}
+			a {
+			    text-decoration: none;
+			}
+
+			.login-form {
+				max-width: 500px;
+				width: 500px;
+				height: 430px;
+				border-radius: 10px;
+				-webkit-border-radius: 10px;
+				-moz-border-radius: 10px;
+				background: #fff;
+				padding: 0 65px;
+			}
+			
+		</style>
+	</head>
+
+	<body>
+		<div class=" m-auto login-form mb-5 text-secondary">
+			<form method="POST">
+				<div class="row mb-3 pt-4">
+					<div class="col">
+						<span class="fs-6">首次登录，进行激活帐户，重新设置密码</span>
+					</div>
+				</div>
+				
+				<div class="row">
+				<div class="col">
+					<div class="input-group mb-3">
+						<span class="input-group-text">手机号</span> <input type="text" name="mobile" class="form-control" value="#(currentAdmin.mobile)" disabled>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="input-group mb-3">
+						<span class="input-group-text">验证码</span> <input type="text" name="smsCode" id="smsCode" class="form-control" placeholder="请输入收到的验证码">
+						<span class="input-group-text"><button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="sendMobileCode(this);">获取验证码</button> </span>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="input-group mb-3">
+						<span class="input-group-text">新密码</span> <input type="password" class="form-control" name="newPwd" id="newPwd" placeholder="请输入新密码">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="input-group mb-3">
+						<span class="input-group-text">重复新密码</span> <input type="password" class="form-control" name="reNewPwd" id="reNewPwd" placeholder="请再次输入新密码">
+					</div>
+				</div>
+			</div>
+
+			<button class="w-100 btn btn-lg btn-primary fs-6" type="button" id="submit-btn">确认激活</button>
+				
+			</form>
+		</div>
+
+
+
+		<script type="application/javascript">
+			
+			if(window != top){
+				top.location.reload();
+			}
+		
+			$(function() {
+				$("#smsCode").focus().keydown(function(event) {
+					if (event.keyCode == 13) {
+						$("#password").focus();
+					}
+				});
+				$("#password").keydown(function(event) {
+					if (event.keyCode == 13) {
+						login();
+					}
+				})
+				$("#submit-btn").on("click", activeAccount);
+				
+			});
+			
+			function activeAccount() {
+				if($.trim($("#smsCode").val()) == '') {
+					beekit.tips('短信验证码不能为空！', '#smsCode');
+					$("#smsCode").focus();
+					return false;
+				}
+				
+				if($.trim($("#newPwd").val()) == '') {
+					beekit.tips('新密码不能为空！', '#newPwd');
+					$("#newPwd").focus();
+					return false;
+				}
+				
+				if($.trim($("#newPwd").val()).length < 6) {
+					beekit.tips('新密码过于简单！', '#newPwd');
+					$("#newPwd").focus();
+					return false;
+				}
+
+				if($.trim($("#reNewPwd").val()) == '') {
+					beekit.tips('请再次输入新密码！', '#reNewPwd');
+					$("#reNewPwd").focus();
+					return false;
+				}
+				
+				if($.trim($("#reNewPwd").val()) != $.trim($("#newPwd").val())) {
+					beekit.tips('两次输入的密码不一致！', '#reNewPwd');
+					$("#reNewPwd").focus();
+					return false;
+				}
+				
+				beekit.ajaxPost("/account/active", $("form").serialize(), function(ret) {
+					beekit.msg(ret);
+					if (ret.state == "ok") {
+						setTimeout(function() {
+							beekit.redirect("/roadMap/")
+						}, 1000);
+					}
+				});
+			}
+			
+			
+
+			function sendMobileCode(_this) {
+				beekit.ajaxPost("/account/sendActiveCode", {}, function(ret) {
+					beekit.msg(ret);
+					if (ret.state == "ok") {
+						var countTime = 150;
+						var t = setInterval(function () {
+							countTime = countTime -1;
+							$(_this).html("剩余"+countTime+"秒");
+							$(_this).attr("disabled", true);
+					        if(countTime <=0) {
+					        	clearInterval(t);
+					        	$(_this).html("重新获取");
+					        	$(_this).removeAttr("disabled");
+					        }
+					    }, 1000);	
+					}
+				});
+			}
+			
+		</script>
+
+	</body>
+</html>

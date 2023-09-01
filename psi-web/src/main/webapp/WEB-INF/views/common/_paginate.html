@@ -1,0 +1,74 @@
+										
+#define paginate(currentPage,totalPage,paginateName)
+	#if (totalPage > 1 && totalPage >= currentPage)
+	<nav aria-label="Page navigation">
+	<ul class="pagination">
+		#if(!paginateName) #setLocal(paginateName = "paginate-link") #end
+		#setLocal(startPage = currentPage - 2)
+		#if (startPage < 1) #setLocal(startPage = 1) #end
+		#setLocal(endPage = currentPage + 2)
+		#if (endPage > totalPage) #setLocal(endPage = totalPage) #end
+		#if(currentPage <= 4)
+			#setLocal(startPage = 1)
+		#end
+		#if((totalPage - currentPage) < 4)
+	            #setLocal(endPage = totalPage)
+	    #end
+	    #if(currentPage == 1)
+	    <li class="page-item disabled">
+				<a class="page-link" href="javascript:;" aria-label="Previous" page="0" name="#(paginateName)">
+				<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+	   	#else
+	   	#setLocal(prePage = currentPage - 1)
+	    	<li class="page-item">
+				<a class="page-link" href="javascript:;" aria-label="Previous" page="#(prePage)" name="#(paginateName)">
+				<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+	    #end
+	
+		#if(currentPage > 4)
+		<li class="page-item"><a class="page-link" href="javascript:;" page="1" name="#(paginateName)">1</a></li>
+		<li class="page-item"><a class="page-link" href="javascript:;" page="2" name="#(paginateName)">2</a></li>
+		<li class="page-item"><a class="page-link" href="javascript:;" page="#">...</a></li>
+	    #end
+	    
+		#if(endPage >= startPage)
+	        #for(i = startPage;i <= endPage;i++)
+	            #if(currentPage == i)
+	            <li class="page-item active"><a class="page-link" href="javascript:;" page="#">#(i)</a></li>
+	            #else
+	            <li class="page-item"><a class="page-link" href="javascript:;" page="#(i)" name="#(paginateName)">#(i)</a></li>
+	            #end
+	        #end
+	    #end
+	    
+	    #if ((totalPage - currentPage) >= 4)
+	            <li class="page-item"><a class="page-link" href="javascript:;" page="#">...</a></li>
+	        #setLocal(prePage = totalPage - 1)
+	        <li class="page-item"><a class="page-link" href="javascript:;" page="#(prePage)" name="#(paginateName)">#(prePage)</a></li>
+	        <li class="page-item"><a class="page-link" href="javascript:;" page="#(totalPage)" name="#(paginateName)">#(totalPage)</a></li>
+	    #end
+	
+		#if (currentPage == totalPage || totalPage <= 0)
+			<li class="page-item disabled">
+		        <a class="page-link" href="javascript:;" page="#(totalPage)" name="#(paginateName)" aria-label="Next">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+	    #else
+	        #setLocal(nextPage = currentPage + 1)
+	        <li class="page-item">
+		        <a class="page-link" href="javascript:;" page="#(nextPage)" name="#(paginateName)" aria-label="Next">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+	    #end
+
+	</ul>
+	</nav>
+#end
+    
+#end

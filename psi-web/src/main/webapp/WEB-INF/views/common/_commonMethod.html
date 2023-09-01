@@ -1,0 +1,24 @@
+#define goodsCategoryOptions(currentId, category, level) 
+	<option value="#(category.id)" #if(currentId == category.id) selected #end>
+	#(level)
+	#if(category.parent_id != 0)
+	└─ 
+	#end
+	#(category.name)
+	</option>
+	#set(childList = category.childList)
+	#if(childList.size() <= 0) 
+		#return 
+	#end 
+	#if(level == "")
+	#set(level = level+"&nbsp;&nbsp;&nbsp;&nbsp;")
+	#else
+	#set(level = level+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
+	#end
+	
+	#for(child : childList)
+		#@goodsCategoryOptions(currentId, child, level)
+	#end 
+#end
+
+

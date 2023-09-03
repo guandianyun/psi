@@ -1,0 +1,289 @@
+
+<div class="row">
+	<div class="col" style="padding: 0 0 0 0;">
+		<div class="card">
+			<div class="card-header">
+				<i class="bi bi-people"></i>常用功能
+			</div>
+			<div class="card-body">
+				<div class="row text-center">
+					#if(session.hasOper(Permissions.sale_sale_order_create))
+					<div class="col right-border">
+						<a href="javascript:void(0)" onclick="dashboard.linkTab('/sale/sale/order/add')"> <span style="font-size: 40px; color: #1F74FF;"><i class="bi bi-plus-square"></i></span><br /> <span style="color: #465875;">开销售单</span>
+						</a>
+					</div>
+					#end
+					#if(session.hasOper(Permissions.inventory_purchase_order_create))
+					<div class="col right-border">
+						<a href="javascript:void(0)" onclick="dashboard.linkTab('/inventory/purchase/order/add')"> <span style="font-size: 40px; color: #33a98c;"><i class="bi bi-calendar2-plus"></i></span><br /> <span style="color: #465875;">开进货单</span>
+						</a>
+					</div>
+					#end
+					#if(session.hasOper(Permissions.fund_book_receiptOrder_create))
+					<div class="col right-border">
+						<a href="javascript:void(0)" onclick="dashboard.linkTab('/fund/book/receiptOrder/add')"> <span style="font-size: 40px; color: #61cae7;"><i class="bi bi-credit-card"></i></span><br /> <span style="color: #465875;">收款</span>
+						</a>
+					</div>
+					#end
+					#if(session.hasOper(Permissions.fund_book_payOrder_create))
+					<div class="col right-border">
+						<a href="javascript:void(0)" onclick="dashboard.linkTab('/fund/book/payOrder/add')"> <span style="font-size: 40px; color: #7d83e0;"><i class="bi bi-credit-card-2-back"></i></span><br /> <span style="color: #465875;">付款</span>
+						</a>
+					</div>
+					#end
+					#if(session.hasOper(Permissions.goods_goods_info))
+					<div class="col right-border">
+						<a href="javascript:void(0)" onclick="dashboard.linkTab('/goods/goods/info')"> <span style="font-size: 40px; color: #37c052;"><i class="bi bi-cart"></i></span><br /> <span style="color: #465875;">商品管理</span>
+						</a>
+					</div>
+					#end
+					#if(session.hasOper(Permissions.inventory_stock_info))
+					<div class="col" style="padding: 0 0 0 0;">
+						<a href="javascript:void(0)" onclick="dashboard.linkTab('/inventory/stock/info')"> <span style="font-size: 40px; color: #c72bab;"><i class="bi bi-box"></i></span><br /> <span style="color: #465875;">库存查询</span>
+						</a>
+					</div>
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row mt-3">
+	<div class="col" style="padding: 0 0.5rem 0 0;">
+		<div class="card">
+			<div class="card-header">
+				<i class="bi bi-person"></i>销售数据
+				<div class="float-end">
+					<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+					  <input type="radio" class="btn-check" name="home_sale_stat" id="home_sale_stat_day" autocomplete="off" checked onclick="$('#month_sale_stat').hide();$('#today_sale_stat').show();">
+					  <label class="btn sm-more btn-outline-secondary" for="home_sale_stat_day">今日</label>
+					
+					  <input type="radio" class="btn-check" name="home_sale_stat" id="home_sale_stat_month" autocomplete="off" onclick="$('#today_sale_stat').hide();$('#month_sale_stat').show();">
+					  <label class="btn sm-more btn-outline-secondary" for="home_sale_stat_month">本月</label>
+					
+					</div>
+				</div>
+			</div>
+			<div class="card-body" id="today_sale_stat">
+				<div class="row text-center">
+					<div class="col right-border">
+						<span class="card-stat-title">销售额</span><br /> <span class="fontNumber text-secondary fs-6">￥#number(todaySaleStat.amount??0, "#.##")</span><br /> <span class="fontNumber" style="color: #888888;">昨日&nbsp;￥#number(yesterdaySaleStat.amount??0, "#.##")</span>
+					</div>
+					<div class="col right-border">
+						<span class="card-stat-title">销售笔数</span><br /> <span class="fontNumber text-secondary fs-6">#(todaySaleStat.order_count??0)</span><br /> <span class="fontNumber" style="color: #888888;">昨日&nbsp;#(yesterdaySaleStat.order_count??0)</span>
+					</div>
+					<div class="col" style="padding: 0 0 0 0;">
+						<span class="card-stat-title">销售毛利</span><br /> <span class="fontNumber text-secondary fs-6">
+						#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+						￥#number(todaySaleStat.amount??0-todaySaleStat.cost_amount??0, "#.##")
+						#else
+						***
+						#end
+						</span><br /> <span class="fontNumber" style="color: #888888;">昨日&nbsp;
+						#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+						￥#number(yesterdaySaleStat.amount??0-yesterdaySaleStat.cost_amount??0, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="card-body" id="month_sale_stat" style="display:none;">
+				<div class="row text-center">
+					<div class="col right-border">
+						<span class="card-stat-title">销售额</span><br /> <span class="fontNumber text-secondary fs-6">￥#number(monthSaleStat.amount??0, "#.##")</span><br /> <span class="fontNumber" style="color: #888888;">上月&nbsp;￥#number(preMonthSaleStat.amount??0, "#.##")</span>
+					</div>
+					<div class="col right-border">
+						<span class="card-stat-title">销售笔数</span><br /> <span class="fontNumber text-secondary fs-6">#(monthSaleStat.order_count??0)</span><br /> <span class="fontNumber" style="color: #888888;">上月&nbsp;#(preMonthSaleStat.order_count??0)</span>
+					</div>
+					<div class="col" style="padding: 0 0 0 0;">
+						<span class="card-stat-title">销售毛利</span><br /> <span class="fontNumber text-secondary fs-6">
+						#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+						￥#number(monthSaleStat.amount??0-monthSaleStat.cost_amount??0, "#.##")
+						#else
+						***
+						#end
+						</span><br /> <span class="fontNumber" style="color: #888888;">上月&nbsp;
+						#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+						￥#number(preMonthSaleStat.amount??0-preMonthSaleStat.cost_amount??0, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col" style="padding: 0 0 0 0;">
+		<div class="card">
+			<div class="card-header">
+				<i class="bi bi-shield-exclamation"></i>待办提醒
+			</div>
+			<div class="card-body">
+				<div class="row text-center">
+					<div class="col right-border">
+						<span class="card-stat-title">待收销售单</span><br /> 
+						<span class="fontNumber fs-3"><a href="javascript:void(0);" onclick="dashboard.linkTab('/sale/sale/order');" class="text-secondary">#(waitingPaySaleOrderCount??0)</a></span>
+					</div>
+					<div class="col right-border">
+						<span class="card-stat-title">待付进货单</span><br /> 
+						<span class="fontNumber fs-3"><a href="javascript:void(0);" onclick="dashboard.linkTab('/inventory/purchase/order');" class="text-secondary">#(waitingPayPurchaseOrderCount??0)</a></span>
+					</div>
+					
+					<div class="col right-border">
+						<span class="card-stat-title">库存预警</span><br /> 
+						<span class="fontNumber fs-3"><a href="javascript:void(0);" onclick="dashboard.linkTab('/inventory/stock/info');" class="#if(stockInfoWarnCount??0 > 0) text-danger #else text-secondary #end">#(stockInfoWarnCount??0)</a></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<div class="row mt-3">
+	<div class="col" style="padding: 0 0 0 0;">
+		<div class="card">
+			<div class="card-header">
+				<i class="bi bi-wallet2"></i>资产统计
+			</div>
+			<div class="card-body" id="saleData">
+				<div class="row text-center">
+					<div class="col">
+						<span class="card-stat-title">账户余额</span><br /> <span class="fontNumber text-secondary fs-6">
+						#if(session.hasOper(Permissions.sensitiveData_account_stat))
+						￥#number(sumBalance??0, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+					<div class="col">
+						<span class="fs-3">+</span>
+					</div>
+					<div class="col" style="padding: 0 0 0 0;">
+						<span class="card-stat-title">库存总额<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="库存总额 = 商品剩余库存 x 进货加权均价"></i></span><br /> 
+						<span class="fontNumber text-secondary fs-6">
+						#if(session.hasOper(Permissions.sensitiveData_account_stat))
+						￥#number(sumStockAmount??0, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+					<div class="col">
+						<span class="fs-3">+</span>
+					</div>
+					<div class="col" style="padding: 0 0 0 0;">
+						<span class="card-stat-title">应收欠款<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="应收欠款 = 销售单未收金额金额 + 进货退货单未收金额"></i></span><br /> <span class="fontNumber text-secondary fs-6">
+						#if(session.hasOper(Permissions.sensitiveData_account_stat))
+						#set(receiptAmount = sumSaleReceipt.amount??0-sumSaleReceipt.paid_amount??0+(sumPurchasePay.reject_amount??0-sumPurchasePay.reject_paid_amount??0))
+						￥#number(receiptAmount, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+					<div class="col">
+						<span class="fs-3">-</span>
+					</div>
+					<div class="col" style="padding: 0 0 0 0;">
+						<span class="card-stat-title">应付欠款<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="应付欠款 = 进货单未付金额 + 销售退货单未付金额"></i></span><br /> <span class="fontNumber text-secondary fs-6">
+						
+						#if(session.hasOper(Permissions.sensitiveData_account_stat))
+						#set(payAmount = sumPurchasePay.amount??0-sumPurchasePay.paid_amount??0+(sumSaleReceipt.reject_amount??0-sumSaleReceipt.reject_paid_amount??0))
+						￥#number(payAmount, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+					<div class="col">
+						<span class="fs-3">=</span>
+					</div>
+					<div class="col">
+						<span class="card-stat-title">总资产</span><br /> <span class="fontNumber text-secondary fs-6">
+						#if(session.hasOper(Permissions.sensitiveData_account_stat))
+						￥#number(sumBalance??0+sumStockAmount??0+receiptAmount??0-payAmount??0, "#.##")
+						#else
+						***
+						#end
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row" style="margin-top: 1rem; padding-bottom: 1rem;">
+	<div class="col-6" style="padding: 0 0.5rem 0 0;">
+		<div class="card">
+			<div class="card-header">
+				<span><i class="bi bi-bar-chart-line"></i>销售趋势图</span>
+				<div class="float-end">
+					<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+					  <input type="radio" class="btn-check" name="home_sale_stat_list" id="home_sale_stat_list_7day" autocomplete="off" checked onclick="homePage.loadSaleStatList(30);">
+					  <label class="btn sm-more btn-outline-secondary" for="home_sale_stat_list_7day">近1个月</label>
+					
+					  <input type="radio" class="btn-check" name="home_sale_stat_list" id="home_sale_stat_list_30day" autocomplete="off" onclick="homePage.loadSaleStatList(90);">
+					  <label class="btn sm-more btn-outline-secondary" for="home_sale_stat_list_30day">近1季度</label>
+					
+					  <input type="radio" class="btn-check" name="home_sale_stat_list" id="home_sale_stat_list_1year" autocomplete="off" onclick="homePage.loadSaleStatList(365);">
+					  <label class="btn sm-more btn-outline-secondary" for="home_sale_stat_list_1year">近1年</label>
+					</div>
+				</div>
+			</div>
+			<div class="card-body" id="home-sale-stat-days"></div>
+		</div>
+	</div>
+
+
+	<div class="col-6" style="padding-right: 0.5rem;padding-left: 0">
+		<div class="card">
+			<div class="card-header">
+				<i class="bi bi-card-list"></i>商品销售量排行
+				<div class="float-end">
+					<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+					  <input type="radio" class="btn-check" name="home_goods_stat_list" id="home_goods_stat_list_7day" autocomplete="off" checked onclick="homePage.loadGoodsStatList(30);">
+					  <label class="btn sm-more btn-outline-secondary" for="home_goods_stat_list_7day">近1个月</label>
+					
+					  <input type="radio" class="btn-check" name="home_goods_stat_list" id="home_goods_stat_list_30day" autocomplete="off" onclick="homePage.loadGoodsStatList(90);">
+					  <label class="btn sm-more btn-outline-secondary" for="home_goods_stat_list_30day">近1季度</label>
+					
+					  <input type="radio" class="btn-check" name="home_goods_stat_list" id="home_goods_stat_list_1year" autocomplete="off" onclick="homePage.loadGoodsStatList(365);">
+					  <label class="btn sm-more btn-outline-secondary" for="home_goods_stat_list_1year">近1年</label>
+					</div>
+				</div>
+			</div>
+			<div class="card-body" id="home-goods-stat-days"></div>
+		</div>
+	</div>
+
+</div>
+
+<script type="application/javascript">
+var homePage = {};	
+
+	$(function() {
+		// 初始化bootstrap相关组件
+		common.initBootstrap();
+		homePage.loadSaleStatList(30);
+		homePage.loadGoodsStatList(30);
+	});
+			
+homePage.loadSaleStatList = function(days) {
+	beekit.ajaxFill("/dashboard/loadSaleStatByDay", {"days":days}, "#home-sale-stat-days");
+}
+
+homePage.loadGoodsStatList = function(days) {
+	beekit.ajaxFill("/dashboard/loadGoodsStatByDay", {"days":days}, "#home-goods-stat-days");
+}
+
+
+
+</script>

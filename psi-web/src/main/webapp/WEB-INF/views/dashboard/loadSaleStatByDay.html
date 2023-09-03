@@ -1,0 +1,97 @@
+<div id="home-sale-stat-charts" style="height: 25rem;"></div>
+#set(dayList="")
+#for(x : saleStatDayList)
+#if(days == 365)
+#set(dayList = dayList + "'"+ DateUtil.getYearMonthStr(x) +"'")
+#else
+#set(dayList = dayList + "'"+ DateUtil.getOnlyDayStr(x) +"'")
+#end
+#if(!for.last)
+#set(dayList = dayList + ",")
+#end
+#end
+
+#set(amounts="")
+#for(x : saleStatList)
+#set(amounts = amounts + x.amount??0)
+#if(!for.last)
+#set(amounts = amounts + ",")
+#end
+#end
+
+<script type="application/javascript">
+
+	$(function() {
+		homePage.loadSaleStatByDayChart();
+	});
+	
+homePage.loadSaleStatByDayChart = function() {
+	var chartDom = document.getElementById('home-sale-stat-charts');
+	var myChart = echarts.init(chartDom);
+
+	var option = {
+	  color: ['#00DDFF'],
+	  
+	  tooltip: {
+	    trigger: 'axis',
+	    axisPointer: {
+	      type: 'cross',
+	      label: {
+	        backgroundColor: '#6a7985'
+	      }
+	    }
+	  },
+	  grid: {
+		top:'2%',
+	    left: '3%',
+	    right: '2%',
+	    bottom: '3%',
+	    containLabel: true
+	  },
+	  xAxis: [
+	    {
+	      type: 'category',
+	      boundaryGap: false,
+	      data: [#(dayList)]
+	    }
+	  ],
+	  yAxis: [
+	    {
+	      type: 'value'
+	    }
+	  ],
+	  series: [
+	    {
+	      name: '销售额',
+	      type: 'line',
+	      stack: 'Total',
+	      smooth: true,
+	      lineStyle: {
+	        width: 0
+	      },
+	      showSymbol: false,
+	      areaStyle: {
+	        opacity: 0.8,
+	        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+	          {
+	            offset: 0,
+	            color: '#00DDFF'
+	          },
+	          {
+	            offset: 1,
+	            color: '#1F74FF'
+	          }
+	        ])
+	      },
+	      emphasis: {
+	        focus: 'series'
+	      },
+	      data: [#(amounts)]
+	    }
+	  ]
+	};
+
+	option && myChart.setOption(option);
+}	
+	
+</script>

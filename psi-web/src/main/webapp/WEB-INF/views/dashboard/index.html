@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<title>#(currentTenant.name??"管店云_10分钟快速上手的进销存系统")</title>
+<link href="#(resourceDomain)/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<script src="#(resourceDomain)/libs/jquery/jquery-3.6.0.min.js"></script>
+<script src="#(resourceDomain)/libs/jquery/jquery.caret.js"></script>
+<script src="#(resourceDomain)/libs/jquery/jquery.cookie.js"></script>
+<script src="#(resourceDomain)/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<link href="#(resourceDomain)/libs/flyer/flyer.css" rel="stylesheet">
+<script src="#(resourceDomain)/libs/flyer/flyer.js"></script>
+<script src="#(resourceDomain)/js/datetime.kit.js"></script>
+<script src="#(resourceDomain)/libs/layer/layer.js"></script>
+<script src="#(resourceDomain)/js/bee.kit.js"></script>
+<script src="#(resourceDomain)/js/dashboard.js"></script>
+<script src="#(resourceDomain)/js/common.js"></script>
+<script src="#(resourceDomain)/libs/echarts/echarts.min.js"></script>
+<script src="#(resourceDomain)/js/form.validator.js"></script>
+<script src="#(resourceDomain)/js/form.input.js"></script>
+<link rel="stylesheet" href="#(resourceDomain)/libs/bootstrap/font/bootstrap-icons.css">
+<script src="#(resourceDomain)/libs/My97DatePicker/WdatePicker.js"></script>
+<script src="#(resourceDomain)/libs/jquery-color/jquery.color.min.js"></script>
+<script src="#(resourceDomain)/libs/autocomplete/autocomplete.js"></script>
+<link href="#(resourceDomain)/libs/autocomplete/autocomplete.css" rel="stylesheet">
+<link href="#(resourceDomain)/libs/jQuery-contextMenu/jquery.contextMenu.css" rel="stylesheet"/>
+<script src="#(resourceDomain)/libs/jQuery-contextMenu/jquery.contextMenu.min.js"></script>
+<script src="#(resourceDomain)/libs/lodop/js/LodopFuncs.js"></script>
+<script src="#(resourceDomain)/libs/lodop/js/lodop-editor.js"></script>
+<script src="#(resourceDomain)/libs/lodop/js/lodop-print.js"></script>
+<script src="#(resourceDomain)/libs/barQrCode/barcode.js"></script>
+<script src="#(resourceDomain)/libs/barQrCode/qrcode.js"></script>
+<link href="#(resourceDomain)/libs/lodop/css/editor.css" rel="stylesheet"/>
+<script src="#(resourceDomain)/libs/lodop/js/jquery-ui.js"></script>
+<script type="application/javascript">
+APP_DOMAIN = "#(pcWebDomain??)";
+RESOURCE_DOMAIN = "#(resourceDomain??)";
+</script>
+
+
+#if(currentTenant.logo)
+<link rel="shortcut icon " type="images/x-icon" href="#(resourceUploadDomain)#(currentTenant.logo)">
+#else
+<link rel="shortcut icon " type="images/x-icon" href="#(resourceDomain)/img/logo.png">
+#end
+<link href="#(resourceDomain)/css/common.css" rel="stylesheet">
+</head>
+
+<body>
+
+	<div style="top: 0; left: 0; z-index: 99999999; POSITION: absolute;">
+		<div style="overflow: hidden; left: 323px; top: 90.5px; display: none;" id="autocomplete-select-selector">
+			<div id="autocomplete-top-data-list"></div>
+			<div id="autocomplete-panel-data-list"></div>
+			<div style="display: block;" id="autocomplete-bottom-data-list">
+				«&nbsp;向前&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="" class="autocomplete-after" >向后&nbsp;»</a>
+			</div>
+		</div>
+	</div>
+	<nav class="navbar  fixed-top navbar-expand-lg navbar-light bg-light nav-header">
+		<div class="container-fluid" style="padding-left: 0; height: 2.5rem;">
+			<div class="navbar-brand" style="color: #FFFFFF;">
+				<div class="row align-items-center">
+					<div class="col">
+						#if(currentTenant.logo) <img src="#(resourceUploadDomain)#(currentTenant.logo)" style="padding: 0.4rem 0 0.4rem 0.2rem; width: 2.8rem;" class="d-inline-block align-text-top"> #else <img
+							src="#(resourceDomain)/img/logo.png" style="padding: 0.4rem 0 0.4rem 0.2rem; width: 2.8rem;" class="d-inline-block align-text-top"> #end
+					</div>
+					<div class="col brand-name" style="padding-left: 0;">#(currentTenant.name??"管店云进销存")</div>
+				</div>
+			</div>
+			<ul id="nav-tabs" class="nav navbar-nav">
+				<li id="tab-home" onclick="dashboard.switchTabs('home')" class="current"><a href="javascript:void(0);">首页</a></li>
+			</ul>
+			<ul class="nav navbar-nav justify-content-end">
+				<li class="nav-item position-relative" id="msg-modal-link"  style="display:none;"><a class="nav-link" href="javascript:void(0);" onclick="beekit.modal('/msg/notice/?readFlag=0');"><i class="bi bi-chat-dots"></i>消息</a> 
+				<span id="msgCount" class="position-absolute translate-middle rounded-pill badge bg-danger" style="display: none; font-size: 9px; top: 5px; left: 90%; padding: 2px 5px;"> 0 </span></li>
+				<li class="nav-item"><a class="nav-link" href="javascript:void(0);" onclick="beekit.modal('/dashboard/service');"><i class="bi bi-headphones"></i>客服</a></li>
+				<li class="nav-item"><a class="nav-link" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#appdownload-modal"><i class="bi bi-grid"></i>APP下载</a></li>
+
+				<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"><i class="bi bi-person-circle"></i>#(session.realName??)</a>
+					<ul class="dropdown-menu dropdown-menu-end shadow">
+						<li style="text-align: left;"><a class="dropdown-item" href="javascript:void(0);" onclick="beekit.modal('/account/edit');">帐号信息</a></li>
+						<li><a class="dropdown-item" href="javascript:void(0);" onclick="beekit.modal('/account/editPwd');">修改密码</a></li>
+						<li>
+							<hr class="dropdown-divider">
+						</li>
+						<li><a class="dropdown-item text-danger fw-bold" href="/account/logout">退出系统</a></li>
+
+					</ul></li>
+				<li class="nav-item"></li>
+			</ul>
+		</div>
+	</nav>
+	
+
+	<div class="main">
+		<div class="menu-main">
+			<div id="menu-left" class="menu-left">
+				<ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+					#if(session.hasOper(Permissions.sale))
+					<li class="nav-item top-menu active" url="sale" id="top-menu-sale"><a href="javascript:void(0)" class="py-3 "> <i class="bi bi-collection" style="font-size: 1.6rem;"></i><br /> 销售
+					</a></li>
+					#end
+					#if(session.hasOper(Permissions.inventory))
+					<li class="nav-item top-menu" url="inventory" id="top-menu-inventory"><a href="javascript:void(0)" class="py-3 "> <i class="bi bi-box" style="font-size: 1.6rem;"></i><br /> 库存
+					</a></li>
+					#end
+					#if(session.hasOper(Permissions.fund))
+					<li class="nav-item top-menu" url="fund" id="top-menu-fund"><a href="javascript:void(0)" class="py-3 "> <i class="bi bi-credit-card" style="font-size: 1.6rem;"></i><br /> 资金
+					</a></li>
+					#end
+					#if(session.hasOper(Permissions.goods))
+					<li class="nav-item top-menu" url="goods" id="top-menu-goods"><a href="javascript:void(0)" class="py-3 "> <i class="bi bi-cart2" style="font-size: 1.6rem;"></i><br /> 商品
+					</a></li>
+					#end
+					#if(session.hasOper(Permissions.setting))
+					<li class="nav-item top-menu" url="setting" id="top-menu-setting"><a href="javascript:void(0)" class="py-3 "> <i class="bi bi-gear" style="font-size: 1.6rem;"></i><br /> 设置
+					</a></li>
+					#end
+				</ul>
+				<div class="position-absolute bottom-0 text-center" id="menu-flex">
+					<a href="javascript:void(0);" style="color: #FFFFFF;"> <i class="bi bi-list" style="font-size: 2.5rem;"></i>
+					</a>
+				</div>
+			</div>
+			<div id="menu-right" class="flex-column flex-shrink-0 menu-right" style="padding-left: 0;">
+				<!-- 客户 -->
+				<ul id="menu-list-sale" class="nav nav-pills nav-flush flex-column mb-auto text-left" style="margin-top: 1rem; color: #dedede; display: block;">
+					#if(session.hasOper(Permissions.sale_sale))
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-collection"></i>销售
+						</div>
+						#if(session.hasOper(Permissions.sale_sale_order_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/sale/order/add" id="sale_sale_order_add">录入销售单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.sale_sale_order))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/sale/order" id="sale_sale_order">销售单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.sale_sale_rejectOrder_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/sale/rejectOrder/add" id="sale_sale_rejectOrder_add">录入退货单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.sale_sale_rejectOrder))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/sale/rejectOrder" id="sale_sale_rejectOrder">退货单</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.sale_customer))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-person-lines-fill"></i>客户
+						</div>
+						#if(session.hasOper(Permissions.sale_customer_info))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/customer/info" id="sale_customer_info">客户管理</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.sale_customer_category))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/customer/category" id="sale_customer_category">客户分类</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.sale_customer_priceLevel))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/customer/priceLevel" id="sale_customer_priceLevel">价格等级</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.sale_stat))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-bar-chart-line"></i>统计
+						</div>
+						#if(session.hasOper(Permissions.sale_stat_sale))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/stat/sale" id="sale_stat_sale">销售统计</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.sale_stat_hotSale))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/sale/stat/hotSale" id="sale_stat_hotSale">热销分析</a>
+						</div>
+						#end
+					</li>
+					#end
+				</ul>
+
+				<!-- 进货 -->
+				<ul id="menu-list-inventory" class="nav nav-pills nav-flush flex-column mb-auto text-left" style="margin-top: 1rem; color: #dedede; display: none;">
+					#if(session.hasOper(Permissions.inventory_purchase))
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-minecart-loaded"></i>进货
+						</div>
+						#if(session.hasOper(Permissions.inventory_purchase_order_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/purchase/order/add" id="inventory_purchase_order_add">录入进货单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.inventory_purchase_order))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/purchase/order" id="inventory_purchase_order">进货单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.inventory_purchase_rejectOrder_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/purchase/rejectOrder/add" id="inventory_purchase_rejectOrder_add">录入退货单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.inventory_purchase_rejectOrder))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/purchase/rejectOrder" id="inventory_purchase_rejectOrder">进货退货单</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.inventory_stock))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-box"></i>库存
+						</div>
+						#if(session.hasOper(Permissions.inventory_stock_info))
+						<div class="nav-item-menu ">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/stock/info" id="inventory_stock_info">库存查询</a>
+						</div>
+						#end
+						
+						#if(session.hasOper(Permissions.inventory_stock_checking_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/stock/checking/add" id="inventory_stock_checking_add">盘点</a>
+						</div>
+						#end
+						
+						#if(session.hasOper(Permissions.inventory_stock_checking))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/stock/checking" id="inventory_stock_checking">盘点单</a>
+						</div>
+						#end
+						
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.inventory_supplier))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-xbox"></i>供应商
+						</div>
+						#if(session.hasOper(Permissions.inventory_supplier_info))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/supplier/info" id="inventory_supplier_info">供应商管理</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.inventory_supplier_category))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/supplier/category" id="inventory_supplier_category">供应商分类</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.inventory_stat))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-bar-chart-line"></i>统计
+						</div>
+						#if(session.hasOper(Permissions.inventory_stat_purchase))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/stat/purchase" id="inventory_stat_purchase">进货统计</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.inventory_stat_purchaseGoods))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/inventory/stat/purchaseGoods" id="inventory_stat_purchaseGoods">商品分析</a>
+						</div>
+						#end
+					</li>
+					#end
+				</ul>
+
+				<!-- 资金 -->
+				<ul id="menu-list-fund" class="nav nav-pills nav-flush flex-column mb-auto text-left" style="margin-top: 1rem; color: #dedede; display: none;">
+					#if(session.hasOper(Permissions.fund_book))
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-credit-card"></i>往来账
+						</div>
+						#if(session.hasOper(Permissions.fund_book_receiptOrder_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/book/receiptOrder/add" id="fund_book_receiptOrder_add">新增收款</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_book_receiptOrder))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/book/receiptOrder" id="fund_book_receiptOrder">收款单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_book_payOrder_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/book/payOrder/add" id="fund_book_payOrder_add">新增付款</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_book_payOrder))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/book/payOrder" id="fund_book_payOrder">付款单</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_book_customerBill))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/book/customerBill" id="fund_book_customerBill">客户对账</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_book_supplierBill))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/book/supplierBill" id="fund_book_supplierBill">供应商对账</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.fund_flow))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-wallet2"></i>日常收支
+						</div>
+						#if(session.hasOper(Permissions.fund_flow_income_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/flow/income/add" id="fund_flow_income_add">新增收入</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_flow_income))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/flow/income" id="fund_flow_income">收入单据</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_flow_expenses_create))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/flow/expenses/add" id="fund_flow_expenses_add">新增支出</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_flow_expenses))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/flow/expenses" id="fund_flow_expenses">支出单据</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.fund_account))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-diagram-2"></i>账户
+						</div>
+						#if(session.hasOper(Permissions.fund_account_info))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/account/info" id="fund_account_info">结算账户</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_account_fundType))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/account/fundType" id="fund_account_fundType">收支项目</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_account_transfer))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/account/transfer" id="fund_account_transfer">账户互转</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.fund_stat))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-bar-chart-line"></i>统计
+						</div>
+						#if(session.hasOper(Permissions.fund_stat_profit))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/stat/profit" id="fund_stat_profit">经营利润</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.fund_stat_fundOrder))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/fund/stat/fundOrder" id="fund_stat_fundOrder">资金流水</a>
+						</div>
+						#end
+					</li>
+					#end
+
+				</ul>
+
+				<!-- 商品 -->
+				<ul id="menu-list-goods" class="nav nav-pills nav-flush flex-column mb-auto text-left" style="margin-top: 1rem; color: #dedede; display: none;">
+					#if(session.hasOper(Permissions.goods_goods))
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-cart2"></i>商品
+						</div>
+						#if(session.hasOper(Permissions.goods_goods_info))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/goods/goods/info" id="goods_goods_info">商品管理</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.goods_goods_printTag))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light fw-bold" url="/goods/goods/printTag" id="goods_goods_printTag">打印标签</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.goods_goods_category))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/goods/goods/category" id="goods_goods_category">商品分类</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.goods_goods_spec))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/goods/goods/spec" id="goods_goods_spec">规格管理</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.goods_goods_unit))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/goods/goods/unit" id="goods_goods_unit">单位管理</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.goods_goods_attribute))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/goods/goods/attribute" id="goods_goods_attribute">商品属性</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+				</ul>
+
+				<!-- 设置 -->
+				<ul id="menu-list-setting" class="nav nav-pills nav-flush flex-column mb-auto text-left" style="margin-top: 1rem; color: #dedede; display: none;">
+					#if(session.hasOper(Permissions.setting_tenant))
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-window-sidebar"></i>商户管理
+						</div>
+						#if(session.hasOper(Permissions.setting_tenant_info))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/setting/tenant/info" id="setting_tenant_info">商户信息</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.setting_tenant_admin))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/setting/tenant/admin" id="setting_tenant_admin">员工管理</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.setting_tenant_role))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/setting/tenant/role" id="setting_tenant_role">角色管理</a>
+						</div>
+						#end
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.setting_config))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-gear"></i>基础设置
+						</div>
+						#if(session.hasOper(Permissions.setting_config_system))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/setting/config/system" id="setting_config_system">系统设置</a>
+						</div>
+						#end
+						#if(session.hasOper(Permissions.setting_config_print))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/setting/config/print" id="setting_config_print">打印设置</a>
+						</div>
+						#end
+						
+					</li>
+					#end
+					
+					#if(session.hasOper(Permissions.setting_system))
+					<hr style="color: #404040" />
+					<li class="nav-item">
+						<div class="nav-item-title">
+							<i class="bi bi-command"></i>系统操作
+						</div>
+						#if(session.hasOper(Permissions.setting_system_operLog))
+						<div class="nav-item-menu">
+							<a href="javascript:void(0);" class="link-light" url="/setting/system/operLog" id="setting_system_operLog">操作日志</a>
+						</div>
+						#end
+					</li>
+					#end
+				</ul>
+			</div>
+
+		</div>
+
+		<div id="layout" class="layout mb-5">
+			<div id="tab_body_home" class="tab-content" style="margin: 1rem 0.75rem 0 0.75rem;"></div>
+		</div>
+
+	</div>
+
+	<div class="modal fade" id="appdownload-modal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h6 class="modal-title">APP下载</h6>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="text-center">
+						<img src="#(resourceDomain)/img/download_qrcode.png" class="rounded" style="width: 200px;" />
+					</div>
+					<div class="row">
+						<div class="alert alert-primary align-items-center text-center" role="alert" style="font-size: 0.8rem;margin-bottom: 0;">
+							<i class="bi bi-exclamation-triangle-fill"></i> 请扫描上面二维码，下载管店云APP
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="lpe-print-cache" style="display: none;"></div>
+    <div id="lpe-print-qrcode-cache" style="display: none;"></div>
+    <div id="lpe-print-barcode-cache" style="display: none;">
+    	<img id="lpe_print_barcode" />
+    </div>
+	
+	<script type="application/javascript">
+		
+			$(function() {
+				// 监听点击事件
+				dashboard.bindClickEvent();
+				// 初始化bootstrap相关组件
+				common.initBootstrap();
+				// 初始化菜单信息
+				dashboard.initMenu();
+				// 定时心跳
+				dashboard.heartBeat();
+				setInterval(function() { dashboard.heartBeat(); }, 120000);
+				
+				keyboardLisener();
+			    
+			    // 主面板
+			    loadHomeData();
+			    
+			    // 导航栏右键菜单
+			    dashboard.contextMenu();
+			    
+			    loadLodopScriptList();
+			    
+			});
+			
+			function loadHomeData() {
+				beekit.ajaxFill("/dashboard/home", "", "#tab_body_home");
+			};
+			
+			function loadLodopScriptList() {
+				LODOP_CLOUD_SCRIPT_URL1 = "#(lodopCloudScriptUrl1)";
+				LODOP_CLOUD_SCRIPT_URL2 = "#(lodopCloudScriptUrl2)";
+				LODOP_LOCAL_SCRIPT_URL1 = "#(lodopLocalScriptUrl1)";
+				LODOP_LOCAL_SCRIPT_URL2 = "#(lodopLocalScriptUrl2)";
+				
+				if (LodopFuncs.needCLodop()){LodopFuncs.loadLocalCLodop();}//开始加载
+			}
+			
+			function keyboardLisener() {
+				if (window.history && window.history.pushState) {
+			        $(window).on('popstate', function () {
+			            window.history.pushState('forward', null, ''); 
+			            window.history.forward(1);
+			        });
+			    }
+			    window.history.pushState('forward', null, '');  
+			    window.history.forward(1);
+
+			    $('body',document).on('keyup', function (e) {
+			        if (e.which === 27) { // 按下esc
+			            layer.closeAll();
+			            if ($("#autocomplete-select-selector").is(":visible")) {
+			            	$("#autocomplete-select-selector").hide();
+			            }
+			        }
+			    });
+			}
+		
+	</script>
+
+</body>
+</html>

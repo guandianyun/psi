@@ -1,0 +1,70 @@
+<div id="home-goods-stat-charts" style="height: 25rem;"></div>
+
+#set(amounts="")
+#set(buyNumbers="")
+#set(goodsList="")
+#for(x : goodsStatList)
+#set(amounts = amounts + x.amount??0)
+#set(buyNumbers = buyNumbers + x.buy_number??0)
+#set(goodsList = goodsList + "'" + x.goodsInfo.name + "'")
+#if(!for.last)
+#set(amounts = amounts + ",")
+#set(buyNumbers = buyNumbers + ",")
+#set(goodsList = goodsList + ",")
+#end
+#end
+
+
+<script type="application/javascript">
+
+	$(function() {
+		homePage.loadGoodsStatByDayChart();
+	});
+	
+homePage.loadGoodsStatByDayChart = function() {
+	var chartDom = document.getElementById('home-goods-stat-charts');
+	var myChart = echarts.init(chartDom);
+	var option;
+
+	option = {
+			  tooltip: {
+			    trigger: 'axis',
+			    axisPointer: {
+			      type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+			    }
+			  },
+			  legend: {},
+			  grid: {
+				top:'2%',
+			    left: '3%',
+			    right: '4%',
+			    bottom: '3%',
+			    containLabel: true
+			  },
+			  xAxis: {
+			    type: 'value'
+			  },
+			  yAxis: {
+			    type: 'category',
+			    data: [#(goodsList)]
+			  },
+			  series: [
+			    {
+			      type: 'bar',
+			      stack: 'total',
+			      color:'#20c3fe',
+			      label: {
+			        show: true
+			      },
+			      emphasis: {
+			        focus: 'series'
+			      },
+			      data: [#(buyNumbers)]
+			    }
+			  ]
+			};
+
+	option && myChart.setOption(option);
+}	
+	
+</script>

@@ -1,0 +1,57 @@
+#if(page.totalRow <=0)
+<h6 style="text-align: center; padding: 30px 0; ">暂无导出记录！</h6>
+#else 
+
+<table class="table">
+	<thead class="table-light">
+		<tr>
+			<th scope="col-4">文件名</th>
+			<th scope="col-4">导出时间</th>
+			<th scope="col-2">状态</th>
+			<th scope="col-2">操作</th>
+		</tr>
+	</thead>
+	<tbody style="text-align: center;">
+	#set(ingStatus = false)
+	#for (x : page.getList())
+	#if(x.export_status == ExportStatusEnum.ing.value)
+	#set(ingStatus = true)
+	#end
+		<tr id="exportLog-data-#(x.id)">
+			<td>#(x.file_name)</td>
+			<td>#date(x.created_at, "yyyy-MM-dd HH:mm:ss")</td>
+			<td><span #if(x.export_status == ExportStatusEnum.ing.value) class="text-primary" #elseif(x.export_status == ExportStatusEnum.finish.value) class="text-success" #else class="text-danger" #end>#(x.exportStatusName)</span></td>
+			<td>#if(x.export_status == ExportStatusEnum.finish.value) <span class="text-primary"><a href="#(resourceUploadDomain)/#(x.file_path)">下载</a></span> #end</td>
+		</tr>
+		#end 
+	</tbody>
+</table>
+<div class="row">
+	<div class="col">
+		<div class="float-end">
+			#@paginate(page.pageNumber, page.totalPage, "")
+		</div>
+	</div>
+</div>
+
+#end
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	$("#exportLog_pageNumber").val(#(page.pageNumber));
+	
+	#if(ingStatus)
+	if(!$("#default_modal").is(":hidden")) {
+		setTimeout(function() {
+			exportLog.list();
+		}, 3000);
+	}
+	#end
+});
+
+
+</script>

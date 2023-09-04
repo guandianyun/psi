@@ -1,0 +1,36 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content"  style="height:500px;max-height:500px;">
+	<form id="exportLog-search-form">
+	<input type="hidden" id="exportLog_pageNumber" name="pageNumber">
+	<input type="hidden" name="targetId" value="#(targetId)">
+		<div class="modal-header">
+			<div class="row" style="width:100%">
+				<div class="col-8"><h6 class="modal-title">导出记录<span class="text-secondary" style="font-size:13px;">(只保留最近3天的导出记录)</span></h6></div>
+				<div class="col text-end">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+			</div>
+		</div>
+		</form>
+		<div class="modal-body" style="min-height:300px;" id="exportLog-data-list">
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+		</div>
+	</div>
+</div>
+
+<script type="application/javascript">
+var exportLog = {};
+
+$(function() {
+	
+	exportLog.list();
+	
+});		
+
+exportLog.list = function() {
+	beekit.ajaxFillPage("/export/log/list", "#exportLog-search-form", "#exportLog-data-list", "exportLog-data-#(targetId)");
+}
+		
+</script>

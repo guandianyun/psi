@@ -1,0 +1,49 @@
+<form id="accountFundType-form">
+	#(token)
+	<input type="hidden" name="id" value="#(accountFundType.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">收支项目名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="20" class="form-control" name="name" id="accountFundType_name"
+					placeholder="请输入收支项目名称" value="#(accountFundType.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">收支方向<span class="text-danger">*</span></span>
+				<select class="form-select" name="fund_flow" id="accountFundType_fund_flow">
+					<option value="#(FundFlowEnum.income.value)" #if(accountFundType && accountFundType.fund_flow == FundFlowEnum.income.value) selected  #end>收入</option>
+					<option value="#(FundFlowEnum.expenses.value)" #if(accountFundType && accountFundType.fund_flow == FundFlowEnum.expenses.value) selected  #end>支出</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+</form>
+
+
+<script type="application/javascript">
+
+accountFundType.formChecking = function() {
+	if($.trim($("#accountFundType_name").val()) == '') {
+		beekit.tips('收支项目名称不能为空！', '#accountFundType_name');
+		$("#accountFundType_name").focus();
+		return false;
+	}
+	if($.trim($("#accountFundType_name").val()).length > 20) {
+		beekit.tips('收支项目名称不能过长！', '#accountFundType_name');
+		$("#accountFundType_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

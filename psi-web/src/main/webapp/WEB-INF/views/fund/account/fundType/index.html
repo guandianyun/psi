@@ -1,0 +1,48 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="accountFundType-search-form">
+			<input type="hidden" id="accountFundType_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.fund_account_fundType_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="accountFundType.add();">
+						<i class="bi bi-plus-circle"></i>新增收支项目
+					</button>
+					#end
+				</div>
+				<div class="col align-self-center text-end">
+					<input class="form-check-input" type="checkbox" name="hide_stop_flag" id="accountFundType_hide_stop_flag" #if(hideStopFlag) checked #end onclick="accountFundType.list();"> 
+					<label class="form-check-label" for="accountFundType_hide_stop_flag"> 隐藏停用收支项目</label>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-accountFundType">
+	
+</div>
+
+<script type="application/javascript">
+var accountFundType = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	accountFundType.list();
+});
+
+accountFundType.list = function(targetId) {
+	var hideStopFlag = $("#accountFundType_hide_stop_flag").prop("checked");
+	$("#accountFundType_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/account/fundType/list?hide_stop_flag="+hideStopFlag, "#accountFundType-search-form", "#data-list-accountFundType", "accountFundType-data-"+targetId);
+};
+
+accountFundType.add = function() {
+	beekit.modal("/fund/account/fundType/add");
+};
+
+			
+</script>
+
+

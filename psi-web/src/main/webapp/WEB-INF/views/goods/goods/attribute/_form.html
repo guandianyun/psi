@@ -1,0 +1,80 @@
+	#(token)
+	<input type="hidden" name="id" value="#(goodsAttribute.id??)">
+	<div class="alert alert-warning" role="alert">
+		<i class="bi bi-shield-exclamation"></i>“选择型”可直接下拉选择；“输入型”则是手动输入具体值！
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">商品属性名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="goodsAttribute_name" placeholder="请输入商品属性名称" value="#(goodsAttribute.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">属性类型</span>
+				<select class="form-select" name="attr_type" id="goodsAttribute_attr_type">
+					<option value="#(GoodsAttrTypeEnum.select.value)" #if(goodsAttribute && goodsAttribute.attr_type == GoodsAttrTypeEnum.select.value) selected  #end>#(GoodsAttrTypeEnum.select.name)</option>
+					<option value="#(GoodsAttrTypeEnum.input.value)" #if(goodsAttribute && goodsAttribute.attr_type == GoodsAttrTypeEnum.input.value) selected  #end>#(GoodsAttrTypeEnum.input.name)</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3" id="goodsAttribute_attr_values_div" #if(goodsAttribute && goodsAttribute.attr_type == GoodsAttrTypeEnum.input.value)  style="display:none;" #end>
+				<span class="input-group-text">属性值<span class="text-danger">*</span></span>
+				<input type="text" class="form-control" name="attr_values" value="#(goodsAttribute.attr_values??)" id="goodsAttribute_attr_values" placeholder="多个值，使用英文逗号隔开">
+			</div>
+			<div class="input-group mb-3" id="goodsAttribute_attr_not_div" #if(!goodsAttribute || goodsAttribute.attr_type == GoodsAttrTypeEnum.select.value)  style="display:none;" #end>
+				<span class="input-group-text">属性值</span>
+				<input type="text" class="form-control" value="输入型的属性，在新增商品时可填写具体值" disabled>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+<script type="application/javascript">
+
+$(function() {
+	
+	$('#goodsAttribute_attr_type').on('change', function() {
+		var attrType = $(this).val();
+		if(attrType == #(GoodsAttrTypeEnum.select.value)) {
+			$("#goodsAttribute_attr_not_div").hide();
+			$("#goodsAttribute_attr_values_div").show();
+			
+		} else if(attrType == #(GoodsAttrTypeEnum.input.value)) {
+			$("#goodsAttribute_attr_values_div").hide();
+			$("#goodsAttribute_attr_not_div").show();
+			$("#goodsAttribute_attr_values").val("");
+		}
+	});
+	
+});
+
+goodsAttribute.formChecking = function() {
+	if($.trim($("#goodsAttribute_name").val()) == '') {
+		beekit.tips('商品属性名称不能为空！', '#goodsAttribute_name');
+		$("#goodsAttribute_name").focus();
+		return false;
+	}
+	if($.trim($("#goodsAttribute_name").val()).length > 30) {
+		beekit.tips('商品属性名称不能过长！', '#goodsAttribute_name');
+		$("#goodsAttribute_name").focus();
+		return false;
+	}
+	return true;
+};
+
+
+</script>

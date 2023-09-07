@@ -1,0 +1,57 @@
+<script type="application/javascript">
+
+if(typeof(goodsAttribute) == "undefined") {
+	goodsAttribute = {};
+}
+</script>
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">新增商品属性</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="goodsAttribute-add-form" onsubmit="goodsAttribute.create();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="goodsAttribute.create();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	formInput.listenkeyUp("#goodsAttribute-add-form");
+	
+	setTimeout(function() {
+		$("#goodsAttribute_name").focus();
+	}, 200);
+	
+});
+
+goodsAttribute.create = function() {
+	var result = goodsAttribute.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/goods/goods/attribute/create", $("#goodsAttribute-add-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			if('#(sourcePage)' == 'customerFormPage') {
+				beekit.modalChildClose();
+				beekit.ajaxFill("/goods/goods/attribute/optionList", {}, "#customerInfo_customer_category_id");
+			} else {
+				beekit.modalClose();
+				goodsAttribute.list(ret.targetId);
+			}
+		}
+	});
+};
+
+</script>

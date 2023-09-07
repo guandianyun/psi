@@ -1,0 +1,101 @@
+#if(page.totalPage > 1)
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col">
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>商品属性名称</th>
+			<th>属性类型</th>
+			<th>属性值</th>
+			<th>状态</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : page.getList())
+		<tr id="goodsAttribute-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(x.name)</td>
+			<td>#(x.attrTypeName)</td>
+			<td>#(x.attr_values)</td>
+			<td>
+			#if(x.data_status == DataStatusEnum.enable.value) 
+			<span class="text-success">启用中</span>
+			#elseif(x.data_status == DataStatusEnum.disable.value) 
+			<span class="text-danger">已停用</span>
+			#end
+			</td>
+			<td>
+				#if(session.hasOper(Permissions.goods_goods_attribute_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="goodsAttribute.edit(#(x.id));">修改</button>
+				#end
+				#if(!x.default_flag)
+				#if(session.hasOper(Permissions.goods_goods_attribute_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsAttribute.delete(#(x.id));">删除</button>
+				#end
+				#if(session.hasOper(Permissions.goods_goods_attribute_disable))
+				#if(x.data_status == DataStatusEnum.enable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsAttribute.disable(#(x.id));">停用</button>
+				#elseif(x.data_status == DataStatusEnum.disable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-success" onclick="goodsAttribute.enable(#(x.id));">启用</button>
+				#end
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+		
+	</tbody>
+</table>
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#goodsAttribute_pageNumber").val(#(page.pageNumber));
+	
+});
+
+goodsAttribute.edit = function(id) {
+	beekit.modal("/goods/goods/attribute/edit?id="+id);
+};
+
+goodsAttribute.delete = function(id) {
+	beekit.focusColor("goodsAttribute-data-"+id);
+	beekit.confirmByUrl("/goods/goods/attribute/delete", {"id":id}, "确认要删除此商品属性吗？", function(ret) {
+		beekit.msg(ret);
+		goodsAttribute.list(id);
+	});
+};
+
+
+goodsAttribute.disable = function(id) {
+	beekit.confirmByUrl("/goods/goods/attribute/disable", {"id":id}, "确认要停用此商品属性吗？", function(ret) {
+		beekit.msg(ret);
+		goodsAttribute.list(id);
+	});
+};
+
+goodsAttribute.enable = function(id) {
+	beekit.confirmByUrl("/goods/goods/attribute/enable", {"id":id}, "确认要启用此商品属性吗？", function(ret) {
+		beekit.msg(ret);
+		goodsAttribute.list(id);
+	});
+};
+
+
+</script>

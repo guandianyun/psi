@@ -1,0 +1,49 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="goodsAttribute-search-form">
+			<input type="hidden" id="goodsAttribute_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.goods_goods_attribute_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="goodsAttribute.add();">
+						<i class="bi bi-plus-circle"></i>新增商品属性
+					</button>
+					#end
+				</div>
+				<div class="col align-self-center text-end">
+					<input class="form-check-input" type="checkbox" name="hide_stop_flag" id="goodsAttribute_hide_stop_flag" #if(hideStopFlag) checked #end onclick="goodsAttribute.list();"> 
+					<label class="form-check-label" for="goodsAttribute_hide_stop_flag"> 隐藏停用属性</label>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-goodsAttribute">
+	
+</div>
+
+<script type="application/javascript">
+var goodsAttribute = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	goodsAttribute.list();
+	
+});
+
+goodsAttribute.list = function(targetId) {
+	var hideStopFlag = $("#goodsAttribute_hide_stop_flag").prop("checked");
+	$("#goodsAttribute_pageNumber").val(1);
+	beekit.ajaxFillPage("/goods/goods/attribute/list?hide_stop_flag="+hideStopFlag, "#goodsAttribute-search-form", "#data-list-goodsAttribute", "goodsAttribute-data-"+targetId);
+};
+
+goodsAttribute.add = function() {
+	beekit.modal("/goods/goods/attribute/add");
+};
+
+			
+</script>
+
+

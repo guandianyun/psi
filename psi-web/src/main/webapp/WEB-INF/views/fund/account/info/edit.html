@@ -1,0 +1,43 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑结算账户</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="accountInfo-edit-form" onsubmit="accountInfo.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="accountInfo.update();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	formInput.listenkeyUp("#accountInfo-edit-form");
+	
+});
+
+accountInfo.update = function() {
+	var result = accountInfo.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/fund/account/info/update", $("#accountInfo-edit-form").serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				accountInfo.list(#(accountInfo.id));
+			}
+		});
+	});
+};
+
+</script>

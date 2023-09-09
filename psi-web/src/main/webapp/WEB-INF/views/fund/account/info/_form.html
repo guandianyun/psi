@@ -1,0 +1,78 @@
+	#(token)
+	<input type="hidden" name="id" value="#(accountInfo.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">账户名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="20" name="name" id="accountInfo_name" placeholder="请输入账户名称" value="#(accountInfo.name??)" #if(accountInfo && (accountInfo.name == "现金" || accountInfo.name == "微信" || accountInfo.name == "支付宝" || accountInfo.name == "在线支付")) readonly  class="form-control input-readonly" #else  class="form-control" #end>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	#if(!accountInfo || (accountInfo.name != "现金" && accountInfo.name != "微信" && accountInfo.name != "支付宝" && accountInfo.name != "在线支付"))
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">银行卡号</span> 
+				<input type="text" maxlength="20" class="form-control" name="account_no" id="accountInfo_account_no"
+					placeholder="请输入账户名称" value="#(accountInfo.account_no??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">银行名称</span> 
+				<input type="text" maxlength="20" class="form-control" name="account_name" id="accountInfo_account_name"
+					placeholder="请输入账户名称" value="#(accountInfo.account_name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	#end
+	
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">账户余额</span> 
+				<input type="text" class="form-control" placeholder="请输入当前余额" name="balance" value="#(accountInfo.balance??0)" onclick="$(this).select();">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<textarea class="form-control" placeholder="请输入备注" name="remark">#(accountInfo.remark??)</textarea>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+<script type="application/javascript">
+
+accountInfo.formChecking = function() {
+	if($.trim($("#accountInfo_name").val()) == '') {
+		beekit.tips('结算账户名称不能为空！', '#accountInfo_name');
+		$("#accountInfo_name").focus();
+		return false;
+	}
+	if($.trim($("#accountInfo_name").val()).length > 20) {
+		beekit.tips('结算账户名称不能过长！', '#accountInfo_name');
+		$("#accountInfo_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

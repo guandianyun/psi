@@ -1,0 +1,48 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="accountInfo-search-form">
+			<input type="hidden" id="accountInfo_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.fund_account_info_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="accountInfo.add();">
+						<i class="bi bi-plus-circle"></i>新增结算账户
+					</button>
+					#end
+				</div>
+				<div class="col align-self-center text-end">
+					<input class="form-check-input" type="checkbox" name="hide_stop_flag" id="accountInfo_hide_stop_flag" #if(hideStopFlag) checked #end onclick="accountInfo.list();"> 
+					<label class="form-check-label" for="accountInfo_hide_stop_flag"> 隐藏停用结算账户</label>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-accountInfo">
+	
+</div>
+
+<script type="application/javascript">
+var accountInfo = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	accountInfo.list();
+});
+
+accountInfo.list = function(targetId) {
+	var hideStopFlag = $("#accountInfo_hide_stop_flag").prop("checked");
+	$("#accountInfo_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/account/info/list?hide_stop_flag="+hideStopFlag, {}, "#data-list-accountInfo", "accountInfo-data-"+targetId);
+};
+
+accountInfo.add = function() {
+	beekit.modal("/fund/account/info/add");
+};
+
+			
+</script>
+
+

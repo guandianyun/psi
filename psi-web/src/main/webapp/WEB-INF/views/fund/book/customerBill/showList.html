@@ -1,0 +1,60 @@
+<div class="card mt-2">
+	<div class="card-body page-body">
+		<div class="row align-items-center">
+			<div class="col-3">
+			<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+			  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="customerBill.exportList();">导出</button>
+			  <div class="btn-group" role="group">
+			    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+			    <ul class="dropdown-menu">
+			      <li><a class="dropdown-item" href="javascript:void(0);" onclick="customerBill.exportLog();">导出记录</a></li>
+			    </ul>
+			  </div>
+			</div>
+			</div>
+			#if(page.totalPage > 1)
+			<div class="col align-self-center text-end">
+				<div class="float-end" style="height: 26px;">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+			#end
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white mt-2">
+	<thead>
+		<tr class="table-header">
+			<th>单据日期</th>
+			<th>单据编号</th>
+			<th>单据类型</th>
+			<th>增加应收款</th>
+			<th>收回应收款</th>
+			<th>优惠金额</th>
+			<th>剩余应收款</th>
+			<th>备注</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="customerBill-list">
+		<tr>
+			<td colspan="3"></td>
+			<td>期初应收款</td>
+			<td colspan="2"></td>
+			<td><span class="fw-bold text-secondary">#number(openBalance??0, "#.##")</span> </td>
+			<td></td>
+		</tr>
+		#for (x : page.list)
+		#set(order = x.refOrder)
+		<tr>
+			<td>#date(order.order_time, "yyyy-MM-dd")</td>
+			<td>#(x.ref_order_code)</td>
+			<td>#(x.refOrderTypeName)</td>
+			<td><span >#number(x.new_amount??0, "#.##")</span> </td>
+			<td><span >#number(x.take_amount??0, "#.##")</span> </td>
+			<td><span >#number(x.discount_amount??0, "#.##")</span> </td>
+			<td><span class="fw-bold text-secondary">#number(x.new_amount??0-x.take_amount??0-x.discount_amount??0, "#.##")</span></td>
+			<td>#(order.remark??)</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>

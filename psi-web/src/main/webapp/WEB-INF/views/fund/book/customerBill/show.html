@@ -1,0 +1,83 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>客户对账明细
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">客户：</span><span class="text-secondary fw-bold">#(customerInfo.name??)</span>
+				</div>
+				<div class="col-6">
+					<span class="text-secondary">单据日期：</span><span>#(startTime) ~ #(endTime)</span>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+
+	#set(totalAmount = customerReceivable.open_balance??0+customerReceivable.new_amount??0-customerReceivable.take_amount??0-customerReceivable.discount_amount??0)
+	<div class="card mt-2">
+		<div class="card-body">
+			<div class="row text-center align-items-center">
+				<div class="col-2">
+					<span class="fw-bold text-secondary">期末剩余应收</span><br> <span class="fs-6 fw-bold text-danger">￥#number(totalAmount, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">=</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">期初应收款</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(customerReceivable.open_balance??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">+</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">增加应收款</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(customerReceivable.new_amount??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">-</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">收回应收款</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(customerReceivable.take_amount??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">-</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">优惠金额</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(customerReceivable.discount_amount??0, "#.##")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<form id="customerBill-show-search-form">
+	<input type="hidden" id="customerBill_show_pageNumber" name="pageNumber">
+	<input type="hidden" name="customer_info_id" value="#(customerInfo.id)">
+	<input type="hidden" name="start_time" value="#(startTime??)">
+	<input type="hidden" name="end_time" value="#(endTime??)">
+	</form>
+	<div id="customerBill_showList">
+	</div>
+	
+</div>
+
+<script type="application/javascript">
+	
+$(function() {
+	customerBill.showLogList();
+});
+
+customerBill.showLogList = function(callback) {
+	beekit.ajaxFillPage("/fund/book/customerBill/showList", "#customerBill-show-search-form", "#customerBill_showList" ,"", callback);
+};
+
+customerBill.exportList = function() {
+	beekit.confirmByUrl("/fund/book/customerBill/exportList", $("#customerBill-show-search-form").serialize(), "确定要导出对账单明细吗？", function(ret) {
+		customerBill.exportLog(ret.targetId);
+	});
+}
+
+</script>

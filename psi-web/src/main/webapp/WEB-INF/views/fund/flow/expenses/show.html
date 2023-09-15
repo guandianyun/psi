@@ -1,0 +1,182 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>支出单据详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+
+					#if(flowExpenses.auditConfigFlag)
+					#if(flowExpenses.order_status != OrderStatusEnum.disable.value)
+					#if(flowExpenses.audit_status == AuditStatusEnum.waiting.value)
+					#if(session.hasOper(Permissions.fund_flow_expenses_audit))
+					<button type="button" class="btn btn-sm btn-outline-success" onclick="flowExpenses.audit(#(flowExpenses.id));">
+					<i class="bi bi-hand-index"></i>审核
+					</button> &nbsp;
+					#end
+					#end
+					#end
+					#end
+					
+					#if(!flowExpenses.auditConfigFlag || (flowExpenses.auditConfigFlag && (flowExpenses.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.fund_flow_expenses_audit))))
+						#if(session.hasOper(Permissions.fund_flow_expenses_update))
+						<button type="button" class="btn btn-sm btn-outline-primary" onclick="flowExpenses.edit(#(flowExpenses.id));">
+							<i class="bi bi-pencil-square"></i>修改
+						</button>&nbsp;
+						#end 
+					#end 
+					#if(!flowExpenses.auditConfigFlag || (flowExpenses.auditConfigFlag && flowExpenses.audit_status != AuditStatusEnum.pass.value))
+						#if(session.hasOper(Permissions.fund_flow_expenses_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="flowExpenses.disable(#(flowExpenses.id));">
+							<i class="bi bi-trash"></i>作废
+						</button>&nbsp;
+						#end 
+					#end
+					
+					#if(flowExpenses.order_status == OrderStatusEnum.draft.value)
+						#if(session.hasOper(Permissions.fund_flow_expenses_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="flowExpenses.delete(#(flowExpenses.id));">
+							<i class="bi bi-trash"></i>删除
+						</button>&nbsp;
+						#end 
+					#end
+					
+				</div>
+
+				#if(flowExpenses.order_status == OrderStatusEnum.disable.value)  
+					<img src="#(resourceDomain)/img/disable.png" class="order-status-pic">
+				#elseif(flowExpenses.audit_status == AuditStatusEnum.reject.value) 
+					<img src="#(resourceDomain)/img/audit_reject.png" class="order-status-pic">
+				#end
+				 
+			</div>
+		</div>
+	</div>
+	
+	<div id="flowExpenses_showDetail">
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">单据编号：</span><span>#(flowExpenses.order_code)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">支出项目：</span><span class="text-secondary fw-bold">#(flowExpenses.fundType.name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">单据日期：</span><span>#date(flowExpenses.order_time, "yyyy-MM-dd")</span>
+				</div>
+				
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">经办人：</span><span>#(flowExpenses.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单人：</span><span>#(flowExpenses.makeMan.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单时间：</span><span>#date(flowExpenses.created_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">最近修改：</span><span>#date(flowExpenses.updated_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			
+			#if(flowExpenses.auditConfigFlag)
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">审核状态：</span>
+					#if(flowExpenses.audit_status == AuditStatusEnum.waiting.value) 
+					<span class="badge bg-warning">待审核</span> 
+					#elseif(flowExpenses.audit_status == AuditStatusEnum.pass.value) 
+					<span class="badge bg-success">审核通过</span>  
+					#elseif(flowExpenses.audit_status == AuditStatusEnum.reject.value) 
+					<span class="badge bg-danger">审核拒绝</span>   
+					#end
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核人：</span><span>#(flowExpenses.auditor.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核时间：</span><span>#date(flowExpenses.audit_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核反馈：</span><span>#(flowExpenses.audit_desc)</span>
+				</div>
+			</div>
+			#end
+		</div>
+	</div>
+	
+	<div class="row mt-3">
+		<div class="col">
+		<table class="table table-hover table-bordered bg-white">
+		<thead>
+			<tr class="table-header">
+				<th>支出账户</th>
+				<th>支出金额</th>
+				<th>付款时间</th>
+			</tr>
+		</thead>
+		<tbody class="table-row">
+			#set(orderFundList = flowExpenses.orderFundList??)
+			#for(x : orderFundList)
+			<tr>
+				<td>#(x.balanceAccount.name??)</td>
+				<td>#(x.amount)</td>
+				<td>#date(x.fund_time, "yyyy-MM-dd")</td> 
+			</tr>
+			#end
+		</tbody>
+	</table>
+	</div>
+	</div>
+	
+	<div class="card ">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">支出合计：</span><span class="fw-bold text-secondary">#number(flowExpenses.amount, "#.##")</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col">
+					<span class="text-secondary">备注：</span><span>#(flowExpenses.remark??)</span>
+				</div>
+				
+				<div class="col text-end" id="flowExpenses_order_img_list_preview">
+					#for(thumb : flowExpenses.orderImgList)
+					<img class="rounded" src="#(resourceUploadDomain)#(thumb)" layer-src="#(resourceUploadDomain)#(thumb)" style="width:30px" >
+					#end
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	</div>
+	
+	
+</div>
+
+
+<script type="application/javascript">
+	
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	beekit.photos("#flowExpenses_order_img_list_preview");
+	
+});
+
+
+</script>

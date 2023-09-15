@@ -1,0 +1,107 @@
+<form id="flowExpenses-add-form" onsubmit="flowExpenses.submitConfirm();return false;">
+#include("_form.html")
+<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+	<div class="col">
+		<button type="button" class="btn btn-lg btn-outline-secondary fs-6 btn-wlg" onclick="dashboard.linkTab('/fund/flow/expenses/add')">清空</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6 btn-wlg" onclick="flowExpenses.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6 btn-wlg" onclick="flowExpenses.draft();">暂存草稿</button>
+	</div>
+</div>
+</form>
+<div id="flowExpenses-add-confirm" style="display:none;">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="flowExpenses.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6" onclick="flowExpenses.draft();">暂存草稿</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+<script type="application/javascript">
+if(typeof(flowExpenses) == "undefined") {
+	flowExpenses = {};
+}
+
+$(function() {
+	var formId = "#flowExpenses-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		flowExpenses.handlerList(formId);
+		flowExpenses.fundTypeList(formId);
+		flowExpenses.bindFundList(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	#if(flowExpenses)
+		setTimeout(function() {
+			$(formId).find("input[name=remark]").first().focus();
+		}, 500);
+	#end
+
+	flowExpenses.uploadFileListener(formId)
+	
+});
+
+flowExpenses.submitConfirm = function() {
+	var formId = "#flowExpenses-add-form";
+	var result = flowExpenses.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.modalConfirm("确定要保存支出单据吗？", $("#flowExpenses-add-confirm").html());
+};
+
+flowExpenses.normal = function() {
+	var formId = "#flowExpenses-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.normal.value));
+	flowExpenses.create();
+};
+
+flowExpenses.draft = function() {
+	var formId = "#flowExpenses-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.draft.value));
+	flowExpenses.create();
+};
+
+
+flowExpenses.create = function(msg) {
+	var formId = "#flowExpenses-add-form";
+	var result = flowExpenses.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	#if(flowExpenses && flowExpenses.id && flowExpenses.id > 0)
+	var url = "/fund/flow/expenses/update";
+	#else
+	var url = "/fund/flow/expenses/create";
+	#end
+	
+	beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.modalConfirmClose();
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				var orderStatusVal = $(formId).find("input[name=order_status]").first().val();
+				if(orderStatusVal == #(OrderStatusEnum.draft.value)) {
+					beekit.flyer($(formId).find("button[name=draft_btn]").first(), $(formId).find("span[name=draft_count]").first(), "#flowExpenses-add-form button[name=draft_count_btn]");
+				} else {
+					beekit.flyer($(formId).find("button[name=normal_btn]").first(), "#fund_flow_expenses");
+				}
+				dashboard.linkTab("/fund/flow/expenses/add");
+			}	
+		});
+	});
+};
+
+flowExpenses.draftIndex = function() {
+	beekit.offcanvasMiddle("/fund/flow/expenses/draftIndex");
+};
+
+
+</script>

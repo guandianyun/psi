@@ -1,0 +1,30 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>草稿箱
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1" id="data-draftlist-flowExpenses">
+	#include("draftList.html")
+</div>
+
+
+<script type="application/javascript">
+	
+flowExpenses.editDraft = function(id) {
+	beekit.offcanvasMiddleClose();
+	beekit.ajaxFill("/fund/flow/expenses/editDraft", {"id":id}, $("#flowExpenses-add-form").parent() ,"");
+};
+
+flowExpenses.deleteDraft = function(id) {
+	beekit.confirmByUrl("/fund/flow/expenses/delete", {"id":id}, "确认要删除此支出单据吗？", function(ret) {
+		beekit.msg(ret);
+		flowExpenses.draftList();
+	});
+};
+
+flowExpenses.draftList = function() {
+	beekit.ajaxFillPage("/fund/flow/expenses/draftList", "", "#data-draftlist-flowExpenses" ,"");
+}
+
+</script>

@@ -1,0 +1,65 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑支出单据</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="flowExpenses-edit-form" onsubmit="flowExpenses.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(flowExpenses.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="flowExpenses.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="flowExpenses.update();">保存</button>
+						#end
+						
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+if(typeof(flowExpenses) == "undefined") {
+	flowExpenses = {};
+}
+
+$(function() {
+	var formId = "#flowExpenses-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		flowExpenses.handlerList(formId);
+		flowExpenses.fundTypeList(formId);
+		flowExpenses.bindFundList(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	flowExpenses.uploadFileListener(formId)
+	
+});
+
+flowExpenses.update = function() {
+	var formId = "#flowExpenses-edit-form";
+	var result = flowExpenses.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/fund/flow/expenses/update", $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				flowExpenses.list(#(flowExpenses.id));
+			}
+		});
+	});
+};
+
+</script>

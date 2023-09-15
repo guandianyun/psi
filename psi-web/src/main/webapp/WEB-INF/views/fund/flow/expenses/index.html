@@ -1,0 +1,127 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="flowExpenses-search-form">
+			<input type="hidden" id="flowExpenses_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					<div class="row align-items-center">
+						<div class="col-3">
+							<div class="btn-group" role="group">
+								<input type="radio" class="btn-check" name="order_time_btn" id="flowExpenses_order_time_preday" value="1" autocomplete="off">
+								<label class="btn btn-outline-primary" for="flowExpenses_order_time_preday">昨日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="flowExpenses_order_time_today" value="2" autocomplete="off">
+								<label class="btn btn-outline-primary" for="flowExpenses_order_time_today">今日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="flowExpenses_order_time_month" value="3" autocomplete="off">
+								<label class="btn btn-outline-primary" for="flowExpenses_order_time_month">本月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="flowExpenses_order_time_premonth" value="4" autocomplete="off">
+								<label class="btn btn-outline-primary" for="flowExpenses_order_time_premonth">上月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="flowExpenses_order_time_year" value="5" autocomplete="off">
+								<label class="btn btn-outline-primary" for="flowExpenses_order_time_year">本年</label>
+							</div>
+						</div>
+						<div class="col-2">
+							<input type="hidden" name="fund_type_id" id="flowExpenses_search_fund_type_id">
+							<input type="text" class="form-control" placeholder="请输入支出项目"  id="flowExpenses_search_fund_type_keyword" autocomplete="off">
+						</div>
+						<div class="col-2">
+							<input type="hidden" name="handler_id" id="flowExpenses_search_handler_id">
+							<input type="text" class="form-control" placeholder="请输入经办人姓名或简码"  id="flowExpenses_search_handler_keyword" autocomplete="off">
+						</div>
+						<div class="col-3">
+							<input type="text" class="form-control" placeholder="单据编号/备注" name="keyword" onclick="$(this).select();">
+						</div>
+						<div class="col align-self-center">
+							<button type="submit" class="btn btn-sm btn-primary" onclick="flowExpenses.search(this);">
+								<i class="bi bi-search"></i>搜索
+							</button>
+							<span style="margin-left: 15px;"><a href="javascript:void(0);" onclick="common.expandFilter(this, 'flowExpenses_expand_filter')">展开<i class="bi bi-chevron-double-down"></i></a></span>
+						</div>
+					</div>
+					<div id="flowExpenses_expand_filter" style="display: none;">
+						<div class="row align-items-center mt-3">
+							<div class="col-2">
+								<input type="text" class="form-control" id="flowExpenses_search_start_time" name="start_time" placeholder="开始时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+
+							<div class="col-2">
+								<input type="text" class="form-control" id="flowExpenses_search_end_time" name="end_time" placeholder=" 结束时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+<div id="data-list-flowExpenses"></div>
+
+<script type="application/javascript">
+if(typeof(flowExpenses) == "undefined") {
+	flowExpenses = {};
+}
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	flowExpenses.list();
+	
+	$('#flowExpenses-search-form input[name=order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		var times = datetime.getFormatTime(timeType);
+		$("#flowExpenses_search_start_time").val(times.startTime);
+		$("#flowExpenses_search_end_time").val(times.endTime);
+		
+		flowExpenses.list();
+	});
+	
+	flowExpenses.loadFundTypeList();
+	flowExpenses.loadingHandlerList();
+});
+
+flowExpenses.list = function(targetId, callback) {
+	var showAuditFlag = $("#flowExpenses_show_audit_flag").prop("checked");
+	if(typeof(showAuditFlag) == 'undefined') {
+		showAuditFlag = false;
+	}
+	var hideDisableFlag = $("#flowExpenses_hide_disable_flag").prop("checked");
+	if(typeof(hideDisableFlag) == 'undefined') {
+		hideDisableFlag = true;
+	}
+	var hidePayFlag = $("#flowExpenses_hide_pay_flag").prop("checked");
+	if(typeof(hidePayFlag) == 'undefined') {
+		hidePayFlag = false;
+	}
+	$("#flowExpenses_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/flow/expenses/list?hide_disable_flag="+hideDisableFlag+"&show_audit_flag="+showAuditFlag+"&hide_pay_flag="+hidePayFlag, "#flowExpenses-search-form", "#data-list-flowExpenses" ,"flowExpenses-data-"+targetId, callback);
+};
+
+flowExpenses.add = function() {
+	beekit.modal("/fund/flow/expenses/add");
+};
+
+flowExpenses.search = function(othis) {
+	common.loadingSearch(othis);
+	flowExpenses.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+
+flowExpenses.loadingHandlerList = function() {
+	beekit.autocomplete("#flowExpenses_search_handler_keyword", "/setting/tenant/admin/listByJson", "#flowExpenses_search_handler_id", function() {
+		flowExpenses.list();
+	});
+}
+
+flowExpenses.loadFundTypeList = function() {
+	beekit.autocomplete("#flowExpenses_search_fund_type_keyword", "/fund/account/fundType/listByJson?fund_flow=#(FundFlowEnum.expenses.value)", "#flowExpenses_search_fund_type_id", function() {
+		flowExpenses.list();
+	});
+};
+		
+
+</script>
+
+

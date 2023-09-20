@@ -1,0 +1,120 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="transferOrder-search-form">
+			<input type="hidden" id="transferOrder_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col-2">
+					#if(session.hasOper(Permissions.fund_account_transfer_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="transferOrder.add();">
+						<i class="bi bi-plus-circle"></i>新增转账单
+					</button>
+					#end
+				</div>
+
+				<div class="col-7">
+
+					<div class="row align-items-center">
+						<div class="col-5">
+							<input type="hidden" id="transferOrder_search_start_time" name="start_time">
+							<input type="hidden" id="transferOrder_search_end_time" name="end_time">
+							<div class="btn-group" role="group">
+								<input type="radio" class="btn-check" name="order_time_btn" id="order_time_preday" value="1" autocomplete="off">
+								<label class="btn btn-outline-primary" for="order_time_preday">昨日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="order_time_today" value="2" autocomplete="off">
+								<label class="btn btn-outline-primary" for="order_time_today">今日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="order_time_month" value="3" autocomplete="off">
+								<label class="btn btn-outline-primary" for="order_time_month">本月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="order_time_premonth" value="4" autocomplete="off">
+								<label class="btn btn-outline-primary" for="order_time_premonth">上月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="order_time_year" value="5" autocomplete="off">
+								<label class="btn btn-outline-primary" for="order_time_year">本年</label>
+							</div>
+						</div>
+						<div class="col-3">
+							<select class="form-select" name="out_account_id" id="transferOrder_search_out_account_id">
+								<option value="">转出账户</option> 
+								#for(x : balanceAccountPage.list)
+								<option value="#(x.id)">#(x.name)</option> 
+								#end
+							</select>
+						</div>
+						<div class="col-3">
+							<select class="form-select" name="in_account_id" id="transferOrder_search_in_account_id">
+								<option value="">转入账户</option> 
+								#for(x : balanceAccountPage.list)
+								<option value="#(x.id)">#(x.name)</option> 
+								#end
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="col-2">
+					<input type="text" class="form-control" placeholder="单据编号/备注" name="keyword" onclick="$(this).select();">
+				</div>
+				<div class="col-1 align-self-center">
+					<button type="submit" class="btn btn-sm btn-primary" onclick="transferOrder.search(this);">
+						<i class="bi bi-search"></i>搜索
+					</button>
+				</div>
+
+
+			</div>
+
+		</form>
+	</div>
+</div>
+<div id="data-list-transferOrder"></div>
+
+<script type="application/javascript">
+var transferOrder = {};
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	transferOrder.list();
+	
+	$('#transferOrder-search-form input[name=order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		var times = datetime.getFormatTime(timeType);
+		$("#transferOrder_search_start_time").val(times.startTime);
+		$("#transferOrder_search_end_time").val(times.endTime);
+		
+		transferOrder.list();
+	});
+	
+	$('#transferOrder_search_out_account_id').on('change', function() {
+		transferOrder.list();
+	});
+	
+	$('#transferOrder_search_in_account_id').on('change', function() {
+		transferOrder.list();
+	});
+	
+});
+
+transferOrder.list = function(targetId, callback) {
+	var hideDisableFlag = $("#transferOrder_hide_disable_flag").prop("checked");
+	if(typeof(hideDisableFlag) == 'undefined') {
+		hideDisableFlag = true;
+	}
+	$("#transferOrder_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/account/transfer/list?hide_disable_flag="+hideDisableFlag, "#transferOrder-search-form", "#data-list-transferOrder" ,"transferOrder-data-"+targetId, callback);
+};
+
+transferOrder.add = function() {
+	beekit.modal("/fund/account/transfer/add");
+};
+
+transferOrder.search = function(othis) {
+	common.loadingSearch(othis);
+	transferOrder.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+			
+
+</script>
+
+

@@ -1,0 +1,163 @@
+	#(token)
+	<input type="hidden" name="id" value="#(transferOrder.id??)">
+	<input type="hidden" name="order_status" value="#(transferOrder.order_status??OrderStatusEnum.normal.value)">
+	
+	<div class="row">
+		<div class="col-6">
+			<div class="input-group mb-3">
+				<span class="input-group-text">转出账户<span class="text-danger">*</span></span> 
+				 #if(transferOrder)
+				 <input type="hidden"  name="out_account_id"  id="transferOrder_out_account_id" value="#(transferOrder.out_account_id)" >
+				 <input type="text" value="#(transferOrder.outBalanceAccount.name??)" readonly class="form-control input-readonly">
+				 #else
+				<select class="form-select" name="out_account_id" id="transferOrder_out_account_id">
+					#for(x : balanceAccountPage.list)
+					#if(for.first)
+					#set(firstAccount = x)
+					#end
+					<option value="#(x.id)" #if(transferOrder && transferOrder.out_account_id == x.id) selected  #end>#(x.name)</option> 
+					#end
+				</select>
+				#end
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">转出日期<span class="text-danger">*</span></span> 
+				<input type="text" class="form-control" onClick="WdatePicker({el:this})" readonly name="out_time" id="transferOrder_out_time" #if(transferOrder) value="#date(transferOrder.out_time??, "yyyy-MM-dd")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd")" #end >
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-6">
+			<div class="input-group mb-3">
+				<span class="input-group-text">转入账户<span class="text-danger">*</span></span>
+				 #if(transferOrder)
+				 <input type="hidden"  name="in_account_id"  id="transferOrder_in_account_id" value="#(transferOrder.in_account_id)" >
+				 <input type="text" value="#(transferOrder.inBalanceAccount.name??)" readonly class="form-control input-readonly">
+				 #else
+				<select class="form-select" name="in_account_id" id="transferOrder_in_account_id">
+					#for(x : balanceAccountPage.list)
+					#if(for.first)
+					#set(firstAccount = x)
+					#end
+					<option value="#(x.id)" #if(transferOrder && transferOrder.in_account_id == x.id) selected  #end>#(x.name)</option> 
+					#end
+				</select>
+				#end
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="row">
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">到帐日期<span class="text-danger">*</span></span> 
+				<input type="text" class="form-control" onClick="WdatePicker({el:this})" readonly name="in_time" id="transferOrder_in_time" #if(transferOrder) value="#date(transferOrder.in_time??, "yyyy-MM-dd")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd")" #end >
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group">
+					<span class="input-group-text">经手人</span> 
+					<input type="hidden" name="handler_id" value="#(transferOrder.handler_id??)">
+					<input type="text" class="form-control" placeholder="选择经手人" name="handler_keyword" value="#(transferOrder.handler.real_name??)" autocomplete="off" >
+				</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">转账金额<span class="text-danger">*</span></span> <input type="text" maxlength="10" class="form-control" placeholder="请输入转账金额" name="amount" id="transferOrder_amount" value="#(transferOrder.amount??)" onclick="$(this).select();">
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">手续费</span> <input type="text" class="form-control" maxlength="6" placeholder="请输入手续费" name="fee" id="transferOrder_fee" value="#(transferOrder.fee??)" onclick="$(this).select();">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+		<div class="input-group mb-3">
+				<span class="input-group-text">手续费支付方<span class="text-danger">*</span></span> 
+				<select class="form-select" name="fee_pay_account" id="transferOrder_fee_pay_account">
+					<option value="#(FeePayAccountEnum.out.value)" #if(transferOrder && transferOrder.fee_pay_account == FeePayAccountEnum.out.value) selected  #end>转出账户支付</option> 
+					<option value="#(FeePayAccountEnum.in.value)" #if(transferOrder && transferOrder.fee_pay_account == FeePayAccountEnum.in.value) selected  #end>转入账户支付</option> 
+				</select>
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<input type="text" class="form-control" placeholder="请输入备注说明" maxlength="100" name="remark" id="transferOrder_remark" value="#(transferOrder.remark??)" onclick="$(this).select();">
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		
+	</div>
+
+
+<script type="application/javascript">
+	
+	
+transferOrder.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+transferOrder.formChecking = function() {
+	if($.trim($("#transferOrder_out_account_id").val()) == '') {
+		beekit.tips('转出账户不能为空！', '#transferOrder_out_account_id');
+		$("#transferOrder_out_account_id").focus();
+		return false;
+	}
+	if($.trim($("#transferOrder_out_time").val()) == '') {
+		beekit.tips('转出日期不能为空！', '#transferOrder_out_time');
+		$("#transferOrder_out_time").focus();
+		return false;
+	}
+	if($.trim($("#transferOrder_in_account_id").val()) == '') {
+		beekit.tips('转入账户不能为空！', '#transferOrder_in_account_id');
+		$("#transferOrder_in_account_id").focus();
+		return false;
+	}
+	if($("#transferOrder_out_account_id").val() == $("#transferOrder_in_account_id").val()) {
+		beekit.tips('转入转出账户不能相同！', '#transferOrder_out_account_id');
+		$("#transferOrder_out_account_id").focus();
+		return false;
+	}
+	if($.trim($("#transferOrder_in_time").val()) == '') {
+		beekit.tips('转出日期不能为空！', '#transferOrder_in_time');
+		$("#transferOrder_in_time").focus();
+		return false;
+	}
+	if($.trim($("#transferOrder_amount").val()) == '') {
+		beekit.tips('转账金额不能为空！', '#transferOrder_amount');
+		$("#transferOrder_amount").focus();
+		$("#transferOrder_amount").select();
+		return false;
+	}
+	if(!formValidator.checkPositiveNumber($("#transferOrder_amount").val())) {
+		beekit.tips('转账金额格式不正确！', '#transferOrder_amount');
+		$("#transferOrder_amount").focus();
+		$("#transferOrder_amount").select();
+		return false;
+	}
+	if($.trim($("#transferOrder_fee").val()) != '' && !formValidator.checkPositiveNumber($("#transferOrder_fee").val())) {
+		beekit.tips('手续费格式不正确！', '#transferOrder_fee');
+		$("#transferOrder_fee").focus();
+		$("#transferOrder_fee").select();
+		return false;
+	}
+	
+	return true;
+};
+
+
+</script>

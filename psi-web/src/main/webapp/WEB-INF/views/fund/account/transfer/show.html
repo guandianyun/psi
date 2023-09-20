@@ -1,0 +1,124 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>转账单详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(transferOrder.order_status == OrderStatusEnum.normal.value || transferOrder.order_status == OrderStatusEnum.draft.value)
+						#if(session.hasOper(Permissions.fund_account_transfer_update))
+						<button type="button" class="btn btn-sm btn-outline-primary" onclick="transferOrder.edit(#(transferOrder.id));">
+							<i class="bi bi-pencil-square"></i>修改
+						</button>
+						#end 
+						&nbsp;
+					#end 
+					#if(transferOrder.order_status == OrderStatusEnum.normal.value)
+						#if(session.hasOper(Permissions.fund_account_transfer_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="transferOrder.disable(#(transferOrder.id));">
+							<i class="bi bi-trash"></i>作废
+						</button>
+						#end 
+					#end
+				</div>
+				#if(transferOrder.order_status == OrderStatusEnum.disable.value)  
+					<img src="#(resourceDomain)/img/disable.png" class="order-status-pic">
+				 #end
+			</div>
+		</div>
+	</div>
+
+
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">单据编号：</span><span>#(transferOrder.order_code)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">经手人：</span><span>#(transferOrder.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单人：</span><span>#(transferOrder.makeMan.real_name??)</span>
+				</div>
+			</div>
+			
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">转出账户：</span><span>#(transferOrder.outBalanceAccount.name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">转入账户：</span><span>#(transferOrder.inBalanceAccount.name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">转账金额：</span><span class="text-danger fw-bold">#number(transferOrder.amount, "#.##")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">手续费：</span><span class="text-danger fw-bold">#number(transferOrder.fee??0, "#.##")</span>
+					#if(transferOrder.fee && transferOrder.fee > 0)
+					#if(transferOrder.fee_pay_account == FeePayAccountEnum.out.value)
+					<span>（转出账户支付）</span>
+					#elseif(transferOrder.fee_pay_account == FeePayAccountEnum.in.value)
+					<span>（转入账户支付）</span>
+					#end
+					#end
+				</div>
+			</div>
+			
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">转出时间：</span><span>#date(transferOrder.out_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">到账时间：</span><span>#date(transferOrder.in_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单时间：</span><span>#date(transferOrder.created_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">最近修改：</span><span>#date(transferOrder.updated_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			
+			#if(transferOrder.auditConfigFlag)
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">审核状态：</span>
+					#if(transferOrder.audit_status == AuditStatusEnum.waiting.value) 
+					<span class="badge bg-warning">待审核</span> 
+					#elseif(transferOrder.audit_status == AuditStatusEnum.pass.value) 
+					<span class="badge bg-success">审核通过</span>  
+					#elseif(transferOrder.audit_status == AuditStatusEnum.reject.value) 
+					<span class="badge bg-danger">审核拒绝</span>   
+					#end
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核人：</span><span>#(transferOrder.auditor.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核时间：</span><span>#date(transferOrder.audit_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核反馈：</span><span>#(transferOrder.audit_desc)</span>
+				</div>
+			</div>
+			#end
+			
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col">
+					<span class="text-secondary">备注：</span><span>#(transferOrder.remark??)</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</div>
+

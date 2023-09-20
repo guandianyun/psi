@@ -1,0 +1,120 @@
+
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-5"></div>
+			<div class="col">
+			#if(page.totalPage > 1)
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			#end
+			<div class="float-end me-3 mt-1">
+					<input class="form-check-input" type="checkbox" name="hide_disable_flag" id="transferOrder_hide_disable_flag" #if(hideDisableFlag) checked #end onclick="transferOrder.list();"> 
+					<label class="form-check-label" for="transferOrder_hide_disable_flag"> 隐藏作废单据</label>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>单据编号</th>
+			<th>转出账户</th>
+			<th>转入账户</th>
+			<th>到账日期</th>
+			<th>金额</th>
+			<th>手续费</th>
+			<th>手续费支付方</th>
+			<th>备注</th>
+			<th style="width: 13%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="transferOrder-list">
+		#for (x : page.getList())
+		<tr data-id="#(x.id)" id="transferOrder-data-#(x.id)" #if(x.order_status == OrderStatusEnum.disable.value) class="disable-order"  #end>
+			<td>#(x.order_code)</td>
+			<td>#(x.outBalanceAccount.name)</td>
+			<td>#(x.inBalanceAccount.name)</td>
+			<td>#date(x.in_time, "yyyy-MM-dd HH:mm:ss")</td>
+			<td><span class="text-danger">#(x.amount)</span></td>
+			<td>#(x.fee)</td>
+			<td>
+			#if(x.fee_pay_account == FeePayAccountEnum.out.value)
+			#(FeePayAccountEnum.out.name)
+			#else 
+			#(FeePayAccountEnum.in.name)
+			#end
+			</td>
+			<td>#(x.remark??)</td>
+			<td>
+				#if(x.order_status == OrderStatusEnum.disable.value)
+				<span class="text-decoration-line-through">已作废</span>
+				#else
+				#if(session.hasOper(Permissions.fund_account_transfer_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="transferOrder.edit(#(x.id));">修改</button> 
+				#end 
+				#if(session.hasOper(Permissions.fund_account_transfer_disable))
+				#if(x.order_status == OrderStatusEnum.normal.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="transferOrder.disable(#(x.id));">作废</button> 
+				#end 
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#transferOrder_pageNumber").val(#(page.pageNumber));
+	
+	$("#transferOrder-list tr").on("dblclick", function() {
+		transferOrder.show($(this).attr("data-id"));
+	});
+	
+});
+
+transferOrder.show = function(id) {
+	beekit.offcanvas("/fund/account/transfer/show?id="+id);
+};
+
+
+transferOrder.edit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/fund/account/transfer/edit?id="+id);
+};
+
+transferOrder.delete = function(id) {
+	beekit.focusColor("transferOrder-data-"+id);
+	beekit.confirmByUrl("/fund/account/transfer/delete", {"id":id}, "确认要删除此转账单吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		transferOrder.list();
+	});
+};
+
+transferOrder.disable = function(id) {
+	beekit.confirmByUrl("/fund/account/transfer/disable", {"id":id}, "确认要作废此转账单吗？", function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			beekit.offcanvasClose();
+			transferOrder.list(id);
+		});
+	});
+};
+
+
+
+</script>

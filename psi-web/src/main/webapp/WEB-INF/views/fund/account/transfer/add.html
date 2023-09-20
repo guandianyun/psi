@@ -1,0 +1,51 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">新增转账单</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="transferOrder-add-form"  onsubmit="transferOrder.create();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="transferOrder.create();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	var formId = "#transferOrder-add-form";
+	
+	setTimeout(function() {
+		$("#transferOrder_name").focus();
+		
+		transferOrder.handlerList(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+});
+
+transferOrder.create = function() {
+	var result = transferOrder.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/fund/account/transfer/create", $("#transferOrder-add-form").serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				transferOrder.list(ret.targetId);
+			}
+		});
+	});
+};
+
+</script>

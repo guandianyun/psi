@@ -1,0 +1,125 @@
+<form id="payOrder-add-form" onsubmit="payOrder.submitConfirm();return false;">
+#include("_form.html")
+<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+	<div class="col">
+		<button type="button" class="btn btn-lg btn-outline-secondary fs-6 btn-wlg" onclick="dashboard.linkTab('/fund/book/payOrder/add')">清空</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6 btn-wlg" onclick="payOrder.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6 btn-wlg" onclick="payOrder.draft();">暂存草稿</button>
+	</div>
+</div>
+</form>
+
+<div id="payOrder-add-confirm" style="display:none;">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="payOrder.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6" onclick="payOrder.draft();">暂存草稿</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+
+<script type="application/javascript">
+if(typeof(payOrder) == "undefined") {
+	payOrder = {};
+}
+
+$(function() {
+	var formId = "#payOrder-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		payOrder.handlerList(formId);
+		payOrder.supplierList(formId);
+		payOrder.bindFundList(formId);
+		payOrder.bindPayAmount(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+
+	#if(payOrder)
+		setTimeout(function() {
+			$(formId).find("input[name=remark]").first().focus();
+		}, 500);
+	#end
+	
+	payOrder.uploadFileListener(formId)
+	
+});
+
+
+payOrder.normal = function() {
+	var formId = "#payOrder-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.normal.value));
+	payOrder.create();
+};
+
+payOrder.draft = function() {
+	var formId = "#payOrder-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.draft.value));
+	payOrder.create();
+};
+
+payOrder.submitConfirm = function() {
+	var formId = "#payOrder-add-form";
+	var result = payOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.modalConfirm("确定要保存付款单据吗？", $("#payOrder-add-confirm").html());
+};
+
+
+payOrder.create = function() {
+	var formId = "#payOrder-add-form";
+	var result = payOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	
+	#if(payOrder && payOrder.id && payOrder.id > 0)
+		  var url = "/fund/book/payOrder/update";
+		  #else
+		  var url = "/fund/book/payOrder/create";
+		  #end
+		  var formId = "#payOrder-add-form";
+			beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+				common.processRequestResult(ret, function(ret) {
+					beekit.modalConfirmClose();
+					beekit.msg(ret);
+					if (ret.state == "ok") {
+						var orderStatusVal = $(formId).find("input[name=order_status]").first().val();
+						if(orderStatusVal == #(OrderStatusEnum.draft.value)) {
+							beekit.flyer($(formId).find("button[name=draft_btn]").first(), $(formId).find("span[name=draft_count]").first(), "#payOrder-add-form button[name=draft_count_btn]");
+						} else {
+							beekit.flyer($(formId).find("button[name=normal_btn]").first(), "#fund_book_payOrder");
+							#if(orderPrintConfig.trader_pay_flag)
+							#if(orderPrintConfig.trader_pay_confirm)
+								setTimeout(function() {
+									beekit.confirm('是否打印单据？', function() {
+										lodopPrinter.traderPayOrderPrint(0, ret.targetId, false);
+									});
+								}, 1500);
+							#else
+							lodopPrinter.traderPayOrderPrint(0, ret.targetId, false);
+							#end
+							#end
+						}
+						dashboard.linkTab("/fund/book/payOrder/add");
+					}
+				});
+			});
+	
+};
+
+payOrder.draftIndex = function() {
+	beekit.offcanvasMiddle("/fund/book/payOrder/draftIndex");
+};
+
+
+
+</script>

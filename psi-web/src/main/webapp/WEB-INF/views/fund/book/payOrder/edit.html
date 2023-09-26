@@ -1,0 +1,67 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑付款单据</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="payOrder-edit-form" onsubmit="payOrder.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(payOrder.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="payOrder.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="payOrder.update();">保存</button>
+						#end
+						
+					</div>
+				</div>
+</div>
+
+
+<script type="application/javascript">
+if(typeof(payOrder) == "undefined") {
+	payOrder = {};
+}
+
+$(function() {
+	var formId = "#payOrder-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		payOrder.handlerList(formId);
+		payOrder.supplierList(formId);
+		payOrder.bindFundList(formId);
+		payOrder.bindPayAmount(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	payOrder.uploadFileListener(formId)
+	
+});
+
+payOrder.update = function() {
+	var formId = "#payOrder-edit-form";
+	var result = payOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	var formId = "#payOrder-edit-form";
+	beekit.ajaxPost("/fund/book/payOrder/update", $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				payOrder.list(#(payOrder.id));
+			}
+		});
+	});
+};
+</script>

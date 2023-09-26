@@ -1,0 +1,127 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="payOrder-search-form">
+			<input type="hidden" id="payOrder_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					<div class="row align-items-center">
+						<div class="col-3">
+							<div class="btn-group" role="group">
+								<input type="radio" class="btn-check" name="order_time_btn" id="payOrder_order_time_preday" value="1" autocomplete="off">
+								<label class="btn btn-outline-primary" for="payOrder_order_time_preday">昨日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="payOrder_order_time_today" value="2" autocomplete="off">
+								<label class="btn btn-outline-primary" for="payOrder_order_time_today">今日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="payOrder_order_time_month" value="3" autocomplete="off">
+								<label class="btn btn-outline-primary" for="payOrder_order_time_month">本月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="payOrder_order_time_premonth" value="4" autocomplete="off">
+								<label class="btn btn-outline-primary" for="payOrder_order_time_premonth">上月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="payOrder_order_time_year" value="5" autocomplete="off">
+								<label class="btn btn-outline-primary" for="payOrder_order_time_year">本年</label>
+							</div>
+						</div>
+						<div class="col-2">
+							<input type="hidden" name="supplier_info_id" id="payOrder_search_supplier_info_id">
+							<input type="text" class="form-control" placeholder="请输入供应商名称或简码"  id="payOrder_search_supplier_info_keyword" autocomplete="off">
+						</div>
+						<div class="col-2">
+							<input type="hidden" name="handler_id" id="payOrder_search_handler_id">
+							<input type="text" class="form-control" placeholder="请输入经办人姓名或简码"  id="payOrder_search_handler_keyword" autocomplete="off">
+						</div>
+						<div class="col-3">
+							<input type="text" class="form-control" placeholder="单据编号/备注" name="keyword" onclick="$(this).select();">
+						</div>
+						<div class="col align-self-center">
+							<button type="submit" class="btn btn-sm btn-primary" onclick="payOrder.search(this);">
+								<i class="bi bi-search"></i>搜索
+							</button>
+							<span style="margin-left: 15px;"><a href="javascript:void(0);" onclick="common.expandFilter(this, 'payOrder_expand_filter')">展开<i class="bi bi-chevron-double-down"></i></a></span>
+						</div>
+					</div>
+					<div id="payOrder_expand_filter" style="display: none;">
+						<div class="row align-items-center mt-3">
+							<div class="col-2">
+								<input type="text" class="form-control" id="payOrder_search_start_time" name="start_time" placeholder="开始时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+
+							<div class="col-2">
+								<input type="text" class="form-control" id="payOrder_search_end_time" name="end_time" placeholder=" 结束时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+<div id="data-list-payOrder"></div>
+
+<script type="application/javascript">
+if(typeof(payOrder) == "undefined") {
+	payOrder = {};
+}
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	payOrder.list();
+	
+	$('#payOrder-search-form input[name=order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		var times = datetime.getFormatTime(timeType);
+		$("#payOrder_search_start_time").val(times.startTime);
+		$("#payOrder_search_end_time").val(times.endTime);
+		
+		payOrder.list();
+	});
+	
+	payOrder.loadCustomerList();
+	payOrder.loadingHandlerList();
+});
+
+payOrder.list = function(targetId, callback) {
+	var showAuditFlag = $("#payOrder_show_audit_flag").prop("checked");
+	if(typeof(showAuditFlag) == 'undefined') {
+		showAuditFlag = false;
+	}
+	var hideDisableFlag = $("#payOrder_hide_disable_flag").prop("checked");
+	if(typeof(hideDisableFlag) == 'undefined') {
+		hideDisableFlag = true;
+	}
+	var hidePayFlag = $("#payOrder_hide_pay_flag").prop("checked");
+	if(typeof(hidePayFlag) == 'undefined') {
+		hidePayFlag = false;
+	}
+	$("#payOrder_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/book/payOrder/list?hide_disable_flag="+hideDisableFlag+"&show_audit_flag="+showAuditFlag+"&hide_pay_flag="+hidePayFlag, "#payOrder-search-form", "#data-list-payOrder" ,"payOrder-data-"+targetId, callback);
+};
+
+payOrder.add = function() {
+	beekit.modal("/fund/book/payOrder/add");
+};
+
+payOrder.search = function(othis) {
+	common.loadingSearch(othis);
+	payOrder.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+
+payOrder.loadingHandlerList = function() {
+	beekit.autocomplete("#payOrder_search_handler_keyword", "/setting/tenant/admin/listByJson", "#payOrder_search_handler_id", function() {
+		payOrder.list();
+	});
+}
+
+payOrder.loadCustomerList = function() {
+	beekit.autocomplete("#payOrder_search_supplier_info_keyword", "/inventory/supplier/info/listByJson", "#payOrder_search_supplier_info_id", function() {
+		payOrder.list();
+	});
+};
+		
+
+</script>
+
+

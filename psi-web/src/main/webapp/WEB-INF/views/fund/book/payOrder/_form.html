@@ -1,0 +1,485 @@
+	#(token)
+	<input type="hidden" name="id" value="#(payOrder.id??)">
+	<input type="hidden" name="order_status" value="#(payOrder.order_status??)">
+	
+	<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-3" style="margin-right:5rem">
+				<div class="input-group position-relative">
+					<span class="input-group-text">供应商</span> 
+					#set(supplierInfo = payOrder.supplierInfo??)
+					<input type="hidden" name="supplier_info_id" value="#(payOrder.supplier_info_id??)">
+					<input type="text"  placeholder="选择供应商" name="supplier_info_keyword" autocomplete="off" value="#(supplierInfo.name??)" #if(payOrder) readonly class="form-control input-readonly"  #else class="form-control" #end>
+					<input type="hidden" name="account_balance" value="#(supplierInfo.availableAmount??)">
+					#if(supplierInfo && session.hasOper(Permissions.sensitiveData_supplier_due))
+					#set(debtAmount = supplierInfo.debtAmount)
+					#if(debtAmount > 0)
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-danger" style="left:110% !important;">欠:￥#number(debtAmount, "#.##")</span>
+					#elseif(debtAmount < 0)
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important;">余:￥#number(-debtAmount, "#.##")</span>
+					#else
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important; display:none;"></span>
+					#end
+					#else
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important; display:none;"></span>
+					#end
+					<span class="input-group-text">
+						<a href="javascript:void(0);" onclick="dashboard.linkTab('/inventory/supplier/info');"><i class="bi bi-plus-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="去录入新供应商信息"></i></a>
+					</span> 
+				</div>
+			</div>
+			
+			#if(draftCount && draftCount > 0)
+			<div class="col">
+			<div class="float-end">
+				<button type="button" class="btn btn-outline-primary position-relative" onclick="payOrder.draftIndex();" name="draft_count_btn">
+				草稿箱 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" name="draft_count"> #(draftCount) </span>
+				</button>
+			</div>
+			</div>
+			#else
+			<div class="col">
+			<div class="float-end">
+				<span name="draft_count"></span>
+			</div>
+			</div>
+			#end
+		</div>
+		<div class="row mt-2">
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">经办人</span> 
+					<input type="hidden" name="handler_id" #if(payOrder) value="#(payOrder.handler_id??)" #else value="#(session.tenantAdminId)" #end>
+					<input type="text" class="form-control" placeholder="选择经办人" name="handler_keyword" #if(payOrder) value="#(payOrder.handler.real_name??)" #else value="#(session.realName)" #end autocomplete="off" >
+				</div>
+			</div>
+			
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">单据日期</span> <input type="text" class="form-control" name="order_time" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" readonly #if(payOrder) value="#date(payOrder.order_time, "yyyy-MM-dd")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd")" #end>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card mt-2">
+<div class="card-body">
+<div id="payOrder-pay-list">
+		#set(orderFundList = payOrder.orderFundList??)
+		#if(orderFundList && orderFundList.size() > 0)
+		#for(x : orderFundList)
+		<div class="row">
+				<div class="col-8">
+					<input type="hidden" name="order_fund_id" value="#(x.id)">	
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">付款账户</span> 
+						<input type="hidden" name="order_fund_balance_account_id" value="#(x.trader_balance_account_id)">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" value="#(x.balanceAccount.name??)" autocomplete="off" >
+						<span class="input-group-text fw-bold text-secondary">实付金额</span> 
+						<input type="text" class="form-control" name="order_fund_amount" value="#number(x.amount, '#.##')" onclick="$(this).select();" autocomplete="off"> 
+						<span class="input-group-text fw-bold text-secondary">付款日期</span> 
+						<input type="text" class="form-control" name="order_fund_fund_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" value="#date(x.fund_time, "yyyy-MM-dd")"  autocomplete="off"> 
+						#if(for.first)
+						<span class="input-group-text" onclick="payOrder.addOrderFundRow(this);"><i class="bi bi-plus-circle"></i></span>
+						#else
+						<span class="input-group-text" onclick="formInput.removeOrderFundRow(this);"><i class="bi bi-dash-circle"></i></span>
+						#end
+					</div>
+				</div>
+			</div>
+			
+		#end
+		#else
+		<div class="row">
+				<div class="col-7">
+					<input type="hidden" name="order_fund_id">
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">付款账户</span> 
+						<input type="hidden" name="order_fund_balance_account_id">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" autocomplete="off" >
+						<span class="input-group-text fw-bold text-secondary">实付金额</span> 
+						<input type="text" class="form-control" name="order_fund_amount" onclick="$(this).select();"  autocomplete="off"> 
+						<span class="input-group-text fw-bold text-secondary ">付款日期</span> 
+						<input type="text" class="form-control" name="order_fund_fund_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" autocomplete="off"> 
+						<span class="input-group-text" onclick="payOrder.addOrderFundRow(this);"><i class="bi bi-plus-circle"></i></span>
+					</div>
+				</div>
+			</div>
+		#end
+		</div>
+	
+		<div class="row">
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">付款合计</span> <input type="text" class="form-control input-readonly fw-bold text-secondary" name="amount" value="#(payOrder.amount??0.00)" readonly>
+				</div>
+			</div>
+		</div>
+		</div>
+		</div>
+		
+		<div name="payOrder_purchase_order_list">
+		#include("purchaseOrderList.html")
+		</div>
+		<div class="card mt-2">
+		<div class="card-body">
+		<div class="row">
+			<div class="col-5">
+				<div class="input-group">
+					<span class="input-group-text">备注</span>
+					<input type="text" class="form-control" name="remark" value="#(payOrder.remark??)">
+				</div>
+			</div>
+			<div class="col">
+					<div class="row">
+						<div class="col">
+						<div class="add-pic-box add-pic">
+							<i class="bi bi-plus-lg"></i><br />上传图片 <input type="file" accept="image/jpeg, image/png, image/gif"  name="file_upload">
+						</div>
+						</div>
+						<div class="col-10 add-pic-list" name="img_list">
+						#if(payOrder) 
+						#for(img : payOrder.orderImgList)
+						<div class="add-pic-box">
+							<input type="hidden" name="order_imgs" value="#(img)"> <img src="#(resourceUploadDomain)#(img)">
+							<div class="delete-pic" onclick="$(this).parent().remove();">
+								<i class="bi bi-x-circle-fill text-danger"></i>
+							</div>
+						</div>
+						#end
+						#end
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script type="application/javascript">
+if(typeof(payOrder) == "undefined") {
+	payOrder = {};
+}
+
+payOrder.uploadFileListener = function(formId) {
+	$(formId+" input[name=file_upload]").on("change", function(evt) {
+		common.uploadFile(this, function(ret) {
+			var html = "<div class=\"add-pic-box\">"+
+						"<input type=\"hidden\" name=\"order_imgs\" value=\""+ret.thumbPath+"\">"+
+						"<img src=\"#(resourceUploadDomain)"+ret.thumbPath+"\">"+
+						"<div class=\"delete-pic\" onclick=\"$(this).parent().remove();\"><i class=\"bi bi-x-circle-fill text-danger\"></i></div>"+
+						"</div>";
+						
+			$(formId).find("div[name=img_list]").first().append(html);
+		});
+	});
+}
+
+payOrder.formChecking = function(formId) {
+	var supplierInfoId = $(formId).find("input[name=supplier_info_id]").first();
+	if($.trim(supplierInfoId.val()) == '') {
+		var supplierInfoKeyword = $(formId).find("input[name=supplier_info_keyword]").first();
+		beekit.tips('供应商不能为空！', supplierInfoKeyword);
+		$(supplierInfoKeyword).focus();
+		return false;
+	}
+	var handlerId = $(formId).find("input[name=handler_id]").first();
+	if($.trim(handlerId.val()) == '') {
+		var handlerKeyword = $(formId).find("input[name=handler_keyword]").first();
+		beekit.tips('经办人不能为空！', handlerKeyword);
+		$(handlerKeyword).focus();
+		return false;
+	}
+	var orderTime = $(formId).find("input[name=order_time]").first();
+	if($.trim(orderTime.val()) == '') {
+		beekit.tips('单据时间不能为空！', orderTime);
+		$(orderTime).focus();
+		return false;
+	}
+	var tableValid = true;
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		
+		if(orderFundAmount.val() != '' && parseFloat(orderFundAmount.val()) > 0) {
+			if(balanceAccountName.val() == '' || parseFloat(balanceAccountId.val()) < 0) {
+				beekit.tips("请选择付款账户", balanceAccountName);
+				balanceAccountName.focus();
+				balanceAccountName.select();
+				tableValid = false;
+				return false;
+			}
+		}
+		if((balanceAccountName.val() != '' && balanceAccountId.val() > 0)) {
+			if(orderFundAmount.val() == '') {
+				beekit.tips("请输入付款金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+			
+			if(!formValidator.checkPositiveNumber(orderFundAmount.val())) {
+				beekit.tips("请输入合法的金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+		}
+	});
+	
+	if(!tableValid) {
+		return false;
+	}
+	var amount = $(formId).find("input[name=amount]").first();
+	if($.trim(amount.val()) == '' || parseFloat(amount.val()) <= 0) {
+		var balanceAccountName = $(formId+" input[name=order_fund_balance_account_name]").first();
+		var orderFundAmount = $(formId+" input[name=order_fund_amount]").first();
+		if(balanceAccountName.val() == '' || parseFloat(balanceAccountId.val()) < 0) {
+			beekit.tips("请选择付款账户", balanceAccountName);
+			balanceAccountName.focus();
+			balanceAccountName.select();
+			return false;
+		}
+		if(orderFundAmount.val() == '' || parseFloat(orderFundAmount.val()) <= 0) {
+			beekit.tips("请输入付款金额", orderFundAmount);
+			orderFundAmount.focus();
+			orderFundAmount.select();
+			tableValid = false;
+			return false;
+		}
+	}
+	var checkAmount = $(formId).find("input[name=check_amount]").first();
+	if(typeof(checkAmount) != 'undefined' && parseFloat(checkAmount.val()) > parseFloat(amount.val())) {
+		beekit.tips("实际核销金额 不能大于 付款合计金额", checkAmount);
+		checkAmount.focus();
+		checkAmount.select();
+		return false;
+	}
+	return true;
+};
+
+payOrder.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+
+payOrder.supplierList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=supplier_info_keyword]").first();
+	var inputId = $(formId).find("input[name=supplier_info_id]").first();
+	
+	beekit.autocomplete(inputKeyword, "/inventory/supplier/info/listByJson", inputId, function(dataSelected) {
+		$(formId).find("input[name=account_balance]").first().val(dataSelected.availableAmount);
+		 
+		#if(session.hasOper(Permissions.sensitiveData_supplier_due))
+		var accountBalanceShow = $(formId).find("span[name=account_balance_show]").first();
+		if(dataSelected.debtAmount > 0) {
+			accountBalanceShow.html("欠:￥" + dataSelected.debtAmount);
+			accountBalanceShow.addClass("bg-danger");
+			accountBalanceShow.removeClass("bg-primary");
+			accountBalanceShow.show();
+			
+		} else if(dataSelected.debtAmount < 0) {
+			accountBalanceShow.html("余:￥" + (0-dataSelected.debtAmount));
+			accountBalanceShow.addClass("bg-primary");
+			accountBalanceShow.removeClass("bg-danger");
+			accountBalanceShow.show();
+		} else {
+			accountBalanceShow.html("");
+			accountBalanceShow.hide();
+		}
+		#end
+		
+		beekit.ajaxPost("/fund/book/payOrder/draftListByJson", {"supplier_info_id": dataSelected.id}, function(ret) { // 看看有么有同一个供应商的单据
+			if(ret.state != 'ok') {
+				return;
+			}
+			var data = ret.data;
+			if(data.totalRow <= 0) { // 没有草稿，再看看有没有进货订单
+				return;
+			}
+			beekit.confirm("供应商存在草稿单，是否调用之前草稿单？", function() {
+				beekit.ajaxFill("/fund/book/payOrder/editDraft", {"id":data.list[0].id}, $(formId).parent() ,"");
+			});
+		});
+		payOrder.loadPurchaseOrder(formId);
+	});
+};
+
+payOrder.bindFundList = function(formId) {
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		
+		beekit.autocompleteNameByParams(balanceAccountName, "/fund/account/info/listByJson", {}, balanceAccountId, true);
+		
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		orderFundAmount.blur(function() {
+			if($.trim(balanceAccountId.val()) == '' || parseFloat(balanceAccountId.val()) <= 0) {
+				return;
+			}
+			payOrder.totalAmount(formId);
+		})
+	});
+};
+
+
+payOrder.addOrderFundRow = function(othis) {
+	formInput.addOrderFundRow(othis, function(formId) {
+		payOrder.bindFundList(formId);
+	})
+}
+
+payOrder.totalAmount = function(formId, discountAmountBlurFlag) {
+	var totalAmount = 0;
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var balanceAccountName = $(this);
+		if($.trim(balanceAccountName.val()) == '') {
+			return;
+		}
+		var currentRow = $(this).parent().parent();
+		var fundAmount = currentRow.find("input[name=order_fund_amount]").first();
+		if($.trim(fundAmount.val()) == '' || parseFloat(fundAmount.val()) <= 0) {
+			return;
+		}
+		totalAmount = totalAmount + parseFloat(fundAmount.val());
+	});
+	
+	$(formId+" input[name=amount]").first().val(totalAmount.toFixed(2));
+}
+
+payOrder.bindPayAmount = function(formId) {
+	$(formId+" input[name=pay_amount]").each(function(index) {
+		var payAmount = $(this);
+		payAmount.blur(function() {
+			var payAmountVal = payAmount.val();
+			if($.trim(payAmountVal) != '' && !formValidator.checkNotNegativeNumber(payAmountVal)) {
+				beekit.tips("请输入合法金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			var remainAmount =  $(this).parent().prev();
+			if(parseFloat(remainAmount.val()) < payAmountVal) {
+				beekit.tips("付款金额不能大于未付金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			var payDiscountAmount =  $(this).parent().next().find("input[name=pay_discount_amount]").first();
+			if(parseFloat(payDiscountAmount.val()) > 0) {
+				if(parseFloat(remainAmount.val())-parseFloat(payAmountVal) < payDiscountAmount.val()) {
+					beekit.tips("优惠金额过大", payDiscountAmount);
+					payDiscountAmount.focus();
+					payDiscountAmount.select();
+					return;
+				}
+			}
+			
+			payOrder.totalCheckAmount(formId);
+		})
+	});
+	
+	$(formId+" input[name=pay_discount_amount]").each(function(index) {
+		var payDiscountAmount = $(this);
+		payDiscountAmount.blur(function() {
+			var payDiscountAmountVal = payDiscountAmount.val();
+			if($.trim(payDiscountAmountVal) != '' && !formValidator.checkNotNegativeNumber(payDiscountAmountVal)) {
+				beekit.tips("请输入合法金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			var payAmount =  $(this).parent().prev().find("input[name=pay_amount]").first();
+			var remainAmount =  $(this).parent().parent().find("input[name=remain_amount]").first();
+			if(parseFloat(remainAmount.val())-parseFloat(payAmount.val()) < payDiscountAmountVal) {
+				beekit.tips("优惠金额不能大于未付金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			payOrder.totalCheckAmount(formId);
+		})
+	});
+	
+	$(formId +' input[name=form_order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		if(timeType == 0) {
+			$(formId+" input[name=start_time]").first().val();
+			$(formId+" input[name=end_time]").first().val();
+		} else {
+			var times = datetime.getFormatTime(timeType);
+			$(formId+" input[name=start_time]").first().val(times.startTime);
+			$(formId+" input[name=end_time]").first().val(times.endTime);
+		}
+		payOrder.loadPurchaseOrder(formId);
+	});
+}
+
+payOrder.totalCheckAmount = function(formId) {
+	var totalAmount = 0;
+	$(formId+" input[name=pay_amount]").each(function(index) {
+		var payAmount = $(this);
+		if($.trim(payAmount.val()) == '' || parseFloat(payAmount.val()) <= 0) {
+			return;
+		}
+		totalAmount = totalAmount + parseFloat(payAmount.val());
+	});
+	
+	var totalDiscountAmount = 0;
+	$(formId+" input[name=pay_discount_amount]").each(function(index) {
+		var payDiscountAmount = $(this);
+		if($.trim(payDiscountAmount.val()) == '' || parseFloat(payDiscountAmount.val()) <= 0) {
+			return;
+		}
+		totalDiscountAmount = totalDiscountAmount + parseFloat(payDiscountAmount.val());
+	});
+	
+	$(formId+" input[name=discount_amount]").first().val(totalDiscountAmount.toFixed(2));
+	$(formId+" input[name=order_amount]").first().val((totalAmount+totalDiscountAmount).toFixed(2));
+	$(formId+" input[name=check_amount]").first().val((totalAmount).toFixed(2));
+}
+
+payOrder.loadPurchaseOrder = function(formId) {
+	var id = $(formId).find("input[name=id]").first();
+	var supplierInfoId = $(formId).find("input[name=supplier_info_id]").first();
+	if($.trim(supplierInfoId.val()) == '') {
+		return;
+	}
+	var startTime = $(formId+" input[name=start_time]").first();
+	var startTimeVal;
+	if(typeof(startTime) != 'undefined') {
+		startTimeVal = startTime.val();
+	}
+	var endTime = $(formId+" input[name=end_time]").first();
+	if(typeof(endTime) != 'undefined') {
+		endTimeVal = endTime.val();
+	}
+	
+	var orderTimeBtnVal;
+	var orderTimeBtn = $(formId +' div[name=payOrder_purchase_order_list]').first().find("input[name=form_order_time_btn]").each(function() {
+		if($(this).prop("checked")) {
+			orderTimeBtnVal = $(this).val();
+			return;
+		}
+	});
+	beekit.ajaxFill("/fund/book/payOrder/purchaseOrderList", {"id":id.val(), "supplier_info_id": supplierInfoId.val(), "start_time":startTimeVal, "end_time":endTimeVal, "order_time_btn":orderTimeBtnVal}, $(formId +' div[name=payOrder_purchase_order_list]').first(), function() {
+		$(formId +' div[name=payOrder_purchase_order_list]').first().find("input[type=text]").each(function() {
+			$(this).keyup(function(event) {
+				formInput.listenEvent(formId, this, event);
+			});
+		});
+		payOrder.bindPayAmount(formId);
+	});
+}
+
+</script>

@@ -1,0 +1,483 @@
+	#(token)
+	<input type="hidden" name="id" value="#(receiptOrder.id??)">
+	<input type="hidden" name="order_status" value="#(receiptOrder.order_status??)">
+	
+	<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-3" style="margin-right:5rem">
+				<div class="input-group position-relative">
+					<span class="input-group-text">客户</span> 
+					#set(customerInfo = receiptOrder.customerInfo??)
+					<input type="hidden" name="customer_info_id" value="#(receiptOrder.customer_info_id??)">
+					<input type="text"  placeholder="选择客户" name="customer_info_keyword" autocomplete="off" value="#(customerInfo.name??)" #if(receiptOrder) readonly class="form-control input-readonly"  #else class="form-control" #end>
+					<input type="hidden" name="account_balance" value="#(customerInfo.availableAmount??)">
+					#if(customerInfo && session.hasOper(Permissions.sensitiveData_customer_due))
+					#set(debtAmount = customerInfo.debtAmount)
+					#if(debtAmount > 0)
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-danger" style="left:110% !important;">欠:￥#number(debtAmount, "#.##")</span>
+					#elseif(debtAmount < 0)
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important;">余:￥#number(-debtAmount, "#.##")</span>
+					#else
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important; display:none;"></span>
+					#end
+					#else
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important; display:none;"></span>
+					#end
+					<span class="input-group-text">
+						<a href="javascript:void(0);" onclick="dashboard.linkTab('/sale/customer/info');"><i class="bi bi-plus-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="去录入新客户信息"></i></a>
+					</span> 
+				</div>
+			</div>
+			
+			#if(draftCount && draftCount > 0)
+			<div class="col">
+			<div class="float-end">
+				<button type="button" class="btn btn-outline-primary position-relative" onclick="receiptOrder.draftIndex();" name="draft_count_btn">
+				草稿箱 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" name="draft_count"> #(draftCount) </span>
+				</button>
+			</div>
+			</div>
+			#else
+			<div class="col">
+			<div class="float-end">
+				<span name="draft_count"></span>
+			</div>
+			</div>
+			#end
+		</div>
+		<div class="row mt-2">
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">经办人</span> 
+					<input type="hidden" name="handler_id" #if(receiptOrder) value="#(receiptOrder.handler_id??)" #else value="#(session.tenantAdminId)" #end>
+					<input type="text" class="form-control" placeholder="选择经办人" name="handler_keyword" #if(receiptOrder) value="#(receiptOrder.handler.real_name??)" #else value="#(session.realName)" #end autocomplete="off" >
+				</div>
+			</div>
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">单据日期</span> <input type="text" class="form-control" name="order_time" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" readonly #if(receiptOrder) value="#date(receiptOrder.order_time, "yyyy-MM-dd")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd")" #end>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card mt-2">
+<div class="card-body">
+<div id="receiptOrder-receipt-list">
+		#set(orderFundList = receiptOrder.orderFundList??)
+		#if(orderFundList && orderFundList.size() > 0)
+		#for(x : orderFundList)
+		<div class="row">
+				<div class="col-8">
+					<input type="hidden" name="order_fund_id" value="#(x.id)">	
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">收款账户</span> 
+						<input type="hidden" name="order_fund_balance_account_id" value="#(x.trader_balance_account_id)">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" value="#(x.balanceAccount.name??)" autocomplete="off" >
+						<span class="input-group-text fw-bold text-secondary">实收金额</span> 
+						<input type="text" class="form-control" name="order_fund_amount" value="#number(x.amount, '#.##')" onclick="$(this).select();" autocomplete="off"> 
+						<span class="input-group-text fw-bold text-secondary">收款日期</span> 
+						<input type="text" class="form-control" name="order_fund_fund_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" value="#date(x.fund_time, "yyyy-MM-dd")"  autocomplete="off"> 
+						#if(for.first)
+						<span class="input-group-text" onclick="receiptOrder.addOrderFundRow(this);"><i class="bi bi-plus-circle"></i></span>
+						#else
+						<span class="input-group-text" onclick="formInput.removeOrderFundRow(this);"><i class="bi bi-dash-circle"></i></span>
+						#end
+					</div>
+				</div>
+			</div>
+			
+		#end
+		#else
+		<div class="row">
+				<div class="col-7">
+					<input type="hidden" name="order_fund_id">
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">收款账户</span> 
+						<input type="hidden" name="order_fund_balance_account_id">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" autocomplete="off" >
+						<span class="input-group-text fw-bold text-secondary">实收金额</span> 
+						<input type="text" class="form-control" name="order_fund_amount" onclick="$(this).select();"  autocomplete="off"> 
+						<span class="input-group-text fw-bold text-secondary ">收款日期</span> 
+						<input type="text" class="form-control" name="order_fund_fund_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" autocomplete="off"> 
+						<span class="input-group-text" onclick="receiptOrder.addOrderFundRow(this);"><i class="bi bi-plus-circle"></i></span>
+					</div>
+				</div>
+			</div>
+		#end
+		</div>
+	
+		<div class="row">
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">收款合计</span> <input type="text" class="form-control input-readonly fw-bold text-secondary" name="amount" value="#(receiptOrder.amount??0.00)" readonly>
+				</div>
+			</div>
+		</div>
+		</div>
+		</div>
+		
+		<div name="receiptOrder_sale_order_list">
+		#include("saleOrderList.html")
+		</div>
+		<div class="card mt-2">
+		<div class="card-body">
+		<div class="row">
+			<div class="col-5">
+				<div class="input-group">
+					<span class="input-group-text">备注</span>
+					<input type="text" class="form-control" name="remark" value="#(receiptOrder.remark??)">
+				</div>
+			</div>
+			<div class="col">
+					<div class="row">
+						<div class="col">
+						<div class="add-pic-box add-pic">
+							<i class="bi bi-plus-lg"></i><br />上传图片 <input type="file" accept="image/jpeg, image/png, image/gif"  name="file_upload">
+						</div>
+						</div>
+						<div class="col-10 add-pic-list" name="img_list">
+						#if(receiptOrder) 
+						#for(img : receiptOrder.orderImgList)
+						<div class="add-pic-box">
+							<input type="hidden" name="order_imgs" value="#(img)"> <img src="#(resourceUploadDomain)#(img)">
+							<div class="delete-pic" onclick="$(this).parent().remove();">
+								<i class="bi bi-x-circle-fill text-danger"></i>
+							</div>
+						</div>
+						#end
+						#end
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script type="application/javascript">
+if(typeof(receiptOrder) == "undefined") {
+	receiptOrder = {};
+}
+
+receiptOrder.uploadFileListener = function(formId) {
+	$(formId+" input[name=file_upload]").on("change", function(evt) {
+		common.uploadFile(this, function(ret) {
+			var html = "<div class=\"add-pic-box\">"+
+						"<input type=\"hidden\" name=\"order_imgs\" value=\""+ret.thumbPath+"\">"+
+						"<img src=\"#(resourceUploadDomain)"+ret.thumbPath+"\">"+
+						"<div class=\"delete-pic\" onclick=\"$(this).parent().remove();\"><i class=\"bi bi-x-circle-fill text-danger\"></i></div>"+
+						"</div>";
+						
+			$(formId).find("div[name=img_list]").first().append(html);
+		});
+	});
+}
+
+receiptOrder.formChecking = function(formId) {
+	var customerInfoId = $(formId).find("input[name=customer_info_id]").first();
+	if($.trim(customerInfoId.val()) == '') {
+		var customerInfoKeyword = $(formId).find("input[name=customer_info_keyword]").first();
+		beekit.tips('客户不能为空！', customerInfoKeyword);
+		$(customerInfoKeyword).focus();
+		return false;
+	}
+	var handlerId = $(formId).find("input[name=handler_id]").first();
+	if($.trim(handlerId.val()) == '') {
+		var handlerKeyword = $(formId).find("input[name=handler_keyword]").first();
+		beekit.tips('经办人不能为空！', handlerKeyword);
+		$(handlerKeyword).focus();
+		return false;
+	}
+	var orderTime = $(formId).find("input[name=order_time]").first();
+	if($.trim(orderTime.val()) == '') {
+		beekit.tips('单据时间不能为空！', orderTime);
+		$(orderTime).focus();
+		return false;
+	}
+	var tableValid = true;
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		
+		if(orderFundAmount.val() != '' && parseFloat(orderFundAmount.val()) > 0) {
+			if(balanceAccountName.val() == '' || parseFloat(balanceAccountId.val()) < 0) {
+				beekit.tips("请选择收款账户", balanceAccountName);
+				balanceAccountName.focus();
+				balanceAccountName.select();
+				tableValid = false;
+				return false;
+			}
+		}
+		if((balanceAccountName.val() != '' && parseFloat(balanceAccountId.val()) > 0)) {
+			if(orderFundAmount.val() == '') {
+				beekit.tips("请输入收款金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+			
+			if(!formValidator.checkPositiveNumber(orderFundAmount.val())) {
+				beekit.tips("请输入合法的金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+		}
+	});
+	
+	if(!tableValid) {
+		return false;
+	}
+	var amount = $(formId).find("input[name=amount]").first();
+	if($.trim(amount.val()) == '' || parseFloat(amount.val()) <= 0) {
+		var balanceAccountName = $(formId+" input[name=order_fund_balance_account_name]").first();
+		var orderFundAmount = $(formId+" input[name=order_fund_amount]").first();
+		if(balanceAccountName.val() == '' || parseFloat(balanceAccountId.val()) < 0) {
+			beekit.tips("请选择收款账户", balanceAccountName);
+			balanceAccountName.focus();
+			balanceAccountName.select();
+			return false;
+		}
+		if(orderFundAmount.val() == '' || parseFloat(orderFundAmount.val()) <= 0) {
+			beekit.tips("请输入收款金额", orderFundAmount);
+			orderFundAmount.focus();
+			orderFundAmount.select();
+			tableValid = false;
+			return false;
+		}
+	}
+	var checkAmount = $(formId).find("input[name=check_amount]").first();
+	if(typeof(checkAmount) != 'undefined' && parseFloat(checkAmount.val()) > parseFloat(amount.val())) {
+		beekit.tips("实际核销金额 不能大于 收款合计金额", checkAmount);
+		checkAmount.focus();
+		checkAmount.select();
+		return false;
+	}
+	return true;
+};
+
+receiptOrder.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+receiptOrder.customerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=customer_info_keyword]").first();
+	var inputId = $(formId).find("input[name=customer_info_id]").first();
+	
+	beekit.autocomplete(inputKeyword, "/sale/customer/info/listByJson", inputId, function(dataSelected) {
+		$(formId).find("input[name=account_balance]").first().val(dataSelected.availableAmount);
+		 
+		#if(session.hasOper(Permissions.sensitiveData_customer_due))
+		var accountBalanceShow = $(formId).find("span[name=account_balance_show]").first();
+		if(dataSelected.debtAmount > 0) {
+			accountBalanceShow.html("欠:￥" + dataSelected.debtAmount);
+			accountBalanceShow.addClass("bg-danger");
+			accountBalanceShow.removeClass("bg-primary");
+			accountBalanceShow.show();
+			
+		} else if(dataSelected.debtAmount < 0) {
+			accountBalanceShow.html("余:￥" + (0-dataSelected.debtAmount));
+			accountBalanceShow.addClass("bg-primary");
+			accountBalanceShow.removeClass("bg-danger");
+			accountBalanceShow.show();
+		} else {
+			accountBalanceShow.html("");
+			accountBalanceShow.hide();
+		}
+		#end
+		
+		beekit.ajaxPost("/fund/book/receiptOrder/draftListByJson", {"customer_info_id": dataSelected.id}, function(ret) { // 看看有么有同一个客户的单据
+			if(ret.state != 'ok') {
+				return;
+			}
+			var data = ret.data;
+			if(data.totalRow <= 0) { // 没有草稿，再看看有没有销售订单
+				return;
+			}
+			beekit.confirm("客户存在草稿单，是否调用之前草稿单？", function() {
+				beekit.ajaxFill("/fund/book/receiptOrder/editDraft", {"id":data.list[0].id}, $(formId).parent() ,"");
+			});
+		});
+		receiptOrder.loadSaleOrder(formId);
+	});
+};
+
+receiptOrder.bindFundList = function(formId) {
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		
+		beekit.autocompleteNameByParams(balanceAccountName, "/fund/account/info/listByJson", {}, balanceAccountId, true);
+		
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		orderFundAmount.blur(function() {
+			if($.trim(balanceAccountId.val()) == '' || parseFloat(balanceAccountId.val()) <= 0) {
+				return;
+			}
+			receiptOrder.totalAmount(formId);
+		})
+	});
+};
+
+
+receiptOrder.addOrderFundRow = function(othis) {
+	formInput.addOrderFundRow(othis, function(formId) {
+		receiptOrder.bindFundList(formId);
+	})
+}
+
+receiptOrder.totalAmount = function(formId, discountAmountBlurFlag) {
+	var totalAmount = 0;
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var balanceAccountName = $(this);
+		if($.trim(balanceAccountName.val()) == '') {
+			return;
+		}
+		var currentRow = $(this).parent().parent();
+		var fundAmount = currentRow.find("input[name=order_fund_amount]").first();
+		if($.trim(fundAmount.val()) == '' || parseFloat(fundAmount.val()) <= 0) {
+			return;
+		}
+		totalAmount = totalAmount + parseFloat(fundAmount.val());
+	});
+	
+	$(formId+" input[name=amount]").first().val(totalAmount.toFixed(2));
+}
+
+receiptOrder.bindReceiptAmount = function(formId) {
+	$(formId+" input[name=receipt_amount]").each(function(index) {
+		var receiptAmount = $(this);
+		receiptAmount.blur(function() {
+			var receiptAmountVal = receiptAmount.val();
+			if($.trim(receiptAmountVal) != '' && !formValidator.checkNotNegativeNumber(receiptAmountVal)) {
+				beekit.tips("请输入合法金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			var remainAmount =  $(this).parent().prev();
+			if(parseFloat(remainAmount.val()) < receiptAmountVal) {
+				beekit.tips("收款金额不能大于未收金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			var receiptDiscountAmount =  $(this).parent().next().find("input[name=receipt_discount_amount]").first();
+			if(parseFloat(receiptDiscountAmount.val()) > 0) {
+				if(parseFloat(remainAmount.val())-parseFloat(receiptAmountVal) < receiptDiscountAmount.val()) {
+					beekit.tips("优惠金额过大", receiptDiscountAmount);
+					receiptDiscountAmount.focus();
+					receiptDiscountAmount.select();
+					return;
+				}
+			}
+			
+			receiptOrder.totalCheckAmount(formId);
+		})
+	});
+	
+	$(formId+" input[name=receipt_discount_amount]").each(function(index) {
+		var receiptDiscountAmount = $(this);
+		receiptDiscountAmount.blur(function() {
+			var receiptDiscountAmountVal = receiptDiscountAmount.val();
+			if($.trim(receiptDiscountAmountVal) != '' && !formValidator.checkNotNegativeNumber(receiptDiscountAmountVal)) {
+				beekit.tips("请输入合法金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			var receiptAmount =  $(this).parent().prev().find("input[name=receipt_amount]").first();
+			var remainAmount =  $(this).parent().parent().find("input[name=remain_amount]").first();
+			if(parseFloat(remainAmount.val())-parseFloat(receiptAmount.val()) < receiptDiscountAmountVal) {
+				beekit.tips("优惠金额不能大于未收金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			receiptOrder.totalCheckAmount(formId);
+		})
+	});
+	
+	$(formId +' input[name=form_order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		if(timeType == 0) {
+			$(formId+" input[name=start_time]").first().val();
+			$(formId+" input[name=end_time]").first().val();
+		} else {
+			var times = datetime.getFormatTime(timeType);
+			$(formId+" input[name=start_time]").first().val(times.startTime);
+			$(formId+" input[name=end_time]").first().val(times.endTime);
+		}
+		receiptOrder.loadSaleOrder(formId);
+	});
+}
+
+receiptOrder.totalCheckAmount = function(formId) {
+	var totalAmount = 0;
+	$(formId+" input[name=receipt_amount]").each(function(index) {
+		var receiptAmount = $(this);
+		if($.trim(receiptAmount.val()) == '' || parseFloat(receiptAmount.val()) <= 0) {
+			return;
+		}
+		totalAmount = totalAmount + parseFloat(receiptAmount.val());
+	});
+	
+	var totalDiscountAmount = 0;
+	$(formId+" input[name=receipt_discount_amount]").each(function(index) {
+		var receiptDiscountAmount = $(this);
+		if($.trim(receiptDiscountAmount.val()) == '' || parseFloat(receiptDiscountAmount.val()) <= 0) {
+			return;
+		}
+		totalDiscountAmount = totalDiscountAmount + parseFloat(receiptDiscountAmount.val());
+	});
+	
+	$(formId+" input[name=discount_amount]").first().val(totalDiscountAmount.toFixed(2));
+	$(formId+" input[name=order_amount]").first().val((totalAmount+totalDiscountAmount).toFixed(2));
+	$(formId+" input[name=check_amount]").first().val((totalAmount).toFixed(2));
+}
+
+receiptOrder.loadSaleOrder = function(formId) {
+	var id = $(formId).find("input[name=id]").first();
+	var customerInfoId = $(formId).find("input[name=customer_info_id]").first();
+	if($.trim(customerInfoId.val()) == '') {
+		return;
+	}
+	var startTime = $(formId+" input[name=start_time]").first();
+	var startTimeVal;
+	if(typeof(startTime) != 'undefined') {
+		startTimeVal = startTime.val();
+	}
+	var endTime = $(formId+" input[name=end_time]").first();
+	if(typeof(endTime) != 'undefined') {
+		endTimeVal = endTime.val();
+	}
+	
+	var orderTimeBtnVal;
+	var orderTimeBtn = $(formId +' div[name=receiptOrder_sale_order_list]').first().find("input[name=form_order_time_btn]").each(function() {
+		if($(this).prop("checked")) {
+			orderTimeBtnVal = $(this).val();
+			return;
+		}
+	});
+	beekit.ajaxFill("/fund/book/receiptOrder/saleOrderList", {"id":id.val(), "customer_info_id": customerInfoId.val(), "start_time":startTimeVal, "end_time":endTimeVal, "order_time_btn":orderTimeBtnVal}, $(formId +' div[name=receiptOrder_sale_order_list]').first(), function() {
+		$(formId +' div[name=receiptOrder_sale_order_list]').first().find("input[type=text]").each(function() {
+			$(this).keyup(function(event) {
+				formInput.listenEvent(formId, this, event);
+			});
+		});
+		receiptOrder.bindReceiptAmount(formId);
+	});
+}
+
+</script>

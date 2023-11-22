@@ -1,0 +1,66 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑收款单据</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="receiptOrder-edit-form" onsubmit="receiptOrder.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(receiptOrder.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="receiptOrder.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="receiptOrder.update();">保存</button>
+						#end
+						
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+if(typeof(receiptOrder) == "undefined") {
+	receiptOrder = {};
+}
+
+$(function() {
+	var formId = "#receiptOrder-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		receiptOrder.handlerList(formId);
+		receiptOrder.customerList(formId);
+		receiptOrder.bindFundList(formId);
+		receiptOrder.bindReceiptAmount(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	receiptOrder.uploadFileListener(formId)
+	
+});
+
+receiptOrder.update = function() {
+	var formId = "#receiptOrder-edit-form";
+	var result = receiptOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/fund/book/receiptOrder/update", $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				receiptOrder.list(#(receiptOrder.id));
+			}
+		});
+	});
+};
+
+</script>

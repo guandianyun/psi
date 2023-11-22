@@ -1,0 +1,30 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>草稿箱
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1" id="data-draftlist-receiptOrder">
+	#include("draftList.html")
+</div>
+
+
+<script type="application/javascript">
+	
+receiptOrder.editDraft = function(id) {
+	beekit.offcanvasMiddleClose();
+	beekit.ajaxFill("/fund/book/receiptOrder/editDraft", {"id":id}, $("#receiptOrder-add-form").parent() ,"");
+};
+
+receiptOrder.deleteDraft = function(id) {
+	beekit.confirmByUrl("/fund/book/receiptOrder/delete", {"id":id}, "确认要删除此收款单据吗？", function(ret) {
+		beekit.msg(ret);
+		receiptOrder.draftList();
+	});
+};
+
+receiptOrder.draftList = function() {
+	beekit.ajaxFillPage("/fund/book/receiptOrder/draftList", "", "#data-draftlist-receiptOrder" ,"");
+}
+
+</script>

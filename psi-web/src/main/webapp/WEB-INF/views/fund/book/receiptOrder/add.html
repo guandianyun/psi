@@ -1,0 +1,120 @@
+<form id="receiptOrder-add-form" onsubmit="receiptOrder.submitConfirm();return false;">
+#include("_form.html")
+<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+	<div class="col">
+		<button type="button" class="btn btn-lg btn-outline-secondary fs-6 btn-wlg" onclick="dashboard.linkTab('/fund/book/receiptOrder/add')">清空</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6 btn-wlg" onclick="receiptOrder.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6 btn-wlg" onclick="receiptOrder.draft();">暂存草稿</button>
+	</div>
+</div>
+</form>
+
+<div id="receiptOrder-add-confirm" style="display:none;">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="receiptOrder.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6" onclick="receiptOrder.draft();">暂存草稿</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+<script type="application/javascript">
+if(typeof(receiptOrder) == "undefined") {
+	receiptOrder = {};
+}
+
+$(function() {
+	var formId = "#receiptOrder-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		receiptOrder.handlerList(formId);
+		receiptOrder.customerList(formId);
+		receiptOrder.bindFundList(formId);
+		receiptOrder.bindReceiptAmount(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+
+	#if(receiptOrder)
+		setTimeout(function() {
+			$(formId).find("input[name=remark]").first().focus();
+		}, 500);
+	#end
+	
+	receiptOrder.uploadFileListener(formId)
+	
+});
+
+receiptOrder.submitConfirm = function() {
+	var formId = "#receiptOrder-add-form";
+	var result = receiptOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.modalConfirm("确定要保存收款单据吗？", $("#receiptOrder-add-confirm").html());
+};
+
+receiptOrder.normal = function() {
+	var formId = "#receiptOrder-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.normal.value));
+	receiptOrder.create();
+};
+
+receiptOrder.draft = function() {
+	var formId = "#receiptOrder-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.draft.value));
+	receiptOrder.create();
+};
+
+
+receiptOrder.create = function(msg) {
+	var formId = "#receiptOrder-add-form";
+	var result = receiptOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	#if(receiptOrder && receiptOrder.id && receiptOrder.id > 0)
+	var url = "/fund/book/receiptOrder/update";
+	#else
+	var url = "/fund/book/receiptOrder/create";
+	#end
+	
+	beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.modalConfirmClose();
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				var orderStatusVal = $(formId).find("input[name=order_status]").first().val();
+				if(orderStatusVal == #(OrderStatusEnum.draft.value)) {
+					beekit.flyer($(formId).find("button[name=draft_btn]").first(), $(formId).find("span[name=draft_count]").first(), "#receiptOrder-add-form button[name=draft_count_btn]");
+				} else {
+					beekit.flyer($(formId).find("button[name=normal_btn]").first(), "#fund_book_receiptOrder");
+					#if(orderPrintConfig.trader_receipt_flag)
+					#if(orderPrintConfig.trader_receipt_confirm)
+						setTimeout(function() {
+							beekit.confirm('是否打印单据？', function() {
+								lodopPrinter.traderReceiptOrderPrint(0, ret.targetId, false);
+							});
+						}, 1500);
+					#else
+					lodopPrinter.traderReceiptOrderPrint(0, ret.targetId, false);
+					#end
+					#end
+				}
+				dashboard.linkTab("/fund/book/receiptOrder/add");
+			}	
+		});
+	});
+};
+
+receiptOrder.draftIndex = function() {
+	beekit.offcanvasMiddle("/fund/book/receiptOrder/draftIndex");
+};
+
+
+</script>

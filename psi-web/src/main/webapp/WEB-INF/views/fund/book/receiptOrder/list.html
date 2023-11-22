@@ -1,0 +1,179 @@
+
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-3">
+			#if(session.hasOper(Permissions.fund_book_receiptOrder_export))
+			<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+			  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="receiptOrder.export();">导出</button>
+			  <div class="btn-group" role="group">
+			    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+			    <ul class="dropdown-menu">
+			      <li><a class="dropdown-item" href="javascript:void(0);" onclick="receiptOrder.exportLog();">导出记录</a></li>
+			    </ul>
+			  </div>
+			</div>
+			#end
+			</div>
+			<div class="col">
+			#if(page.totalPage > 1)
+			<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			#end
+				<div class="float-end me-3 mt-1">
+					#if(orderAuditFlag)
+					#if(session.hasOper(Permissions.fund_book_receiptOrder_audit))
+					<input class="form-check-input" type="checkbox" name="show_audit_flag" id="receiptOrder_show_audit_flag" #if(showAuditFlag) checked #end onclick="receiptOrder.list();"> 
+					<label class="form-check-label" for="receiptOrder_show_audit_flag"> 待审核单据</label>
+					&nbsp;&nbsp;&nbsp;
+					#end
+					#end
+					<input class="form-check-input" type="checkbox" name="hide_disable_flag" id="receiptOrder_hide_disable_flag" #if(hideDisableFlag) checked #end onclick="receiptOrder.list();"> 
+					<label class="form-check-label" for="receiptOrder_hide_disable_flag"> 隐藏作废单据</label>
+					</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>单据编号</th>
+			<th>销售日期</th>
+			<th>客户</th>
+			<th>收款金额</th>
+			<th>核销金额</th>
+			<th>优惠金额</th>
+			<th>实际核销</th>
+			<th>经办人</th>
+			<th>单据状态</th>
+			<th>备注</th>
+			<th style="width: 10%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="receiptOrder-list">
+		#for (x : page.getList())
+		<tr data-id="#(x.id)" id="receiptOrder-data-#(x.id)" #if(x.order_status == OrderStatusEnum.disable.value) class="disable-order"  #end>
+			<td>#(x.order_code)</td>
+			<td>#date(x.order_time, "yyyy-MM-dd")</td>
+			<td>#(x.customerInfo.name??)</td>
+			<td><span class="fw-bold text-secondary">#number(x.amount, "#.##")</span> </td>
+			<td><span >#number(x.order_amount, "#.##")</span> </td>
+			<td><span >#number(x.discount_amount, "#.##")</span> </td>
+			<td><span >#number(x.check_amount, "#.##")</span> </td>
+			<td>#(x.handler.real_name??)</td>
+			<td>
+			#if(x.order_status == OrderStatusEnum.disable.value)
+			<span class="text-decoration-line-through">已作废</span>
+			#elseif(x.audit_status == AuditStatusEnum.waiting.value)
+			<span class="badge bg-danger">待审核</span>
+			#elseif(x.audit_status == AuditStatusEnum.reject.value)
+			<span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="#(x.audit_desc)">审核拒绝</span>
+			#elseif(x.audit_status == AuditStatusEnum.pass.value)
+			<span class="badge bg-success">已完成</span>
+			#end
+			</td>
+			<td>#(x.remark)</td>
+			<td>
+				#if(x.order_status == OrderStatusEnum.disable.value)
+				<span class="text-decoration-line-through">已作废</span>
+				#else
+				#if(x.audit_status == AuditStatusEnum.waiting.value)
+				#if(session.hasOper(Permissions.fund_book_receiptOrder_audit))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="receiptOrder.audit(#(x.id));">审核</button> 
+				#end
+				#end
+				#if(!orderAuditFlag || (orderAuditFlag && (x.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.fund_book_receiptOrder_audit))))
+				#if(session.hasOper(Permissions.fund_book_receiptOrder_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="receiptOrder.edit(#(x.id));">修改</button> 
+				#end 
+				#end
+				#end 
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#receiptOrder_pageNumber").val(#(page.pageNumber));
+	
+	$("#receiptOrder-list tr").on("dblclick", function() {
+		receiptOrder.show($(this).attr("data-id"));
+	});
+	
+});
+
+receiptOrder.show = function(id) {
+	beekit.offcanvas("/fund/book/receiptOrder/show?id="+id);
+};
+
+
+receiptOrder.edit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/fund/book/receiptOrder/edit?id="+id);
+};
+
+receiptOrder.audit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/fund/book/receiptOrder/audit?id="+id);
+};
+
+receiptOrder.disable = function(id) {
+	beekit.confirmByUrl("/fund/book/receiptOrder/disable", {"id":id}, "确认要作废此收款单据吗？", function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			beekit.offcanvasClose();
+			receiptOrder.list(id);
+		});
+	});
+};
+
+receiptOrder.delete = function(id) {
+	beekit.focusColor("goodsInfo-data-"+id);
+	beekit.confirmByUrl("/fund/book/receiptOrder/delete", {"id":id}, "确认要删除此收款单据吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		receiptOrder.list();
+	});
+};
+
+
+
+receiptOrder.export = function() {
+	var showAuditFlag = $("#receiptOrder_show_audit_flag").prop("checked");
+	if(typeof(showAuditFlag) == 'undefined') {
+		showAuditFlag = false;
+	}
+	var hideDisableFlag = $("#receiptOrder_hide_disable_flag").prop("checked");
+	if(typeof(hideDisableFlag) == 'undefined') {
+		hideDisableFlag = true;
+	}
+	var hidePayFlag = $("#receiptOrder_hide_pay_flag").prop("checked");
+	if(typeof(hidePayFlag) == 'undefined') {
+		hidePayFlag = false;
+	}
+	beekit.confirmByUrl("/fund/book/receiptOrder/export?hide_disable_flag="+hideDisableFlag+"&show_audit_flag="+showAuditFlag+"&hide_pay_flag="+hidePayFlag, $("#receiptOrder-search-form").serialize(), "确定要导出单据吗？", function(ret) {
+		receiptOrder.exportLog(ret.targetId);
+	});
+}
+
+receiptOrder.exportLog = function(targetId) {
+	beekit.modal("/export/log/?targetId="+targetId);
+}
+
+
+
+</script>

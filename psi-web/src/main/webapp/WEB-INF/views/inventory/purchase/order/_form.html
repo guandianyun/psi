@@ -1,0 +1,901 @@
+	#(token)
+	<input type="hidden" name="id" value="#(purchaseOrder.id??)">
+	<input type="hidden" name="order_status" value="#(purchaseOrder.order_status??)">
+	
+	<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-3" style="margin-right:5rem">
+				<div class="input-group position-relative">
+					<span class="input-group-text">供应商</span> 
+					#set(supplierInfo = purchaseOrder.supplierInfo??)
+					<input type="hidden" name="supplier_info_id" value="#(purchaseOrder.supplier_info_id??)">
+					<input type="text"  placeholder="选择供应商" name="supplier_info_keyword" autocomplete="off" value="#(supplierInfo.name??)" #if(purchaseOrder) readonly class="form-control input-readonly"   #else class="form-control" #end>
+					<input type="hidden" name="account_balance" value="#(supplierInfo.availableAmount??)">
+					#if(supplierInfo && session.hasOper(Permissions.sensitiveData_supplier_due))
+					#set(debtAmount = supplierInfo.debtAmount)
+					#if(debtAmount > 0)
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-danger" style="left:110% !important;">欠:￥#number(debtAmount, "#.##")</span>
+					#elseif(debtAmount < 0)
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important;">余:￥#number(-debtAmount, "#.##")</span>
+					#else
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important; display:none;"></span>
+					#end
+					#else
+					<span name="account_balance_show" class="position-absolute top-0 translate-middle badge rounded-pill bg-primary" style="left:110% !important; display:none;"></span>
+					#end
+					
+				</div>
+			</div>
+			#if(draftCount && draftCount > 0)
+			<div class="col">
+			<div class="float-end">
+				<button type="button" class="btn btn-outline-primary position-relative" onclick="purchaseOrder.draftIndex();" name="draft_count_btn">
+				草稿箱 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" name="draft_count"> #(draftCount) </span>
+				</button>
+			</div>
+			</div>
+			#else
+			<div class="col">
+			<div class="float-end">
+				<span name="draft_count"></span>
+			</div>
+			</div>
+			#end
+		</div>
+		<div class="row mt-2">
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">进货员</span> 
+					<input type="hidden" name="handler_id" #if(purchaseOrder) value="#(purchaseOrder.handler_id??)" #else value="#(session.tenantAdminId)" #end>
+					<input type="text" class="form-control" placeholder="选择进货员" name="handler_keyword" #if(purchaseOrder) value="#(purchaseOrder.handler.real_name??)" #else value="#(session.realName)" #end autocomplete="off" >
+				</div>
+			</div>
+		<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">到货日期</span> <input type="text" class="form-control" name="order_time" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" readonly #if(purchaseOrder) value="#date(purchaseOrder.order_time, "yyyy-MM-dd")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd")" #end>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+	<table class="table table-bordered bg-white border-bg-none mt-3">
+		<thead>
+			<tr class="table-header">
+				<th>商品名称</th>
+				<th>商品条码</th>
+				<th>规格</th>
+				<th style="width: 6%;">单位</th>
+				<th style="width: 6%;">单价</th>
+				#if(orderGoodsDiscountFlag)
+				<th style="width: 6%;">折扣(%)</th>
+				<th style="width: 6%;">折后价</th>
+				#end
+				<th style="width: 6%;">数量</th>
+				<th style="width: 6%;">金额</th>
+				<th>备注</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody class="table-row table-order goods-list">
+			#set(orderGoodsList = purchaseOrder.orderGoodsList??)
+			#set(goodsSize = 0)
+			#if(orderGoodsList)
+				#set(goodsSize = orderGoodsList.size())
+			#end
+			
+			#for(x : orderGoodsList)
+			#set(goodsInfo = x.goodsInfo)
+			<tr>
+				<input type="hidden" name="goods_id" value="#(x.id??)">
+				<td><input type="text" class="form-control-input" autocomplete="off" name="goods_info_name" value="#(goodsInfo.name??)"><input type="hidden" name="goods_info_id" value="#(x.goods_info_id)"></td>
+				<td><input type="text" class="form-control-input readonly" name="bar_code" autocomplete="off" readonly value="#(goodsInfo.bar_code??)"></td>
+				<td><input type="text" class="form-control-input" name=goods_spec_name autocomplete="off" value="#(x.goodsSpecNames??)"><input type="hidden" name="goods_spec_id" value="#(x.goodsSpecIds??)"></td>
+				<td><input type="text" class="form-control-input" name="goods_unit_name" autocomplete="off" value="#(x.goodsUnit.name??)"><input type="hidden" name="goods_unit_id"  value="#(x.unit_id)"></td>
+				<td>
+				<input type="hidden" name="cost_price" value="#number(x.price, '#.##')">
+				<input type="text" class="form-control-input" name="goods_price" autocomplete="off" value="#number(x.price, '#.##')" onclick="$(this).select();"></td>
+				#if(orderGoodsDiscountFlag)
+				<td><input type="text" class="form-control-input" name="goods_discount" autocomplete="off" value="#number(x.discount, '#.####')" onclick="$(this).select();"></td>
+				<td><input type="text" class="form-control-input" name="goods_discount_amount" autocomplete="off" value="#number(x.discount_amount, '#.##')" onclick="$(this).select();"></td>
+				#else
+				<input type="hidden" name="goods_discount" value="#number(x.discount, '#.####')">
+				<input type="hidden" name="goods_discount_amount" value="#number(x.discount_amount, '#.##')">
+				#end
+				<td><input type="text" class="form-control-input" name="goods_buy_number" autocomplete="off" value="#number(x.buy_number, '#.####')" onclick="$(this).select();"></td>
+				<td><input type="text" class="form-control-input" name="goods_total_amount" autocomplete="off" value="#number(x.amount, '#.##')" onclick="$(this).select();"></td>
+				<td><input type="text" class="form-control-input" name="goods_remark" autocomplete="off" value="#(x.remark)" onclick="$(this).select();"></td> 
+				#if(for.index == orderRows -1)
+				<td onclick="purchaseOrder.addTableRow(this);"><i class="bi bi-plus-circle"></i></td> 
+				#else
+				<td onclick="formInput.removeTableRow(this);"><i class="bi bi-dash-circle"></i></td> 
+				#end
+			</tr>
+			#end
+			
+			#if(orderRows <= goodsSize)
+			#set(orderRows = 0)
+			#else
+			#set(orderRows = orderRows - goodsSize)
+			#end
+			#for(idx = 0; idx < orderRows; idx++)
+			<tr>
+				<input type="hidden" name="goods_id">
+				<td><input type="text" class="form-control-input" autocomplete="off" name="goods_info_name"><input type="hidden" name="goods_info_id"></td>
+				<td><input type="text" class="form-control-input readonly" name="bar_code" autocomplete="off" readonly></td>
+				<td><input type="text" class="form-control-input" name=goods_spec_name autocomplete="off"><input type="hidden" name="goods_spec_id"></td>
+				<td><input type="text" class="form-control-input" name="goods_unit_name" autocomplete="off"><input type="hidden" name="goods_unit_id"></td>
+				<td>
+				<input type="hidden" name="cost_price">
+				<input type="text" class="form-control-input" name="goods_price" autocomplete="off" onclick="$(this).select();"></td>
+				#if(orderGoodsDiscountFlag)
+				<td><input type="text" class="form-control-input" name="goods_discount" autocomplete="off" onclick="$(this).select();"></td>
+				<td><input type="text" class="form-control-input" name="goods_discount_amount" autocomplete="off" onclick="$(this).select();"></td>
+				#else
+				<input type="hidden" name="goods_discount">
+				<input type="hidden" name="goods_discount_amount">
+				#end
+				<td><input type="text" class="form-control-input" name="goods_buy_number" autocomplete="off" onclick="$(this).select();"></td>
+				<td><input type="text" class="form-control-input" name="goods_total_amount" autocomplete="off" onclick="$(this).select();"></td>
+				<td><input type="text" class="form-control-input" name="goods_remark" autocomplete="off" onclick="$(this).select();"></td>
+				#if(for.index == orderRows -1)
+				<td onclick="purchaseOrder.addTableRow(this);"><i class="bi bi-plus-circle"></i></td> 
+				#else
+				<td onclick="formInput.removeTableRow(this);"><i class="bi bi-dash-circle"></i></td> 
+				#end
+			</tr>
+			#end
+
+		</tbody>
+	</table>
+
+	<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">商品合计</span> <input type="text" class="form-control input-readonly" name="goods_amount" value="#(purchaseOrder.goods_amount??0.00)" readonly>
+				</div>
+			</div>
+			<div class="col-2">
+				<div class="input-group mb-2">
+				 	<input type="hidden" name="discount_type" value="#(purchaseOrder.discount_type??1)">
+					<span class="input-group-text">折扣</span> <input type="text" class="form-control" name="discount" value="#(purchaseOrder.discount??100)" onclick="$(this).select();" autocomplete="off"> <span class="input-group-text">%</span>
+				</div>
+			</div>
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">折后金额</span> <input type="text" class="form-control" name="discount_amount" value="#(purchaseOrder.discount_amount??0.00)" onclick="$(this).select();" autocomplete="off">
+				</div>
+			</div>
+			
+			#if(feeList && feeList.size() > 0)
+			#for(x : feeList)
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">#(x.name)</span> 
+					<input type="hidden" name="fee_id" value="#(x.id)">
+					<input type="text" class="form-control" name="fee_amount" value="#(purchaseOrder.getOrderFee(x.id)??)" onclick="$(this).select();"  autocomplete="off">
+				</div>
+			</div>
+			#end
+			#end
+		
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">应付金额</span> <input type="text" class="form-control input-readonly" name="amount" value="#(purchaseOrder.amount??0.00)" readonly>
+				</div>
+			</div>
+			<input type="hidden" name="odd_amount" value="#(purchaseOrder.odd_amount??0)">
+			
+			#if(costList && costList.size() > 0)
+			#for(x : costList)
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">#(x.name)</span> 
+					<input type="hidden" name="cost_id" value="#(x.id)">
+					<input type="text" class="form-control" name="cost_amount" value="#(purchaseOrder.getOrderCost(x.id)??)" onclick="$(this).select();"  autocomplete="off">
+				</div>
+			</div>
+			#end
+			#end
+			
+			
+		</div>
+		<div id="purchaseOrder-receipt-list">
+		#set(orderFundList = purchaseOrder.orderFundList??)
+		#if(orderFundList && orderFundList.size() > 0)
+		#for(x : orderFundList)
+		
+		#if(x.pay_type == FundTypeEnum.checking.value) ### 核销清账
+		<div class="row">
+				<div  #if(orderFundPaytimeFlag) class="col-8" #else class="col-5" #end>
+					<input type="hidden" name="order_fund_id" value="#(x.id)">	
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">付款账户</span> 
+						<input type="hidden" name="order_fund_balance_account_id" value="#(x.balance_account_id)">
+						<input type="hidden" name="order_fund_pay_type" value="#(x.pay_type)">
+						<input type="text" class="form-control input-readonly" placeholder="" name="order_fund_balance_account_name" value="核销平账" autocomplete="off" readonly>
+						<span class="input-group-text fw-bold text-secondary">实付金额</span> 
+						<input type="text" class="form-control input-readonly" name="order_fund_amount" value="#(x.amount)"  autocomplete="off" readonly> 
+						#if(orderFundPaytimeFlag)
+						<span class="input-group-text fw-bold text-secondary">付款日期</span> 
+						<input type="text" class="form-control input-readonly" name="order_fund_pay_time" value="#date(x.pay_time, "yyyy-MM-dd")"  autocomplete="off" readonly> 
+						#else
+						<input type="hidden" name="order_fund_pay_time" value="#date(x.pay_time, "yyyy-MM-dd")"> 
+						#end
+						<span class="input-group-text"><i class="bi bi-lock"></i></span>
+					</div>
+				</div>
+			</div>
+		#else
+		<div class="row">
+				<div class="col-8">
+					<input type="hidden" name="order_fund_id" value="#(x.id)">	
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">付款账户</span> 
+						<input type="hidden" name="order_fund_pay_type" value="#(x.pay_type)">
+						#if(x.pay_type == FundTypeEnum.cash.value) 
+						<input type="hidden" name="order_fund_balance_account_id" value="#(x.balance_account_id)">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" value="#(x.balanceAccount.name??)" autocomplete="off" >
+						#elseif(x.pay_type == FundTypeEnum.balance.value) 
+						<input type="hidden" name="order_fund_balance_account_id" value="0">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" value="余额扣款(￥#(supplierInfo.availableAmount??))" autocomplete="off" >
+						#end
+						<span class="input-group-text fw-bold text-secondary">实付金额</span> 
+						<input type="text" class="form-control" name="order_fund_amount" value="#(x.amount)" onclick="$(this).select();" autocomplete="off"> 
+						#if(orderFundPaytimeFlag)
+						<span class="input-group-text fw-bold text-secondary">付款日期</span> 
+						<input type="text" class="form-control" name="order_fund_pay_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" value="#date(x.pay_time, "yyyy-MM-dd")"  autocomplete="off"> 
+						#else
+						<input type="hidden" name="order_fund_pay_time" value="#date(x.pay_time, "yyyy-MM-dd")"> 
+						#end
+						#if(for.first)
+						<span class="input-group-text" onclick="purchaseOrder.addOrderFundRow(this);"><i class="bi bi-plus-circle"></i></span>
+						#else
+						<span class="input-group-text" onclick="formInput.removeOrderFundRow(this);"><i class="bi bi-dash-circle"></i></span>
+						#end
+					</div>
+				</div>
+			</div>
+		#end
+			
+		#end
+		#else
+		<div class="row">
+				<div #if(orderFundPaytimeFlag) class="col-8" #else class="col-5" #end>
+					<input type="hidden" name="order_fund_id">
+					<div class="input-group mb-2">
+						<span class="input-group-text fw-bold text-secondary">付款账户</span> 
+						<input type="hidden" name="order_fund_balance_account_id">
+						<input type="hidden" name="order_fund_pay_type">
+						<input type="text" class="form-control" placeholder="" name="order_fund_balance_account_name" autocomplete="off" >
+						<span class="input-group-text fw-bold text-secondary">实付金额</span> 
+						<input type="text" class="form-control" name="order_fund_amount" onclick="$(this).select();"  autocomplete="off"> 
+						#if(orderFundPaytimeFlag)
+						<span class="input-group-text fw-bold text-secondary ">付款日期</span> 
+						<input type="text" class="form-control" name="order_fund_pay_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" autocomplete="off"> 
+						#else
+						<input type="hidden" name="order_fund_pay_time"> 
+						#end
+						<span class="input-group-text" onclick="purchaseOrder.addOrderFundRow(this);"><i class="bi bi-plus-circle"></i></span>
+					</div>
+				</div>
+			</div>
+		#end
+		</div>
+		<div class="row">
+			<div class="col-5">
+				<div class="input-group">
+					<span class="input-group-text">备注</span>
+					<input type="text" class="form-control" name="remark" value="#(purchaseOrder.remark??)">
+				</div>
+			</div>
+			<div class="col">
+					<div class="row">
+						<div class="col">
+						<div class="add-pic-box add-pic">
+							<i class="bi bi-plus-lg"></i><br />上传图片 <input type="file" accept="image/jpeg, image/png, image/gif"  name="file_upload">
+						</div>
+						</div>
+						<div class="col-10 add-pic-list" name="img_list">
+						#if(purchaseOrder) 
+						#for(img : purchaseOrder.orderImgList)
+						<div class="add-pic-box">
+							<input type="hidden" name="order_imgs" value="#(img)"> <img src="#(resourceUploadDomain)#(img)">
+							<div class="delete-pic" onclick="$(this).parent().remove();">
+								<i class="bi bi-x-circle-fill text-danger"></i>
+							</div>
+						</div>
+						#end
+						#end
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="purchaseOrder-edit-sale-price-confirm" style="display:none;">
+		<input type="hidden" id="purchaseOrder-edit-sale-price-goods-id">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="purchaseOrder.editSalePrice();">修改</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+
+
+<script type="application/javascript">
+if(typeof(purchaseOrder) == "undefined") {
+	purchaseOrder = {};
+}
+
+purchaseOrder.uploadFileListener = function(formId) {
+	$(formId+" input[name=file_upload]").on("change", function(evt) {
+		common.uploadFile(this, function(ret) {
+			var html = "<div class=\"add-pic-box\">"+
+						"<input type=\"hidden\" name=\"order_imgs\" value=\""+ret.thumbPath+"\">"+
+						"<img src=\"#(resourceUploadDomain)"+ret.thumbPath+"\">"+
+						"<div class=\"delete-pic\" onclick=\"$(this).parent().remove();\"><i class=\"bi bi-x-circle-fill text-danger\"></i></div>"+
+						"</div>";
+			
+			$(formId).find("div[name=img_list]").first().append(html);
+		});
+	});
+}
+
+purchaseOrder.formChecking = function(formId) {
+	var supplierInfoId = $(formId).find("input[name=supplier_info_id]").first();
+	if($.trim(supplierInfoId.val()) == '') {
+		var supplierKeyword = $(formId).find("input[name=supplier_info_keyword]").first();
+		beekit.tips('供应商不能为空！', supplierKeyword);
+		$(supplierKeyword).focus();
+		return false;
+	}
+	var handlerId = $(formId).find("input[name=handler_id]").first();
+	if($.trim(handlerId.val()) == '') {
+		var handlerKeyword = $(formId).find("input[name=handler_keyword]").first();
+		beekit.tips('进货员不能为空！', handlerKeyword);
+		$(handlerKeyword).focus();
+		return false;
+	}
+	var orderTime = $(formId).find("input[name=order_time]").first();
+	if($.trim(orderTime.val()) == '') {
+		beekit.tips('进货时间不能为空！', orderTime);
+		$(orderTime).focus();
+		return false;
+	}
+	
+	var tableValid = true;
+	var goodsCount = 0;
+	
+	$(formId+" input[name=goods_info_name]").each(function(index) {
+		var currentGoodsRow = $(this).parent().parent();
+		var goodsInfoName = currentGoodsRow.find("input[name=goods_info_name]").first();
+		var goodsInfoId = currentGoodsRow.find("input[name=goods_info_id]").first();
+		var unitName = currentGoodsRow.find("input[name=goods_unit_name]").first();
+		var unitId = currentGoodsRow.find("input[name=goods_unit_id]").first();
+		var goodsBuyNumber = currentGoodsRow.find("input[name=goods_buy_number]").first();
+		var goodsPrice = currentGoodsRow.find("input[name=goods_price]").first();
+		var goodsDiscount = currentGoodsRow.find("input[name=goods_discount]").first();
+		var goodsDiscountAmount = currentGoodsRow.find("input[name=goods_discount_amount]").first();
+		var goodsTotalAmount = currentGoodsRow.find("input[name=goods_total_amount]").first();
+		
+		if($.trim(goodsInfoName.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+			if(goodsCount > 0) { // 有输入部分商品，空行不提示
+				return true;
+			}
+			beekit.tips("请输入商品", goodsInfoName);
+			goodsInfoName.focus();
+			goodsInfoName.select();
+			tableValid = false;
+			return false;
+		}
+		if($.trim(unitName.val()) == '' || parseFloat(unitId.val()) <= 0) {
+			beekit.tips("请输入单位", unitName);
+			unitName.focus();
+			unitName.select();
+			tableValid = false;
+			return false;
+		}
+		if(goodsBuyNumber.val() == '' || goodsBuyNumber.val() <= 0) {
+			beekit.tips("请输入进货数量", goodsBuyNumber);
+			goodsBuyNumber.focus();
+			goodsBuyNumber.select();
+			tableValid = false;
+			return false;
+		}
+		if(!formValidator.checkNotNegativeNumber4(goodsBuyNumber.val())) {
+			beekit.tips("请输入合法的进货数量", goodsBuyNumber);
+			goodsBuyNumber.focus();
+			goodsBuyNumber.select();
+			tableValid = false;
+			return false;
+		}
+		if(goodsPrice.val() == '') {
+			beekit.tips("请输入单价", goodsPrice);
+			goodsPrice.focus();
+			goodsPrice.select();
+			tableValid = false;
+			return false;
+		}
+		if(!formValidator.checkNotNegativeNumber(goodsPrice.val())) {
+			beekit.tips("请输入合法的单价", goodsPrice);
+			goodsPrice.focus();
+			goodsPrice.select();
+			tableValid = false;
+			return false;
+		}
+		if(goodsDiscount.val() == '') {
+			beekit.tips("请输入折扣", goodsDiscount);
+			goodsDiscount.focus();
+			goodsDiscount.select();
+			tableValid = false;
+			return false;
+		}
+		if(!formValidator.checkNotNegativeNumber(goodsDiscount.val())) {
+			beekit.tips("请输入合法的折扣", goodsDiscount);
+			goodsDiscount.focus();
+			goodsDiscount.select();
+			tableValid = false;
+			return false;
+		}
+		if(goodsDiscountAmount.val() == '') {
+			beekit.tips("请输入折后价", goodsDiscountAmount);
+			goodsDiscountAmount.focus();
+			goodsDiscountAmount.select();
+			tableValid = false;
+			return false;
+		}
+		if(!formValidator.checkNotNegativeNumber(goodsDiscountAmount.val())) {
+			beekit.tips("请输入合法的折后价", goodsDiscountAmount);
+			goodsDiscountAmount.focus();
+			goodsDiscountAmount.select();
+			tableValid = false;
+			return false;
+		}
+		if(goodsTotalAmount.val() == '') {
+			beekit.tips("请输入金额", goodsTotalAmount);
+			goodsTotalAmount.focus();
+			goodsTotalAmount.select();
+			tableValid = false;
+			return false;
+		}
+		if(!formValidator.checkNotNegativeNumber(goodsTotalAmount.val())) {
+			beekit.tips("请输入合法的金额", goodsTotalAmount);
+			goodsTotalAmount.focus();
+			goodsTotalAmount.select();
+			tableValid = false;
+			return false;
+		}
+		goodsCount++;
+	});
+	
+	if(!tableValid) {
+		return false;
+	}
+	
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		
+		if(orderFundAmount.val() != '' && parseFloat(orderFundAmount.val()) > 0) {
+			if(balanceAccountName.val() == '' || parseFloat(balanceAccountId.val()) < 0) {
+				beekit.tips("请选择付款账户", balanceAccountName);
+				balanceAccountName.focus();
+				balanceAccountName.select();
+				tableValid = false;
+				return false;
+			}
+		}
+		if((balanceAccountName.val() != '' && parseFloat(balanceAccountId.val()) > 0)) {
+			if(orderFundAmount.val() == '') {
+				beekit.tips("请输入付款金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+			
+			if(!formValidator.checkPositiveNumber(orderFundAmount.val())) {
+				beekit.tips("请输入合法的金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+		}
+	});
+	
+	if(!tableValid) {
+		return false;
+	}
+	return true;
+};
+
+purchaseOrder.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+purchaseOrder.supplierList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=supplier_info_keyword]").first();
+	var inputId = $(formId).find("input[name=supplier_info_id]").first();
+	
+	beekit.autocomplete(inputKeyword, "/inventory/supplier/info/listByJson", inputId, function(dataSelected) {
+		$(formId).find("input[name=account_balance]").first().val(dataSelected.availableAmount);
+		 
+		#if(session.hasOper(Permissions.sensitiveData_supplier_due))
+		var accountBalanceShow = $(formId).find("span[name=account_balance_show]").first();
+		if(dataSelected.debtAmount > 0) {
+			accountBalanceShow.html("欠:￥" + dataSelected.debtAmount);
+			accountBalanceShow.addClass("bg-danger");
+			accountBalanceShow.removeClass("bg-primary");
+			accountBalanceShow.show();
+			
+		} else if(dataSelected.debtAmount < 0) {
+			accountBalanceShow.html("余:￥" + (0-dataSelected.debtAmount));
+			accountBalanceShow.addClass("bg-primary");
+			accountBalanceShow.removeClass("bg-danger");
+			accountBalanceShow.show();
+		} else {
+			accountBalanceShow.html("");
+			accountBalanceShow.hide();
+		}
+		#end
+		
+		beekit.ajaxPost("/inventory/purchase/order/draftListByJson", {"supplier_info_id": dataSelected.id}, function(ret) { // 看看有么有同一个供应商的单据
+			if(ret.state != 'ok') {
+				return;
+			}
+			var data = ret.data;
+			if(data.totalRow <= 0) { // 没有草稿
+				return;
+			}
+			beekit.confirm("供应商存在草稿单，是否调用之前草稿单？", function() {
+				beekit.ajaxFill("/inventory/purchase/order/editDraft", {"id":data.list[0].id}, $(formId).parent() ,"");
+			});
+		});
+	});
+};
+
+
+var globalCurrentGoodsRow; // 当前行
+purchaseOrder.bindGoodsSelector = function(formId) {
+	$(formId+" input[name=goods_info_name]").each(function(index) {
+		var currentGoodsRow = $(this).parent().parent();
+		var goodsInfoId = currentGoodsRow.find("input[name=goods_info_id]").first();
+		
+		beekit.autocompleteByParams(this, "/goods/goods/info/listByJson?purchase_flag=true", {}, goodsInfoId, false, function(dataSelected) {
+			var supplierInfoId = $(formId).find("input[name=supplier_info_id]").first().val();
+			if(supplierInfoId == "" || supplierInfoId <= 0) {
+				var supplierKeyword = $(formId).find("input[name=supplier_info_keyword]").first();
+				beekit.tips('供应商不能为空！', supplierKeyword);
+				$(supplierKeyword).focus();
+				return false;
+			}
+			
+			currentGoodsRow.find("input").each(function() {
+				var tagName = $(this).attr("name");
+				if(tagName == "goods_info_name" || tagName == "goods_info_id") {
+					return;
+				}
+				$(this).val("");
+			});	
+			currentGoodsRow.find("input[name=bar_code]").first().val(dataSelected.bar_code);
+			var goodsSpecName = currentGoodsRow.find("input[name=goods_spec_name]").first();
+			if(dataSelected.spec_flag == false) {
+				goodsSpecName.val(dataSelected.spec_name);
+				goodsSpecName.attr("readonly", true);
+				goodsSpecName.addClass("readonly");
+			} else {
+				goodsSpecName.attr("readonly", false);
+				goodsSpecName.removeClass("readonly");
+			}
+			
+		});
+		
+		var goodsSpecName = currentGoodsRow.find("input[name=goods_spec_name]").first();
+		var goodsSpecId = currentGoodsRow.find("input[name=goods_spec_id]").first();
+		
+		beekit.autocompleteNameByParams(goodsSpecName, "/goods/goods/info/listSpecByJson", {"id":goodsInfoId}, goodsSpecId, true, function(dataSelected) {
+			beekit.ajaxPost("/goods/goods/info/assemblyRefByJson", {"goods_info_id":goodsInfoId.val(), "goods_spec_ids":goodsSpecId.val()}, function(ret) {
+				if (ret.state != "ok") {
+					beekit.tips(ret.msg, goodsSpecName);
+					setTimeout(function() {
+						goodsSpecId.val("");
+						goodsSpecName.val("");
+					}, 1000);
+					goodsSpecName.focus();
+					return;
+				}
+			});
+		});
+		
+		var unitName = currentGoodsRow.find("input[name=goods_unit_name]").first();
+		var unitId = currentGoodsRow.find("input[name=goods_unit_id]").first();
+		
+		var goodsBuyNumber = currentGoodsRow.find("input[name=goods_buy_number]").first();
+		var goodsPrice = currentGoodsRow.find("input[name=goods_price]").first();
+		var costPrice = currentGoodsRow.find("input[name=cost_price]").first();
+		var goodsDiscount = currentGoodsRow.find("input[name=goods_discount]").first();
+		var goodsDiscountAmount = currentGoodsRow.find("input[name=goods_discount_amount]").first();
+		var goodsTotalAmount = currentGoodsRow.find("input[name=goods_total_amount]").first();
+		
+		beekit.autocompleteNameByParams(unitName, "/goods/goods/info/listUnitByJson?unit_type=#(OrderUnitTypeEnum.purchase.value)", {"id":goodsInfoId}, unitId, true, function() {
+			beekit.ajaxPost("/goods/goods/info/priceByJson", {"goods_info_id":goodsInfoId.val(), "goods_unit_id":unitId.val(),"goods_spec_ids":goodsSpecId.val()}, function(ret) {
+				if (ret.state != "ok") {
+					beekit.msg(ret);
+					return;
+				}
+				if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+					return;
+				}
+				var goodsPriceVal = ret.data.cost_price;
+				goodsPrice.val((goodsPriceVal).toFixed(2));
+				costPrice.val(goodsPriceVal);
+				
+				goodsPrice.select();
+				
+				goodsBuyNumber.val(1);
+				goodsDiscount.val(100);
+				goodsDiscountAmount.val((goodsPriceVal).toFixed(2));
+				goodsTotalAmount.val((goodsPriceVal).toFixed(2));
+				purchaseOrder.totalGoodsAmount(formId);
+			})
+		});
+		
+		currentGoodsRow.find("input[name=goods_buy_number]").first().blur(function() {
+			if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+				return;
+			}
+			if($.trim($(this).val()) == '') {
+				beekit.tips("请输入进货数量", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if($.trim($(this).val()) != '' && !formValidator.checkNotNegativeNumber4($(this).val())) {
+				beekit.tips("请输入合法的进货数量", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			goodsTotalAmount.val((parseFloat(goodsDiscountAmount.val()) * parseFloat(goodsBuyNumber.val())).toFixed(2));
+			purchaseOrder.totalGoodsAmount(formId);
+		})
+		
+		currentGoodsRow.find("input[name=goods_price]").first().blur(function() {
+			if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+				return;
+			}
+			if($.trim($(this).val()) == '') {
+				beekit.tips("请输入价格", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if($.trim($(this).val()) != '' && !formValidator.checkNotNegativeNumber($(this).val())) {
+				beekit.tips("请输入合法的价格", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			goodsDiscountAmount.val(((parseFloat(goodsDiscount.val())  * parseFloat(goodsPrice.val()) / 100)).toFixed(2));
+			goodsTotalAmount.val((parseFloat(goodsDiscountAmount.val()) * parseFloat(goodsBuyNumber.val())).toFixed(2));
+			purchaseOrder.totalGoodsAmount(formId);
+			
+			#if(purchaseEditSalePriceFlag && (!purchaseOrder || purchaseOrder.order_status == OrderStatusEnum.draft.value))
+			#if(session.hasOper(Permissions.goods_goods_info_updatePrice))
+			if(parseFloat(goodsPrice.val()) != parseFloat(costPrice.val())) { // 价格变化
+				globalCurrentGoodsRow = currentGoodsRow;
+				$("#purchaseOrder-edit-sale-price-goods-id").val(goodsInfoId.val());
+				beekit.modalConfirm("商品进货价已变，是否需要<font color=red>修改销售价</font>？", $("#purchaseOrder-edit-sale-price-confirm").html());
+			}
+			#end
+			#end
+		})
+
+		currentGoodsRow.find("input[name=goods_discount]").first().blur(function() {
+			if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+				return;
+			}
+			if($.trim($(this).val()) != '' && !formValidator.checkNotNegativeNumber($(this).val())) {
+				beekit.tips("请输入合法的价格", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if($.trim($(this).val()) == '') {
+				goodsDiscount.val(100);
+			}
+			goodsDiscountAmount.val(((parseFloat(goodsDiscount.val()) * parseFloat(goodsPrice.val()) / 100)).toFixed(2));
+			goodsTotalAmount.val((parseFloat(goodsDiscountAmount.val()) * parseFloat(goodsBuyNumber.val())).toFixed(2));
+			purchaseOrder.totalGoodsAmount(formId);
+		})
+		
+		currentGoodsRow.find("input[name=goods_discount_amount]").first().blur(function() {
+			if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+				return;
+			}
+			if($.trim($(this).val()) == '') {
+				beekit.tips("请输入折后价", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if($.trim($(this).val()) != '' && !formValidator.checkNotNegativeNumber($(this).val())) {
+				beekit.tips("请输入合法的折后价", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if(goodsPrice.val() == 0) {
+				goodsDiscount.val(100);
+				goodsPrice.val(goodsDiscountAmount.val());
+			} else {
+				goodsDiscount.val(((parseFloat(goodsDiscountAmount.val()) / parseFloat(goodsPrice.val())) * 100).toFixed(2));
+			}
+			goodsTotalAmount.val((parseFloat(goodsDiscountAmount.val()) * parseFloat(goodsBuyNumber.val())).toFixed(2));
+			purchaseOrder.totalGoodsAmount(formId);
+		})
+		
+		currentGoodsRow.find("input[name=goods_total_amount]").first().blur(function() {
+			if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+				return;
+			}
+			if($.trim($(this).val()) == '') {
+				beekit.tips("请输入金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if($.trim($(this).val()) != '' && !formValidator.checkNotNegativeNumber($(this).val())) {
+				beekit.tips("请输入合法的金额", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			if(parseFloat(goodsPrice.val()) > 0 && parseFloat(goodsBuyNumber.val()) > 0) {
+				goodsDiscountAmount.val((parseFloat(goodsTotalAmount.val()) / parseFloat(goodsBuyNumber.val())).toFixed(2));
+				goodsDiscount.val(((parseFloat(goodsDiscountAmount.val()) / parseFloat(goodsPrice.val())) * 100).toFixed(2));
+			} else if(parseFloat(goodsBuyNumber.val()) > 0){
+				goodsPrice.val((parseFloat(goodsTotalAmount.val()) / parseFloat(goodsBuyNumber.val())).toFixed(2));
+				goodsDiscount.val(100);
+				goodsDiscountAmount.val(goodsPrice.val());
+			}
+			purchaseOrder.totalGoodsAmount(formId);
+		})
+		
+	});
+	
+	$(formId+" input[name=discount]").first().blur(function() {
+		var discount = $(this);
+		if($.trim(discount.val()) == '') {
+			discount.val(100);
+		}
+		if(!formValidator.checkNotNegativeNumber(discount.val())) {
+			beekit.tips("请输入合法折扣", discount);
+			discount.focus();
+			discount.select();
+			return;
+		}
+		var goodsAmount = $(formId+" input[name=goods_amount]").first();
+		var discountAmount = $(formId+" input[name=discount_amount]").first();
+		discountAmount.val((goodsAmount.val() * discount.val() / 100).toFixed(2));
+		purchaseOrder.totalGoodsAmount(formId);
+	});
+	
+	$(formId+" input[name=discount_amount]").first().blur(function() {
+		var discountAmount = $(this).val();
+		if($.trim(discountAmount) != '' && !formValidator.checkNotNegativeNumber(discountAmount)) {
+			beekit.tips("请输入合法金额", $(this));
+			$(this).focus();
+			$(this).select();
+			return;
+		}
+		var goodsAmount = $(formId+" input[name=goods_amount]").first().val();
+		if(goodsAmount <= 0 || goodsAmount == '') {
+			$(formId+" input[name=discount]").first().val(100);
+		} else {
+			$(formId+" input[name=discount]").first().val((discountAmount/goodsAmount*100).toFixed(2));
+		}
+		purchaseOrder.totalGoodsAmount(formId, true);
+	});
+	
+	$(formId+" input[name=fee_amount]").blur(function(index) {
+		if($.trim($(this).val()) == '' || parseFloat($(this).val()) <= 0) {
+			return;
+		}
+		purchaseOrder.totalGoodsAmount(formId);
+	});
+	
+	$(formId+" input[name=order_fund_balance_account_name]").first().blur(function(index) {
+		if($.trim($(this).val()) == '' || parseFloat($(this).val()) <= 0) {
+			setTimeout(function() {
+				$(formId).find("input[name=order_fund_amount]").first().val("");
+				$(formId).find("input[name=remark]").first().focus();
+			}, 200);
+		}
+	});
+	
+	
+};
+
+
+purchaseOrder.balanceAccountList = function(formId) {
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentGoodsRow = $(this).parent().parent().parent();
+		var inputKeyword = currentGoodsRow.find("input[name=order_fund_balance_account_name]").first();
+		var inputId = currentGoodsRow.find("input[name=order_fund_balance_account_id]").first();
+		var accountBalance = $(formId).find("input[name=account_balance]").first();
+		beekit.autocompleteNameByParams(inputKeyword, "/fund/account/info/listByJson?pay_flag=true", {"account_balance" : accountBalance}, inputId, true);
+	});
+	
+};
+
+purchaseOrder.addOrderFundRow = function(othis) {
+	formInput.addOrderFundRow(othis, function(formId) {
+		purchaseOrder.balanceAccountList(formId);
+	})
+}
+
+purchaseOrder.addTableRow = function(othis) {
+	formInput.addTableRow(othis, function(formId) {
+		purchaseOrder.bindGoodsSelector(formId);
+	})
+}
+
+purchaseOrder.totalGoodsAmount = function(formId, discountAmountBlurFlag) {
+	var totalGoodsAmount = 0;
+	$(formId+" input[name=goods_info_id]").each(function(index) {
+		var goodsInfoId = $(this);
+		if($.trim(goodsInfoId.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+			return;
+		}
+		var currentGoodsRow = $(this).parent().parent();
+		var goodsTotalAmount = currentGoodsRow.find("input[name=goods_total_amount]").first();
+		if($.trim(goodsTotalAmount.val()) == '' || parseFloat(goodsTotalAmount.val()) <= 0) {
+			return;
+		}
+		totalGoodsAmount = totalGoodsAmount + parseFloat(goodsTotalAmount.val());
+	});
+	
+	var feeAmount = 0; // 其他费用
+	$(formId+" input[name=fee_amount]").each(function(index) {
+		if($.trim($(this).val()) == '' || parseFloat($(this).val()) <= 0) {
+			return;
+		}
+		feeAmount = feeAmount + parseFloat($(this).val());
+	});
+	
+	$(formId+" input[name=goods_amount]").first().val(totalGoodsAmount.toFixed(2));
+	var discount = $(formId+" input[name=discount]").first();
+	var discountAmount = $(formId+" input[name=discount_amount]").first();
+	if(typeof(discountAmountBlurFlag) == 'undefined' || !discountAmountBlurFlag) {
+		discountAmount.val((discount.val()*totalGoodsAmount/100).toFixed(2));
+	}
+	
+	var amount = $(formId+" input[name=amount]").first();
+	amount.val((parseFloat(discountAmount.val()) + feeAmount).toFixed(2));
+	
+	#if(receiptFundAllFlag)
+	#if(!purchaseOrder || !purchaseOrder.id)
+		$(formId+" input[name=order_fund_amount]").first().val(amount.val());
+	#end
+	#end
+	
+}
+
+purchaseOrder.editSalePrice = function(goodsId) {
+	var goodsId = $("#purchaseOrder-edit-sale-price-goods-id").val();
+	beekit.modal("/goods/goods/info/editPrice?id="+goodsId+"&sourcePage=purchaseOrder");
+	
+	beekit.modalConfirmClose();
+}
+
+</script>

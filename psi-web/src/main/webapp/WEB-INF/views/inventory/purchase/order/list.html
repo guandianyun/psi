@@ -1,0 +1,203 @@
+
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-3">
+			#if(session.hasOper(Permissions.inventory_purchase_order_export))
+			<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+			  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="purchaseOrder.export();">导出</button>
+			  <div class="btn-group" role="group">
+			    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+			    <ul class="dropdown-menu">
+			      <li><a class="dropdown-item" href="javascript:void(0);" onclick="purchaseOrder.exportLog();">导出记录</a></li>
+			    </ul>
+			  </div>
+			</div>
+			#end
+			</div>
+			<div class="col">
+			#if(page.totalPage > 1)
+			<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			#end
+				<div class="float-end me-3 mt-1">
+					#if(orderAuditFlag)
+					#if(session.hasOper(Permissions.inventory_purchase_order_audit))
+					<input class="form-check-input" type="checkbox" name="show_audit_flag" id="purchaseOrder_show_audit_flag" #if(showAuditFlag) checked #end onclick="purchaseOrder.list();"> 
+					<label class="form-check-label" for="purchaseOrder_show_audit_flag"> 待审核单据</label>
+					&nbsp;&nbsp;&nbsp;
+					#end
+					#end
+					<input class="form-check-input" type="checkbox" name="hide_disable_flag" id="purchaseOrder_hide_disable_flag" #if(hideDisableFlag) checked #end onclick="purchaseOrder.list();"> 
+					<label class="form-check-label" for="purchaseOrder_hide_disable_flag"> 隐藏作废单据</label>
+					&nbsp;&nbsp;&nbsp;
+					<input class="form-check-input" type="checkbox" name="hide_pay_flag" id="purchaseOrder_hide_pay_flag" #if(hidePayFlag) checked #end onclick="purchaseOrder.list();"> 
+					<label class="form-check-label" for="purchaseOrder_hide_pay_flag"> 隐藏已付单据</label>
+					</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>单据编号</th>
+			<th>进货日期</th>
+			<th>供应商</th>
+			<th>应付金额</th>
+			<th>已付金额</th>
+			<th>剩余未付</th>
+			#if(feeList && feeList.size() > 0)
+			<th>其他费用<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="除商品金额外，其他需要支付给供应商的费用，比如物流费等"></i></th>
+			#end
+			#if(costList && costList.size() > 0)
+			<th>成本支出<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="本次进货的成本支出，无需支付给供应商，用于内部记账"></i></th>
+			#end
+			<th>进货员</th>
+			<th>单据状态</th>
+			<th>备注</th>
+			<th style="width: 10%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="purchaseOrder-list">
+		#for (x : page.getList())
+		<tr data-id="#(x.id)" id="purchaseOrder-data-#(x.id)" #if(x.order_status == OrderStatusEnum.disable.value) class="disable-order"  #end>
+			<td>#(x.order_code)</td>
+			<td>#date(x.order_time, "yyyy-MM-dd")</td>
+			<td>#(x.supplierInfo.name??)</td>
+			<td><span class="fw-bold text-secondary">#number(x.amount, "#.##")</span> </td>
+			<td><span class="fw-bold text-secondary">#number(x.paid_amount, "#.##")</span> </td>
+			<td><span class=" #if(x.amount > x.paid_amount) fw-bold text-danger #else fw-bold text-secondary #end ">#number(x.amount - x.paid_amount, "#.##") </span></td>
+			#if(feeList && feeList.size() > 0)
+			<td><span class="fw-bold text-secondary">#number(x.other_amount, "#.##")</span> </td>
+			#end
+			#if(costList && costList.size() > 0)	
+			<td><span class="fw-bold text-secondary">#number(x.other_cost_amount, "#.##")</span> </td>
+			#end
+			<td>#(x.handler.real_name??)</td>
+			<td>
+			#if(x.order_status == OrderStatusEnum.disable.value)
+			<span class="text-decoration-line-through">已作废</span>
+			#elseif(x.reject_type == RejectTypeEnum.part.value)
+			<span class="badge bg-warning">部分退货</span>
+			#elseif(x.reject_type == RejectTypeEnum.all.value)
+			<span class="badge bg-warning">已退货</span>
+			#elseif(x.audit_status == AuditStatusEnum.waiting.value)
+			<span class="badge bg-danger">待审核</span>
+			#elseif(x.audit_status == AuditStatusEnum.reject.value)
+			<span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="#(x.audit_desc)">审核拒绝</span>
+			#else
+			<span class="badge bg-success">已到货</span>
+			#end
+			</td>
+			<td>#(x.remark)</td>
+			<td>
+				#if(x.order_status == OrderStatusEnum.disable.value)
+				<span class="text-decoration-line-through">已作废</span>
+				#else
+				#if(x.audit_status == AuditStatusEnum.waiting.value)
+				#if(session.hasOper(Permissions.inventory_purchase_order_audit))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="purchaseOrder.audit(#(x.id));">审核</button> 
+				#end
+				#end
+				#if(x.reject_type == RejectTypeEnum.no.value)
+				#if(!orderAuditFlag || (orderAuditFlag && (x.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.inventory_purchase_order_audit))))
+				#if(session.hasOper(Permissions.inventory_purchase_order_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="purchaseOrder.edit(#(x.id));">修改</button> 
+				#end 
+				#end
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#purchaseOrder_pageNumber").val(#(page.pageNumber));
+	
+	$("#purchaseOrder-list tr").on("dblclick", function() {
+		purchaseOrder.show($(this).attr("data-id"));
+	});
+	
+});
+
+purchaseOrder.show = function(id) {
+	beekit.offcanvas("/inventory/purchase/order/show?id="+id);
+};
+
+
+purchaseOrder.edit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/inventory/purchase/order/edit?id="+id);
+};
+
+purchaseOrder.reject = function(id) {
+	beekit.offcanvasClose();
+	dashboard.linkTab('/inventory/purchase/rejectOrder/add', {"order_ids": id});
+};
+
+purchaseOrder.audit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/inventory/purchase/order/audit?id="+id);
+};
+
+
+purchaseOrder.disable = function(id) {
+	beekit.confirmByUrl("/inventory/purchase/order/disable", {"id":id}, "确认要作废此进货单吗？", function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			beekit.offcanvasClose();
+			purchaseOrder.list(id);
+		});
+	});
+};
+
+purchaseOrder.delete = function(id) {
+	beekit.focusColor("goodsInfo-data-"+id);
+	beekit.confirmByUrl("/inventory/purchase/order/delete", {"id":id}, "确认要删除此进货单吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		purchaseOrder.list();
+	});
+};
+
+
+purchaseOrder.export = function() {
+	var showAuditFlag = $("#purchaseOrder_show_audit_flag").prop("checked");
+	if(typeof(showAuditFlag) == 'undefined') {
+		showAuditFlag = false;
+	}
+	var hideDisableFlag = $("#purchaseOrder_hide_disable_flag").prop("checked");
+	if(typeof(hideDisableFlag) == 'undefined') {
+		hideDisableFlag = true;
+	}
+	var hidePayFlag = $("#purchaseOrder_hide_pay_flag").prop("checked");
+	if(typeof(hidePayFlag) == 'undefined') {
+		hidePayFlag = false;
+	}
+	
+	beekit.confirmByUrl("/inventory/purchase/order/export?hide_disable_flag="+hideDisableFlag+"&show_audit_flag="+showAuditFlag+"&hide_pay_flag="+hidePayFlag, $("#purchaseOrder-search-form").serialize(), "确定要导出单据吗？", function(ret) {
+		purchaseOrder.exportLog(ret.targetId);
+	});
+}
+
+purchaseOrder.exportLog = function(targetId) {
+	beekit.modal("/export/log/?targetId="+targetId);
+}
+
+
+</script>

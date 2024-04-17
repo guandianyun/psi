@@ -1,0 +1,340 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>进货单详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+
+					#if(purchaseOrder.auditConfigFlag)
+					#if(purchaseOrder.order_status != OrderStatusEnum.disable.value)
+					#if(purchaseOrder.audit_status == AuditStatusEnum.waiting.value)
+					#if(session.hasOper(Permissions.inventory_purchase_order_audit))
+					<button type="button" class="btn btn-sm btn-outline-success" onclick="purchaseOrder.audit(#(purchaseOrder.id));">
+					<i class="bi bi-hand-index"></i>审核
+					</button> &nbsp;
+					#end
+					#end
+					#end
+					#end
+					
+					#if(purchaseOrder.order_status == OrderStatusEnum.normal.value && purchaseOrder.audit_status == AuditStatusEnum.pass.value)
+					#if(purchaseOrder.reject_type != RejectTypeEnum.all.value)
+						#if(session.hasOper(Permissions.inventory_purchase_order_update))
+						<button type="button" class="btn btn-sm btn-outline-info" onclick="purchaseOrder.reject(#(purchaseOrder.id));">
+							<i class="bi bi-reply"></i>退货
+						</button>&nbsp;
+						#end
+					#end
+					#end
+					
+					#if(purchaseOrder.reject_type == RejectTypeEnum.no.value)
+					#if(!purchaseOrder.auditConfigFlag || (purchaseOrder.auditConfigFlag && (purchaseOrder.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.inventory_purchase_order_audit))))
+						#if(session.hasOper(Permissions.inventory_purchase_order_update))
+						<button type="button" class="btn btn-sm btn-outline-primary" onclick="purchaseOrder.edit(#(purchaseOrder.id));">
+							<i class="bi bi-pencil-square"></i>修改
+						</button>&nbsp;
+						#end 
+					#end
+					#end
+					
+					#if(purchaseOrder.reject_type == RejectTypeEnum.no.value)
+					#if(!purchaseOrder.auditConfigFlag || (purchaseOrder.auditConfigFlag && purchaseOrder.audit_status != AuditStatusEnum.pass.value))
+						#if(session.hasOper(Permissions.inventory_purchase_order_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="purchaseOrder.disable(#(purchaseOrder.id));">
+							<i class="bi bi-trash"></i>作废
+						</button>&nbsp;
+						#end 
+					#end
+					#end
+					
+					#if(purchaseOrder.order_status == OrderStatusEnum.draft.value)
+						#if(session.hasOper(Permissions.inventory_purchase_order_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="purchaseOrder.delete(#(purchaseOrder.id));">
+							<i class="bi bi-trash"></i>删除
+						</button>&nbsp;
+						#end 
+					#end
+					
+				</div>
+
+				<div class="col text-end">
+					<button type="button" class="btn btn-sm btn-primary" onclick="purchaseOrder.showPrint(#(purchaseOrder.id));">
+						<i class="bi bi-printer"></i>打印
+					</button>
+					#if(purchaseOrder.print_count > 0)
+					&nbsp; <span class="btn btn-sm btn-outline-danger sm-more">已打印:#(purchaseOrder.print_count)</span>
+					#end
+				</div>
+
+				#if(purchaseOrder.order_status == OrderStatusEnum.disable.value)  
+					<img src="#(resourceDomain)/img/disable.png" class="order-status-pic">
+				#elseif(purchaseOrder.audit_status == AuditStatusEnum.reject.value) 
+					<img src="#(resourceDomain)/img/audit_reject.png" class="order-status-pic">
+				#elseif(purchaseOrder.reject_type == RejectTypeEnum.part.value)
+					<img src="#(resourceDomain)/img/reject_part.png" class="order-status-pic">
+				#elseif(purchaseOrder.reject_type == RejectTypeEnum.all.value)
+					<img src="#(resourceDomain)/img/reject_all.png" class="order-status-pic">
+				#else
+					#if(purchaseOrder.pay_status == OrderPayStatusEnum.finish.value)
+					<img src="#(resourceDomain)/img/payover.png" class="order-status-pic">
+					#elseif(purchaseOrder.pay_status == OrderPayStatusEnum.part.value)
+					<img src="#(resourceDomain)/img/paypart.png" class="order-status-pic">
+					#end
+				#end
+				 
+			</div>
+		</div>
+	</div>
+
+	<ul class="nav nav-tabs mt-2">
+		<li class="nav-item"><a class="nav-link active fw-bold" aria-current="page" href="javascript:void(0);" _target="showDetail" onclick="purchaseOrder.showInfo(this);">单据详情</a></li>
+		<li class="nav-item"><a class="nav-link fw-bold" aria-current="page" href="javascript:void(0);" _target="showPayLog" onclick="purchaseOrder.showInfo(this);">付款记录</a></li>
+		<li class="nav-item"><a class="nav-link fw-bold" aria-current="page" href="javascript:void(0);" _target="showOrderLog" onclick="purchaseOrder.showInfo(this);">单据日志</a></li>
+	</ul>
+	
+	<div id="purchaseOrder_showDetail">
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">单据编号：</span><span>#(purchaseOrder.order_code)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">供应商：</span><span class="text-secondary fw-bold">#(purchaseOrder.supplierInfo.name??)</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">进货员：</span><span>#(purchaseOrder.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">到货日期：</span><span>#date(purchaseOrder.order_time, "yyyy-MM-dd")</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">制单人：</span><span>#(purchaseOrder.makeMan.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单时间：</span><span>#date(purchaseOrder.created_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">最近修改：</span><span>#date(purchaseOrder.updated_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			
+			#if(purchaseOrder.auditConfigFlag)
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">审核状态：</span>
+					#if(purchaseOrder.audit_status == AuditStatusEnum.waiting.value) 
+					<span class="badge bg-warning">待审核</span> 
+					#elseif(purchaseOrder.audit_status == AuditStatusEnum.pass.value) 
+					<span class="badge bg-success">审核通过</span>  
+					#elseif(purchaseOrder.audit_status == AuditStatusEnum.reject.value) 
+					<span class="badge bg-danger">审核拒绝</span>   
+					#end
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核人：</span><span>#(purchaseOrder.auditor.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核时间：</span><span>#date(purchaseOrder.audit_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核反馈：</span><span>#(purchaseOrder.audit_desc)</span>
+				</div>
+			</div>
+			#end
+		</div>
+	</div>
+	
+	<div class="row mt-2">
+		<div class="col">
+			<table class="table table-hover table-bordered bg-white">
+				<thead>
+				<tr class="table-header">
+					<th>商品名称</th>
+					<th>商品条码</th>
+					<th>规格</th>
+					<th style="width: 6%;">单位</th>
+					<th style="width: 6%;">单价</th>
+					#if(orderGoodsDiscountFlag)
+					<th style="width: 8%;">折扣(%)</th>
+					<th style="width: 6%;">折后价</th>
+					#end
+					<th style="width: 6%;">数量</th>
+					<th style="width: 6%;">金额</th>
+					#if(purchaseOrder.reject_type == RejectTypeEnum.part.value || purchaseOrder.reject_type == RejectTypeEnum.all.value)
+					<th style="width: 6%;">退货数量</th>
+					<th style="width: 6%;">退货金额</th>
+					#end
+					<th>备注</th>
+				</tr>
+				</thead>
+				<tbody class="table-row">
+				#for(x : purchaseOrder.orderGoodsList)
+				#set(goodsInfo = x.goodsInfo)
+					<tr>
+						<td>#(goodsInfo.name??)</td>
+						<td>#(goodsInfo.bar_code??)</td>
+						<td>#(x.goodsSpecNames??)</td>
+						<td>#(x.goodsUnit.name??)</td>
+						<td>#number(x.price, '#.####')</td>
+						#if(orderGoodsDiscountFlag)
+						<td>#number(x.discount, '#.####')</td>
+						<td>#number(x.discount_amount, '#.####')</td>
+						#end
+						<td>#number(x.buy_number, '#.####')</td>
+						<td>#number(x.amount, '#.####')</td>
+						#if(purchaseOrder.reject_type == RejectTypeEnum.part.value || purchaseOrder.reject_type == RejectTypeEnum.all.value)
+						<td><span class="fw-bold text-danger">#number(x.reject_number, '#.####')</span></td>
+						<td><span class="fw-bold text-danger">#number(x.reject_amount, '#.##')</span></td>
+						#end
+						<td>#(x.remark)</td> 
+					</tr>
+				#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">商品合计： </span><span class="fw-bold text-secondary">#(purchaseOrder.goods_amount)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">折扣： </span><span class="fw-bold text-secondary">#(purchaseOrder.discount)%</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">折后金额：</span><span class="fw-bold text-secondary">#number(purchaseOrder.discount_amount, "#.##")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">抹零金额： </span><span class="fw-bold text-secondary">#(purchaseOrder.odd_amount)</span>
+				</div>
+				
+			</div>
+			
+			#if(feeList && feeList.size() > 0)
+			<hr class="row-hr" />
+			<div class="row">
+					#for(x : feeList)
+					<div class="col-3">
+					<span class="text-secondary">#(x.name??)： </span><span class="fw-bold text-secondary me-5">#number(purchaseOrder.getOrderFee(x.id)??, "#.##")</span>
+					</div>
+					#end
+			</div>
+			#end
+			
+			#if(costList && costList.size() > 0)
+			<hr class="row-hr" />
+			<div class="row">
+					#for(x : costList)
+					<div class="col-3">
+					<span class="text-secondary">#(x.name??)： </span><span class="fw-bold text-secondary me-5">#number(purchaseOrder.getOrderCost(x.id)??, "#.##")</span>
+					</div>
+					#end
+			</div>
+			#end
+			
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">应付金额：</span><span class="fw-bold text-secondary">#number(purchaseOrder.amount, "#.##")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">已付金额：</span>
+					#if(purchaseOrder.paid_amount > 0)
+					<span class="badge bg-success">#number(purchaseOrder.paid_amount, "#.##")</span>
+					#else
+					<span class="badge bg-secondary">#number(purchaseOrder.paid_amount, "#.##")</span>
+					#end
+				</div>
+				<div class="col-3">
+					#set(lastAmount = purchaseOrder.amount??0 - purchaseOrder.paid_amount??0 ) <span class="text-secondary">剩余金额：</span> 
+					#if(lastAmount > 0) 
+					<span class="badge bg-danger">#number(lastAmount,"#.##")</span>
+					#else 
+					<span class="badge bg-secondary">0</span> 
+					#end
+				</div>
+				#if(purchaseOrder.reject_type != RejectTypeEnum.no.value)
+				<div class="col-3">
+					<span class="text-secondary">退货金额： </span><span class="fw-bold text-secondary">#number(purchaseOrder.reject_amount, "#.##")</span>
+				</div>
+				#end
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col">
+					<span class="text-secondary">备注：</span><span>#(purchaseOrder.remark??)</span>
+				</div>
+				
+				<div class="col text-end" id="purchaseOrder_order_img_list_preview">
+					#for(thumb : purchaseOrder.orderImgList)
+					<img class="rounded" src="#(resourceUploadDomain)#(thumb)" layer-src="#(resourceUploadDomain)#(thumb)" style="width:30px" >
+					#end
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	</div>
+	
+	<div id="purchaseOrder_showPayLog" style="display:none;"></div>
+	
+	<div id="purchaseOrder_showOrderLog" style="display:none;"></div>
+	
+</div>
+
+
+<script type="application/javascript">
+	
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	beekit.photos("#purchaseOrder_order_img_list_preview");
+	
+});
+
+purchaseOrder.showInfo = function(othis) {
+	var target = $(othis).attr("_target");
+	var targetHtml = $("#purchaseOrder_"+target).html();
+	if(targetHtml == '') {
+		if(target == 'showPayLog') {
+			beekit.ajaxFill("/inventory/purchase/order/showPayLog", {"id": #(purchaseOrder.id)}, "#purchaseOrder_"+target);
+		} else if(target == 'showOrderLog') {
+			beekit.ajaxFill("/inventory/purchase/order/showOrderLog", {"id": #(purchaseOrder.id)}, "#purchaseOrder_"+target);
+		}
+	}
+	$(othis).parent().parent().find("a").each(function() {
+		if(this == othis) {
+			$(othis).toggleClass("active");
+			$("#purchaseOrder_"+target).show();
+		} else {
+			$(this).removeClass("active");
+			$("#purchaseOrder_"+$(this).attr("_target")).hide();
+		}
+	});
+	
+}
+
+purchaseOrder.showPrint = function(orderId) {
+	beekit.modal("/inventory/purchase/order/showPrint?id="+orderId);
+}
+
+
+
+</script>

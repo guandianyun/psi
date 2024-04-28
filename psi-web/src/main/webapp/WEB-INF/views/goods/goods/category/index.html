@@ -1,0 +1,43 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="goodsCategory-search-form">
+			<input type="hidden" id="goodsCategory_pageNumber" name="pageNumber" value="1">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.goods_goods_category_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="goodsCategory.add(0);">
+						<i class="bi bi-plus-circle"></i>新增商品分类
+					</button>
+					#end
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-goodsCategory">
+	
+</div>
+
+<script type="application/javascript">
+var goodsCategory = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	goodsCategory.list();
+});
+
+goodsCategory.list = function(targetId) {
+	$("#goodsCategory_pageNumber").val(1);
+	beekit.ajaxFillPage("/goods/goods/category/list", "#goodsCategory-search-form", "#data-list-goodsCategory", "goodsCategory-data-"+targetId);
+};
+
+goodsCategory.add = function(parentId) {
+	beekit.modal("/goods/goods/category/add?parent_id="+parentId);
+};
+
+			
+</script>
+
+

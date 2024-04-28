@@ -1,0 +1,81 @@
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>商品分类名称</th>
+			<th>备注</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : topList)
+			#@goodsCategoryTable(x, "")
+		#end
+	</tbody>
+</table>
+
+
+#define goodsCategoryTable(category, level)
+	<tr id="goodsCategory-data-#(category.id)">
+	<td class="fw-bold text-secondary" style="text-align: left; padding-left: 30px">
+	#(level)
+	#if(category.parent_id != 0)
+	└─ 
+	#end
+	&nbsp;#(category.name)</td>
+	<td>#(category.remark??)</td>
+	<td>
+		#if(session.hasOper(Permissions.goods_goods_category_create))
+		<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="goodsCategory.add(#(category.id));">新增子类</button>
+		#end 
+		#if(session.hasOper(Permissions.goods_goods_category_update))
+		<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="goodsCategory.edit(#(category.id));">修改</button>
+		#end 
+		#if(session.hasOper(Permissions.goods_goods_category_delete))
+		<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsCategory.delete(#(category.id));">删除</button> 
+		#end
+	</td>
+	</tr>
+
+	#set(childList = category.childList)
+	#if(childList.size() <= 0) 
+		#return 
+	#end 
+	#if(level == "")
+	#set(level = level+"&nbsp;&nbsp;&nbsp;&nbsp;")
+	#else
+	#set(level = level+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
+	#end
+	#for(child : childList)
+		#@goodsCategoryTable(child, level)
+	#end 
+#end
+
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	
+});
+
+goodsCategory.edit = function(id) {
+	beekit.modal("/goods/goods/category/edit?id="+id);
+};
+
+goodsCategory.delete = function(id) {
+	beekit.focusColor("goodsCategory-data-"+id);
+	beekit.confirmByUrl("/goods/goods/category/delete", {"id":id}, "确认要删除此商品分类吗？", function(ret) {
+		beekit.msg(ret);
+		goodsCategory.list(id);
+	});
+};
+
+
+</script>

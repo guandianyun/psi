@@ -1,0 +1,62 @@
+	#(token)
+	<input type="hidden" name="id" value="#(goodsCategory.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">商品分类名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="goodsCategory_name" placeholder="请输入商品分类名称" value="#(goodsCategory.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">父级分类</span> 
+				<select class="form-select search-input" name="parent_id" id="goodsCategory_parent_id">
+					<option value="0" #if(goodsCategory && goodsCategory.parent_id == 0) selected  #end>顶级分类</option>
+					#for(x : topList)
+					#if(parent_id)
+					#@goodsCategoryOptions(parent_id, x, "")
+					#else
+					#@goodsCategoryOptions(goodsCategory.parent_id??0, x, "")
+					#end
+					
+					#end
+				</select>
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<input type="text" class="form-control" name="remark" placeholder="请输入备注" value="#(goodsCategory.remark??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+<script type="application/javascript">
+
+goodsCategory.formChecking = function() {
+	if($.trim($("#goodsCategory_name").val()) == '') {
+		beekit.tips('商品分类名称不能为空！', '#goodsCategory_name');
+		$("#goodsCategory_name").focus();
+		return false;
+	}
+	if($.trim($("#goodsCategory_name").val()).length > 30) {
+		beekit.tips('商品分类名称不能过长！', '#goodsCategory_name');
+		$("#goodsCategory_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

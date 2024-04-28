@@ -1,0 +1,56 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content"  style="height:500px;max-height:500px;">
+	<form id="msgNotice-search-form">
+			<input type="hidden" id="msgNotice_pageNumber" name="pageNumber">
+		<div class="modal-header">
+			<div class="row" style="width:100%">
+				<div class="col-3"><h6 class="modal-title">消息中心</h6></div>
+				<div class="col text-center">
+					<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+					  <input type="radio" class="btn-check" name="read_flag" id="msgNotice_wait_read_msg" autocomplete="off" checked value="false">
+					  <label class="btn btn-outline-primary" for="msgNotice_wait_read_msg">未读</label>
+					
+					  <input type="radio" class="btn-check" name="read_flag" id="msgNotice_finish_read_msg" autocomplete="off" value="true">
+					  <label class="btn btn-outline-primary" for="msgNotice_finish_read_msg">已读</label>
+					
+					  <input type="radio" class="btn-check" name="read_flag" id="msgNotice_all_msg" autocomplete="off" value="">
+					  <label class="btn btn-outline-primary" for="msgNotice_all_msg">全部</label>
+					</div>
+				</div>
+				<div class="col-3 text-end">
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+			</div>
+			
+		</div>
+		</form>
+		<div class="modal-body" style="min-height:300px;">
+		
+			
+			<div class="row mt-3" id="msgNotice-data-list"></div>
+		
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+		</div>
+	</div>
+</div>
+
+<script type="application/javascript">
+var msgNotice = {};
+
+$(function() {
+	
+	msgNotice.list();
+	
+	$("#msgNotice-search-form input[name=read_flag]").on("click", function(evt) {
+		msgNotice.list();
+	});
+
+});		
+
+msgNotice.list = function() {
+	beekit.ajaxFillPage("/msg/notice/list", "#msgNotice-search-form", "#msgNotice-data-list");
+}
+		
+</script>

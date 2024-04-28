@@ -1,0 +1,62 @@
+#if(page.totalRow <=0)
+<h6 style="text-align: center; padding: 30px 0; ">暂无消息通知！</h6>
+#else 
+
+<table class="table">
+	<thead class="table-light">
+		<tr>
+			<th scope="col-2">级别</th>
+			<th scope="col-2">类型</th>
+			<th scope="col-6">标题</th>
+			<th scope="col-2">时间</th>
+		</tr>
+	</thead>
+	<tbody style="text-align: center;">
+	#for (x : page.getList())
+	#set(msgNotice = x.msgNotice)
+		<tr>
+			<td>
+			#if(msgNotice.msg_level == MsgLevelEnum.important.value)
+			<span class="badge bg-warning">重要</span>
+			#elseif(msgNotice.msg_level == MsgLevelEnum.urgent.value)
+			<span class="badge bg-danger">紧急</span>
+			#else
+			<span class="badge bg-secondary">普通</span>
+			#end
+			</td>
+			<td>#(msgNotice.msgTypeName)</td>
+			<td #if(!x.read_flag) class="fw-bold" #end >
+			<a href="javascript:void(0);" onclick="msgNotice.show(this,#(x.id));"  class="text-black">
+			#(msgNotice.title??)
+			</a>
+			</td>
+			<td>#date(x.created_at, "yyyy-MM-dd HH:mm:ss")</td>
+		</tr>
+		#end 
+	</tbody>
+</table>
+<div class="row">
+	<div class="col">
+		<div class="float-end">
+			#@paginate(page.pageNumber, page.totalPage, "")
+		</div>
+	</div>
+</div>
+
+#end
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	$("#msgNotice_pageNumber").val(#(page.pageNumber));
+});
+
+msgNotice.show = function(_this, id) {
+	beekit.modalChild('/msg/notice/show?id='+id);
+	$(_this).parent().removeClass('fw-bold');
+};
+
+</script>

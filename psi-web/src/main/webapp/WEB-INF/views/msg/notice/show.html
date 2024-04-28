@@ -1,0 +1,56 @@
+#set(msgNotice=msg.msgNotice)
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content" style="height:500px;max-height:500px;">
+		<div class="modal-header">
+			<h6 class="modal-title">#(msgNotice.msgTypeName)</h6>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body" style="min-height: 300px;">
+			<div class="row">
+				<div class="col text-center">
+					<h6>
+						#if(msgNotice.msg_level == 1) <span class="badge bg-warning">重要</span> #elseif(msgNotice.msg_level == 2) <span class="badge bg-danger">紧急</span> #end <strong>#(msgNotice.title??)</strong>
+					</h6>
+					<span class="text-secondary">#date(msg.created_at, "yyyy-MM-dd HH:mm:ss") </span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row mt-3" style="margin-left: 1rem; margin-right: 1rem;">#(msgNotice.content??)</div>
+		</div>
+		<div class="modal-footer">
+			#if(msgNotice.data_type == MsgDataTypeEnum.sale_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/sale/sale/order');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.purchase_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/inventory/purchase/order');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.purchase_order.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/inventory/purchase/order');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.recepit_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/fund/book/receiptOrder');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.pay_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/fund/book/payOrder');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.income_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/fund/flow/income');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.expenses_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/fund/flow/expenses');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.purchase_reject_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/inventory/purchase/rejectOrder');">去处理</button>
+			#elseif(msgNotice.data_type == MsgDataTypeEnum.sale_reject_order_audit.value)
+			<button type="button" class="btn btn-primary" onclick="dashboard.linkTab('/sale/sale/rejectOrder');">去处理</button>
+			#end
+			
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close" id="msgNotice_show_close">关闭</button>
+
+		</div>
+	</div>
+</div>
+
+
+<script type="application/javascript">
+$(function() {
+	setTimeout(function() {
+		$("#msgNotice_show_close").focus();
+	}, 200);
+});
+
+
+</script>

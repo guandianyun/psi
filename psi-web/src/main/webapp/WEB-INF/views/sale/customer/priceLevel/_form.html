@@ -1,0 +1,43 @@
+	#(token)
+	<input type="hidden" name="id" value="#(customerPriceLevel.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">价格等级名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="customerPriceLevel_name" placeholder="请输入价格等级名称" value="#(customerPriceLevel.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<input type="text" maxlength="30" class="form-control" name="remark" placeholder="请输入备注" value="#(customerPriceLevel.remark??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+
+<script type="application/javascript">
+
+customerPriceLevel.formChecking = function() {
+	if($.trim($("#customerPriceLevel_name").val()) == '') {
+		beekit.tips('价格等级名称不能为空！', '#customerPriceLevel_name');
+		$("#customerPriceLevel_name").focus();
+		return false;
+	}
+	if($.trim($("#customerPriceLevel_name").val()).length > 30) {
+		beekit.tips('价格等级名称不能过长！', '#customerPriceLevel_name');
+		$("#customerPriceLevel_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

@@ -1,0 +1,41 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑价格等级</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="customerPriceLevel-edit-form" onsubmit="customerPriceLevel.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="customerPriceLevel.update();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	formInput.listenkeyUp("#customerPriceLevel-edit-form");
+	
+});
+
+customerPriceLevel.update = function() {
+	var result = customerPriceLevel.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/sale/customer/priceLevel/update", $("#customerPriceLevel-edit-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			customerPriceLevel.list(#(customerPriceLevel.id));
+		}
+	});
+};
+
+</script>

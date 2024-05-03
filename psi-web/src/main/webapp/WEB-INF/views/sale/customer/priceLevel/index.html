@@ -1,0 +1,42 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="customerPriceLevel-search-form">
+			<input type="hidden" id="customerPriceLevel_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.sale_customer_priceLevel_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="customerPriceLevel.add();">
+						<i class="bi bi-plus-circle"></i>新增价格等级
+					</button>
+					#end
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-customerPriceLevel">
+	
+</div>
+
+<script type="application/javascript">
+var customerPriceLevel = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	customerPriceLevel.list();
+});
+
+customerPriceLevel.list = function(targetId) {
+	beekit.ajaxFillPage("/sale/customer/priceLevel/list", "#customerPriceLevel-search-form", "#data-list-customerPriceLevel", "customerPriceLevel-data-"+targetId);
+};
+
+customerPriceLevel.add = function() {
+	beekit.modal("/sale/customer/priceLevel/add");
+};
+
+			
+</script>
+
+

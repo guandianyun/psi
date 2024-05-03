@@ -1,0 +1,98 @@
+#if(page.totalPage > 1)
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col">
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>价格等级名称</th>
+			<th>备注</th>
+			<th>状态</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : page.getList())
+		<tr id="customerPriceLevel-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(x.name)</td>
+			<td>#(x.remark??)</td>
+			<td>
+			#if(x.data_status == DataStatusEnum.enable.value) 
+			<span class="text-success">启用中</span>
+			#elseif(x.data_status == DataStatusEnum.disable.value) 
+			<span class="text-danger">已停用</span>
+			#end
+			</td>
+			<td>
+				#if(session.hasOper(Permissions.sale_customer_priceLevel_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="customerPriceLevel.edit(#(x.id));">修改</button>
+				#end
+				#if(!x.default_flag)
+				#if(session.hasOper(Permissions.sale_customer_priceLevel_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="customerPriceLevel.delete(#(x.id));">删除</button>
+				#end
+				#if(session.hasOper(Permissions.sale_customer_priceLevel_disable))
+				#if(x.data_status == DataStatusEnum.enable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="customerPriceLevel.disable(#(x.id));">停用</button>
+				#elseif(x.data_status == DataStatusEnum.disable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-success" onclick="customerPriceLevel.enable(#(x.id));">启用</button>
+				#end
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+		
+	</tbody>
+</table>
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#customerPriceLevel_pageNumber").val(#(page.pageNumber));
+	
+});
+
+customerPriceLevel.edit = function(id) {
+	beekit.modal("/sale/customer/priceLevel/edit?id="+id);
+};
+
+customerPriceLevel.delete = function(id) {
+	beekit.focusColor("customerPriceLevel-data-"+id);
+	beekit.confirmByUrl("/sale/customer/priceLevel/delete", {"id":id}, "确认要删除此价格等级吗？", function(ret) {
+		beekit.msg(ret);
+		customerPriceLevel.list();
+	});
+};
+
+customerPriceLevel.disable = function(id) {
+	beekit.confirmByUrl("/sale/customer/priceLevel/disable", {"id":id}, "确认要停用此价格等级吗？", function(ret) {
+		beekit.msg(ret);
+		customerPriceLevel.list(id);
+	});
+};
+
+customerPriceLevel.enable = function(id) {
+	beekit.confirmByUrl("/sale/customer/priceLevel/enable", {"id":id}, "确认要启用此价格等级吗？", function(ret) {
+		beekit.msg(ret);
+		customerPriceLevel.list(id);
+	});
+};
+
+
+</script>

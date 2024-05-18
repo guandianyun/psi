@@ -1,0 +1,42 @@
+	#(token)
+	<input type="hidden" name="id" value="#(customerCategory.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">客户分类名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="customerCategory_name" placeholder="请输入客户分类名称" value="#(customerCategory.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<input type="text" maxlength="30" class="form-control" name="remark" placeholder="请输入备注" value="#(customerCategory.remark??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+<script type="application/javascript">
+
+customerCategory.formChecking = function() {
+	if($.trim($("#customerCategory_name").val()) == '') {
+		beekit.tips('客户分类名称不能为空！', '#customerCategory_name');
+		$("#customerCategory_name").focus();
+		return false;
+	}
+	if($.trim($("#customerCategory_name").val()).length > 30) {
+		beekit.tips('客户分类名称不能过长！', '#customerCategory_name');
+		$("#customerCategory_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

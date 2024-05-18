@@ -1,0 +1,57 @@
+<script type="application/javascript">
+
+if(typeof(customerCategory) == "undefined") {
+	customerCategory = {};
+}
+</script>
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">新增客户分类</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="customerCategory-add-form" onsubmit="customerCategory.create();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="customerCategory.create();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	formInput.listenkeyUp("#customerCategory-add-form");
+	
+	setTimeout(function() {
+		$("#customerCategory_name").focus();
+	}, 200);
+	
+});
+
+customerCategory.create = function() {
+	var result = customerCategory.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/sale/customer/category/create", $("#customerCategory-add-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			if('#(sourcePage)' == 'customerFormPage') {
+				beekit.modalChildClose();
+				beekit.ajaxFill("/sale/customer/category/optionList", {}, "#customerInfo_customer_category_id");
+			} else {
+				beekit.modalClose();
+				customerCategory.list(ret.targetId);
+			}
+		}
+	});
+};
+
+</script>

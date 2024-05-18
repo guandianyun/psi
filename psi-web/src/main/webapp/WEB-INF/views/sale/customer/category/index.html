@@ -1,0 +1,42 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="customerCategory-search-form">
+			<input type="hidden" id="customerCategory_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.sale_customer_category_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="customerCategory.add();">
+						<i class="bi bi-plus-circle"></i>新增客户分类
+					</button>
+					#end
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-customerCategory">
+	
+</div>
+
+<script type="application/javascript">
+var customerCategory = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	customerCategory.list();
+});
+
+customerCategory.list = function(targetId) {
+	beekit.ajaxFillPage("/sale/customer/category/list", "#customerCategory-search-form", "#data-list-customerCategory", "customerCategory-data-"+targetId);
+};
+
+customerCategory.add = function() {
+	beekit.modal("/sale/customer/category/add");
+};
+
+			
+</script>
+
+

@@ -1,0 +1,41 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑客户分类</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="customerCategory-edit-form" onsubmit="customerCategory.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="customerCategory.update();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	formInput.listenkeyUp("#customerCategory-edit-form");
+	
+});
+
+customerCategory.update = function() {
+	var result = customerCategory.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/sale/customer/category/update", $("#customerCategory-edit-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			customerCategory.list(#(customerCategory.id));
+		}
+	});
+};
+
+</script>

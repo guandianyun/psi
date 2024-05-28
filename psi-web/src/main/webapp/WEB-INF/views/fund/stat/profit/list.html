@@ -1,0 +1,150 @@
+#set(income=saleAmount??0+checkingProfitAmount??0+purchaseRejectAmount??0+incomeAmount??0)
+#set(incomeRemain=saleAmountRemain??0+purchaseRejectAmountRemain??0)
+#set(expenses=saleCostAmount??0+purchaseAmount??0+checkingLossAmount??0+saleRejectAmount??0+expensesAmount??0)
+#set(expensesRemain=purchaseAmountRemain??0+saleRejectAmountRemain??0)
+	<div class="card">
+		<div class="card-body">
+			<div class="row text-center align-items-center">
+				<div class="col">
+					<span class="fw-bold text-secondary">经营利润</span><br> <span class="fs-6 fw-bold text-danger">￥#number(income??0-expenses??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-2 text-secondary">=</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">收入</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(income??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-1 text-secondary">-</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">支出</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(expenses??0, "#.##")</span>
+				</div>
+				<div class="col right-border" style="height:50px;">
+				&nbsp;
+				</div>
+				<div class="col">
+				</div>
+				<div class="col">
+				<span class="fw-bold text-secondary">剩余盈亏</span><br> <span class="fs-6 fw-bold text-danger">￥#number(incomeRemain??0-expensesRemain??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-2 text-secondary">=</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">剩余应收</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(incomeRemain??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-1 text-secondary">-</span>
+				</div>
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">剩余应付</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(expensesRemain??0, "#.##")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+<table class="table table-hover table-bordered bg-white mt-1">
+	<thead>
+		<tr class="table-header">
+			<th>项目</th>
+			<th>合计金额</th>
+			<th>剩余应收/应付<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="单据未结清的剩余金额"></i></th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="statFundProfit-list">
+		<tr class="table-active">
+			<td><span class="fw-bold">收入</span></td>
+			<td><span class="fw-bold">#number(income, "#.##")</span></td>
+			<td><span class="fw-bold">#number(incomeRemain, "#.##")</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">销售收入<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="销售收入主要是销售单据的总应收金额"></i></span></td>
+			<td><span class="text-secondary">#number(saleAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">#number(saleAmountRemain??0, "#.##")</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">盘盈<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="盘盈指盘点后产生的盈利金额"></i></span></span></td>
+			<td><span class="text-secondary">#number(checkingProfitAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">0</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">进货退货<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="进货退货指进货退货单应收到供应商退款的总金额，包括退货可能产生的成本费用"></i></span></td>
+			<td><span class="text-secondary">#number(purchaseRejectAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">#number(purchaseRejectAmountRemain??0, "#.##")</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">其他收入<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="其他收入只日常项目收入的总金额"></i></span></td>
+			<td><span class="text-secondary">#number(incomeAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">0</span></td>
+			
+		</tr>
+		
+		<tr class="table-active">
+			<td><span class="fw-bold">支出</span></td>
+			<td><span class="fw-bold">#number(expenses, "#.##")</span></td>
+			<td><span class="fw-bold">#number(expensesRemain, "#.##")</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">销售成本<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="销售成本指销售过程中可能产生的成本费用"></i></span></td>
+			<td><span class="text-secondary">#number(saleCostAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">0</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">进货成本<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="进货成本指进货单据的应付总金额，包括进货可能产生的成本费用"></i></span></td>
+			<td><span class="text-secondary">#number(purchaseAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">#number(purchaseAmountRemain??0, "#.##")</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">盘亏<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="盘亏指盘点后产生的亏损金额"></i></span></td>
+			<td><span class="text-secondary">#number(checkingLossAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">0</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">销售退货<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="销售退货指销售退货单应退款给客户的总金额，还包括退货可能产生的成本费用"></i></span></td>
+			<td><span class="text-secondary">#number(saleRejectAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">#number(saleRejectAmountRemain??0, "#.##")</span></td>
+			
+		</tr>
+		<tr>
+			<td><span class="text-secondary">其他支出<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="其他支出只日常项目支出的总金额"></i></span></td>
+			<td><span class="text-secondary">#number(expensesAmount??0, "#.##")</span></td>
+			<td><span class="text-secondary">0</span></td>
+			
+		</tr>
+		
+		<tr class="table-active">
+			<td><span class="fw-bold">经营利润</span></td>
+			<td><span class="fw-bold">#number(income??0-expenses??0, "#.##")</span></td>
+			<td><span class="fw-bold">#number(incomeRemain??0-expensesRemain??0, "#.##")</span></td>
+			
+		</tr>
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	
+});
+
+
+</script>

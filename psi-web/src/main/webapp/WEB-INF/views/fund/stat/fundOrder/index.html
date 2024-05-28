@@ -1,0 +1,85 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="statFundOrder-search-form">
+			<input type="hidden" id="statFundOrder_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					<div class="row align-items-center">
+						<div class="col-3">
+							<div class="btn-group" role="group">
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundOrder_order_time_preday" value="1" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundOrder_order_time_preday">昨日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundOrder_order_time_today" value="2" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundOrder_order_time_today">今日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundOrder_order_time_month" value="3" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundOrder_order_time_month">本月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundOrder_order_time_premonth" value="4" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundOrder_order_time_premonth">上月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundOrder_order_time_year" value="5" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundOrder_order_time_year">本年</label>
+							</div>
+						</div>
+						<div class="col align-self-center">
+							<button type="submit" class="btn btn-sm btn-primary" onclick="statFundOrder.search(this);">
+								<i class="bi bi-search"></i>搜索
+							</button>
+							<span style="margin-left: 15px;"><a href="javascript:void(0);" onclick="common.expandFilter(this, 'statFundOrder_expand_filter')">展开<i class="bi bi-chevron-double-down"></i></a></span>
+						</div>
+					</div>
+					<div id="statFundOrder_expand_filter" style="display: none;">
+						<div class="row align-items-center mt-3">
+							<div class="col-2">
+								<input type="text" class="form-control" id="statFundOrder_search_start_time" name="start_time" placeholder="开始时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+
+							<div class="col-2">
+								<input type="text" class="form-control" id="statFundOrder_search_end_time" name="end_time" placeholder=" 结束时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+<div id="data-list-statFundOrder"></div>
+
+<script type="application/javascript">
+if(typeof(statFundOrder) == "undefined") {
+	statFundOrder = {};
+}
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	statFundOrder.list();
+	
+	$('#statFundOrder-search-form input[name=order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		var times = datetime.getFormatTime(timeType);
+		$("#statFundOrder_search_start_time").val(times.startTime);
+		$("#statFundOrder_search_end_time").val(times.endTime);
+		
+		statFundOrder.list();
+	});
+});
+
+statFundOrder.list = function(targetId, callback) {
+	$("#statFundOrder_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/stat/fundOrder/list", "#statFundOrder-search-form", "#data-list-statFundOrder" ,"statFundOrder-data-"+targetId, callback);
+};
+
+statFundOrder.search = function(othis) {
+	common.loadingSearch(othis);
+	statFundOrder.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+
+
+</script>
+
+

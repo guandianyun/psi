@@ -1,0 +1,98 @@
+
+	<div class="card">
+		<div class="card-body">
+			<div class="row text-center align-items-center">
+				<div class="col-2"></div>
+				<div class="col-2">
+					<span class="fw-bold text-secondary">参考盈亏<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="由于账户余额可手动调整，此数值与结算帐户余额可能会不相等"></i>
+					</span><br> <span class="fs-6 fw-bold text-danger">￥#number(sumIncomeAmount??0-sumExpensesAmount??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-2 text-secondary">=</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">收入</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(sumIncomeAmount??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-1 text-secondary">-</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">支出</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(sumExpensesAmount??0, "#.##")</span>
+				</div>
+				<div class="col-2"></div>
+			</div>
+		</div>
+	</div>
+	
+#if(page.totalPage > 1)
+<div class="card card-table mt-2">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-5">
+			</div>
+			<div class="col">
+			<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+
+
+<table class="table table-hover table-bordered bg-white mt-1">
+	<thead>
+		<tr class="table-header">
+			<th>单据日期</th>
+			<th>收支项目</th>
+			<th>单据编号</th>
+			<th>客户/供应商</th>
+			<th>结算账户</th>
+			<th>收支类型	</th>
+			<th>金额	</th>
+			<th>备注</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="statFundOrder-list">
+		#for (x : page.list)
+		#set(traderBalanceAccount = x.traderBalanceAccount)
+		#set(order = x.order)
+		<tr data-id="#(x.id)" id="statFundOrder-data-#(x.id)">
+			<td>#date(x.order_time??, "yyyy-MM-dd")</td>
+			<td>#(x.refOrderTypeName)</td>
+			<td>#(order.order_code??)</td>
+			<td><span >#(order.handler.name??)</span></td>
+			<td><span >#(traderBalanceAccount.name??)</span> </td>
+			<td>
+			#if(x.fund_flow == FundFlowEnum.expenses.value)
+			<span class="badge bg-danger">支出</span> 
+			#elseif(x.fund_flow == FundFlowEnum.income.value)
+			<span class="badge bg-success">收入</span> 
+			#elseif(x.fund_flow == FundFlowEnum.adjust.value)
+			<span class="badge bg-warning">调整</span> 
+			#end
+			</td>
+			<td><span class="fw-bold text-secondary">#number(x.amount, "#.##")</span></td>
+			<td><span>#(order.remark??)</span> </td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#statFundOrder_pageNumber").val(#(page.pageNumber));
+	
+});
+
+
+</script>

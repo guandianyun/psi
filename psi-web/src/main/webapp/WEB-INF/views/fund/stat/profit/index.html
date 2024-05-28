@@ -1,0 +1,86 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="statFundProfit-search-form">
+			<input type="hidden" id="statFundProfit_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					<div class="row align-items-center">
+						<div class="col-3">
+							<div class="btn-group" role="group">
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundProfit_order_time_preday" value="1" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundProfit_order_time_preday">昨日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundProfit_order_time_today" value="2" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundProfit_order_time_today">今日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundProfit_order_time_month" value="3" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundProfit_order_time_month">本月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundProfit_order_time_premonth" value="4" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundProfit_order_time_premonth">上月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statFundProfit_order_time_year" value="5" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statFundProfit_order_time_year">本年</label>
+							</div>
+						</div>
+						<div class="col align-self-center">
+							<button type="submit" class="btn btn-sm btn-primary" onclick="statFundProfit.search(this);">
+								<i class="bi bi-search"></i>搜索
+							</button>
+							<span style="margin-left: 15px;"><a href="javascript:void(0);" onclick="common.expandFilter(this, 'statFundProfit_expand_filter')">展开<i class="bi bi-chevron-double-down"></i></a></span>
+						</div>
+					</div>
+					<div id="statFundProfit_expand_filter" style="display: none;">
+						<div class="row align-items-center mt-3">
+							<div class="col-2">
+								<input type="text" class="form-control" id="statFundProfit_search_start_time" name="start_time" placeholder="开始时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+
+							<div class="col-2">
+								<input type="text" class="form-control" id="statFundProfit_search_end_time" name="end_time" placeholder=" 结束时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+<div id="data-list-statFundProfit"></div>
+
+<script type="application/javascript">
+if(typeof(statFundProfit) == "undefined") {
+	statFundProfit = {};
+}
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	statFundProfit.list();
+	
+	$('#statFundProfit-search-form input[name=order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		var times = datetime.getFormatTime(timeType);
+		$("#statFundProfit_search_start_time").val(times.startTime);
+		$("#statFundProfit_search_end_time").val(times.endTime);
+		
+		statFundProfit.list();
+	});
+});
+
+statFundProfit.list = function(targetId, callback) {
+	$("#statFundProfit_pageNumber").val(1);
+	beekit.ajaxFillPage("/fund/stat/profit/list", "#statFundProfit-search-form", "#data-list-statFundProfit" ,"statFundProfit-data-"+targetId, callback);
+};
+
+statFundProfit.search = function(othis) {
+	common.loadingSearch(othis);
+	statFundProfit.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+
+
+
+</script>
+
+

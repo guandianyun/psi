@@ -1,0 +1,134 @@
+
+#set(totalAmount = supplierPayable.open_balance??0+supplierPayable.new_amount??0-supplierPayable.take_amount??0-supplierPayable.discount_amount??0)
+	<div class="card">
+		<div class="card-body">
+			<div class="row text-center align-items-center">
+				<div class="col-2">
+					<span class="fw-bold text-secondary">期末剩余应付</span><br> <span class="fs-6 fw-bold text-danger">￥#number(totalAmount, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">=</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">期初应付款</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(supplierPayable.open_balance??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">+</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">增加应付款</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(supplierPayable.new_amount??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">-</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">已付应付款</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(supplierPayable.take_amount??0, "#.##")</span>
+				</div>
+				<div class="col">
+					<span class="fs-3 text-secondary">-</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">优惠金额</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(supplierPayable.discount_amount??0, "#.##")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+<div class="card card-table mt-2">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-3">
+			#if(session.hasOper(Permissions.fund_book_supplierBill_export))
+			<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+			  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="supplierBill.export();">导出</button>
+			  <div class="btn-group" role="group">
+			    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+			    <ul class="dropdown-menu">
+			      <li><a class="dropdown-item" href="javascript:void(0);" onclick="supplierBill.exportLog();">导出记录</a></li>
+			    </ul>
+			  </div>
+			</div>
+			#end
+			</div>
+			<div class="col">
+			#if(page.totalPage > 1)
+			<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			#end
+			</div>
+			
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white mt-1">
+	<thead>
+		<tr class="table-header">
+			<th>供应商名称</th>
+			<th>供应商分类</th>
+			<th>期初应付款</th>
+			<th>增加应付款</th>
+			<th>已付应付款</th>
+			<th>优惠金额</th>
+			<th>期末应付款</th>
+			<th style="width: 15%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="supplierBill-list">
+		#for (x : page.list)
+		#set(supplierInfo = x.supplierInfo)
+		<tr data-id="#(supplierInfo.id)" id="supplierBill-data-#(supplierInfo.id)">
+			<td><span class="fw-bold text-secondary">#(supplierInfo.name)</span></td>
+			<td>#(supplierInfo.supplierCategory.name??)</td>
+			<td><span >#number(x.open_balance??0, "#.##")</span> </td>
+			<td><span >#number(x.new_amount??0, "#.##")</span> </td>
+			<td><span >#number(x.take_amount??0, "#.##")</span> </td>
+			<td><span >#number(x.discount_amount??0, "#.##")</span> </td>
+			<td><span class="fw-bold text-secondary">#number(x.open_balance??0+x.new_amount??0-x.take_amount??0-x.discount_amount??0, "#.##")</span></td>
+			<td>
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="supplierBill.show(#(supplierInfo.id));">明细</button> 
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#supplierBill_pageNumber").val(#(page.pageNumber));
+	
+	$("#supplierBill-list tr").on("dblclick", function() {
+		supplierBill.show($(this).attr("data-id"));
+	});
+	
+});
+
+supplierBill.show = function(supplierInfoId) {
+	var startTime = $("#supplierBill_search_start_time").val();
+	var endTime = $("#supplierBill_search_end_time").val();
+	
+	beekit.offcanvas("/fund/book/supplierBill/show?supplier_info_id="+supplierInfoId+"&start_time="+startTime+"&end_time="+endTime);
+};
+
+
+supplierBill.export = function() {
+	beekit.confirmByUrl("/fund/book/supplierBill/export", $("#supplierBill-search-form").serialize(), "确定要导出对账单吗？", function(ret) {
+		supplierBill.exportLog(ret.targetId);
+	});
+}
+
+supplierBill.exportLog = function(targetId) {
+	beekit.modal("/export/log/?targetId="+targetId);
+}
+
+
+</script>

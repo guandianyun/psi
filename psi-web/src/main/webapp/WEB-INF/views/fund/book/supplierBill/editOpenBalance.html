@@ -1,0 +1,123 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">期初调整</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<div class="alert alert-warning" role="alert">
+						  <i class="bi bi-shield-exclamation"></i>期初调整：指调整供应商在系统上线使用之前剩余未付的欠款金额，调整后，基本不会发生变更，此功能权限建议不要随便开放
+					</div>
+					<form id="supplierBill-editOpenBalance-form" onsubmit="supplierBill.updateOpenBalance();return false;">
+					<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">供应商<span class="text-danger">*</span></span> 
+							<input type="hidden" name="supplier_info_id" id="supplierBill_supplier_info_id">
+							<input type="text"  placeholder="选择供应商" name="supplier_info_keyword" id="supplierBill_supplier_info_keyword" autocomplete="off" class="form-control">
+							
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">期初欠款<span class="text-danger">*</span><i class="bi bi-question-circle" data-bs-toggle="tooltip" data-bs-placement="top" title="“欠”表示您还欠供应商款，“余”表示您在供应商那里有预存余额"></i></span> 
+							<select class="form-select" name="amount_type" id="supplierBill_amount_type" style="max-width:5rem">
+								<option value="1">欠</option>
+								<option value="-1">余</option>
+							</select>
+							<input type="text" maxlength="20" class="form-control" name="open_balance" id="supplierBill_open_balance" placeholder="请输入供应商的期初欠款" onclick="$(this).select();">
+						</div>
+					</div>
+					<div class="col-1"></div>
+				</div>
+				<div class="row">
+					<div class="col-1"></div>
+					<div class="col text-secondary" id="supplierBill_open_balance_logs">
+						
+					</div>
+					<div class="col-1"></div>
+				</div>
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="supplierBill.updateOpenBalance();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	supplierBill.supplierList();
+	formInput.listenkeyUp("#supplierBill-editOpenBalance-form");
+	
+	setTimeout(function() {
+		$("#supplierBill_supplier_info_id").focus();
+	}, 200);
+	
+});
+
+supplierBill.updateOpenBalance = function() {
+	if($.trim($("#supplierBill_supplier_info_id").val()) == '') {
+		beekit.tips('供应商不能为空！', '#supplierBill_supplier_info_keyword');
+		$("#supplierBill_supplier_info_keyword").focus();
+		return false;
+	}
+	if($.trim($("#supplierBill_open_balance").val()) == '') {
+		beekit.tips('期初欠款不能为空！', '#supplierBill_open_balance');
+		$("#supplierBill_open_balance").focus();
+		return false;
+	}
+	
+	beekit.ajaxPost("/fund/book/supplierBill/updateOpenBalance", $("#supplierBill-editOpenBalance-form").serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				supplierBill.list(ret.targetId);
+			}
+		});
+	});
+};
+
+supplierBill.supplierList = function() {
+	beekit.autocomplete("#supplierBill_supplier_info_keyword", "/inventory/supplier/info/listByJson", "#supplierBill_supplier_info_id", function(dataSelected) {
+		beekit.ajaxPost("/fund/book/supplierBill/openBalanceLog", {"supplier_info_id":dataSelected.id}, function(ret) {
+			if (ret.state == "ok") {
+				var openBalance = ret.openBalance;
+				if(openBalance > 0) {
+					$("#supplierBill_amount_type").val(1);
+					$("#supplierBill_open_balance").val(openBalance);
+				} else if(openBalance < 0){
+					$("#supplierBill_amount_type").val(-1);
+					$("#supplierBill_open_balance").val(0-openBalance);
+				} else {
+					$("#supplierBill_open_balance").val(0);
+				}
+				$("#supplierBill_open_balance").select();
+				var logs = $("#supplierBill_open_balance_logs");
+				logs.html("");
+				$.each(ret.logs,function(index,log) {
+					var amount = "";
+					if(log.amount > 0) {
+						amount = "欠"+log.amount;
+					} else {
+						amount = "余"+(0-log.amount);
+					}
+					logs.append("●&nbsp;"+log.created_at+"&nbsp;&nbsp;&nbsp;&nbsp;"+log.remark+"&nbsp;&nbsp;&nbsp;&nbsp;"+amount);
+					logs.append("<hr class=\"row-hr\" />");
+				});
+			}
+		});
+	});
+};
+
+</script>

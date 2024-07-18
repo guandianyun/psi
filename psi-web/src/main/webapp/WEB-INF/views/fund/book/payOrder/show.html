@@ -1,0 +1,242 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>付款单据详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+
+					#if(payOrder.auditConfigFlag)
+					#if(payOrder.order_status != OrderStatusEnum.disable.value)
+					#if(payOrder.audit_status == AuditStatusEnum.waiting.value)
+					#if(session.hasOper(Permissions.fund_book_payOrder_audit))
+					<button type="button" class="btn btn-sm btn-outline-success" onclick="payOrder.audit(#(payOrder.id));">
+					<i class="bi bi-hand-index"></i>审核
+					</button> &nbsp;
+					#end
+					#end
+					#end
+					#end
+					
+					#if(!payOrder.auditConfigFlag || (payOrder.auditConfigFlag && (payOrder.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.fund_book_payOrder_audit))))
+						#if(session.hasOper(Permissions.fund_book_payOrder_update))
+						<button type="button" class="btn btn-sm btn-outline-primary" onclick="payOrder.edit(#(payOrder.id));">
+							<i class="bi bi-pencil-square"></i>修改
+						</button>&nbsp;
+						#end 
+					#end 
+					#if(!payOrder.auditConfigFlag || (payOrder.auditConfigFlag && payOrder.audit_status != AuditStatusEnum.pass.value))
+						#if(session.hasOper(Permissions.fund_book_payOrder_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="payOrder.disable(#(payOrder.id));">
+							<i class="bi bi-trash"></i>作废
+						</button>&nbsp;
+						#end 
+					#end
+					
+					#if(payOrder.order_status == OrderStatusEnum.draft.value)
+						#if(session.hasOper(Permissions.fund_book_payOrder_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="payOrder.delete(#(payOrder.id));">
+							<i class="bi bi-trash"></i>删除
+						</button>&nbsp;
+						#end 
+					#end
+					
+				</div>
+				
+				<div class="col text-end">
+					<button type="button" class="btn btn-sm btn-primary" onclick="payOrder.showPrint(#(payOrder.id));">
+						<i class="bi bi-printer"></i>打印
+					</button>
+					#if(payOrder.print_count > 0)
+					&nbsp; <span class="btn btn-sm btn-outline-danger sm-more">已打印:#(payOrder.print_count)</span>
+					#end
+				</div>
+
+				#if(payOrder.order_status == OrderStatusEnum.disable.value)  
+					<img src="#(resourceDomain)/img/disable.png" class="order-status-pic">
+				#elseif(payOrder.audit_status == AuditStatusEnum.reject.value) 
+					<img src="#(resourceDomain)/img/audit_reject.png" class="order-status-pic">
+				#end
+				 
+			</div>
+		</div>
+	</div>
+	
+	<div id="payOrder_showDetail">
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">单据编号：</span><span>#(payOrder.order_code)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">供应商：</span><span class="text-secondary fw-bold">#(payOrder.supplierInfo.name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">单据日期：</span><span>#date(payOrder.order_time, "yyyy-MM-dd")</span>
+				</div>
+				
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">经办人：</span><span>#(payOrder.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单人：</span><span>#(payOrder.makeMan.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单时间：</span><span>#date(payOrder.created_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">最近修改：</span><span>#date(payOrder.updated_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			
+			#if(payOrder.auditConfigFlag)
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">审核状态：</span>
+					#if(payOrder.audit_status == AuditStatusEnum.waiting.value) 
+					<span class="badge bg-warning">待审核</span> 
+					#elseif(payOrder.audit_status == AuditStatusEnum.pass.value) 
+					<span class="badge bg-success">审核通过</span>  
+					#elseif(payOrder.audit_status == AuditStatusEnum.reject.value) 
+					<span class="badge bg-danger">审核拒绝</span>   
+					#end
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核人：</span><span>#(payOrder.auditor.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核时间：</span><span>#date(payOrder.audit_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核反馈：</span><span>#(payOrder.audit_desc)</span>
+				</div>
+			</div>
+			#end
+		</div>
+	</div>
+	
+	<div class="row mt-3">
+		<div class="col">
+		<table class="table table-hover table-bordered bg-white">
+		<thead>
+			<tr class="table-header">
+				<th>付款账户</th>
+				<th>付款金额</th>
+				<th>付款时间</th>
+			</tr>
+		</thead>
+		<tbody class="table-row">
+			#set(orderFundList = payOrder.orderFundList??)
+			#for(x : orderFundList)
+			<tr>
+				<td>#(x.balanceAccount.name??)</td>
+				<td>#number(x.amount, "#.##")</td>
+				<td>#date(x.fund_time, "yyyy-MM-dd")</td> 
+			</tr>
+			#end
+			<tr>
+			<td class="text-end">付款合计</td>
+			<td><span class="fw-bold text-secondary">￥#number(payOrder.amount, "#.##")</span></td>
+			<td></td>
+			</tr>
+		</tbody>
+	</table>
+	</div>
+	</div>
+	
+#set(orderRefList = payOrder.orderRefList)
+#if(orderRefList && orderRefList.size() > 0)
+<div class="row">
+	<div class="col">
+		<span class="fw-bold text-secondary">核销单据列表</span>
+	</div>
+</div>
+<div class="row mt-1">
+	<div class="col">
+		<table class="table table-hover table-bordered bg-white">
+			<thead>
+				<tr class="table-header">
+					<th>单据日期</th>
+					<th>单据编号</th>
+					<th>应付金额</th>
+					<th>已付金额</th>
+					<th>未付金额</th>
+					<th>本次付款金额</th>
+					<th>优惠金额</th>
+				</tr>
+			</thead>
+			<tbody class="table-row">
+			#for(x : orderRefList)
+			#set(purchaseOrder = x.purchaseOrder)
+				<tr>
+					<td>#date(purchaseOrder.order_time, "yyyy-MM-dd")</td>
+					<td>#(purchaseOrder.order_code??)</td>
+					<td>#number(purchaseOrder.amount, '#.##')</td>
+					<td>#number(purchaseOrder.paid_amount, '#.##')</td>
+					<td>#number(purchaseOrder.amount-purchaseOrder.paid_amount, '#.##')</td>
+					<td class="fw-bold text-success">#number(x.amount, '#.##')</td>
+					<td class="fw-bold text-success">#number(x.discount_amount, '#.##')</td>
+				</tr>
+			#end
+			</tbody>
+		</table>
+	</div>
+</div>
+#end
+	<div class="card ">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-2">
+					<span class="text-secondary">核销金额：</span><span>#number(payOrder.order_amount??, "#.##")</span>
+			</div>
+			<div class="col-2">
+					<span class="text-secondary">优惠金额：</span><span>#number(payOrder.discount_amount??0, "#.##")</span>
+			</div>
+			<div class="col-2">
+					<span class="text-secondary">实际核销：</span><span class="badge bg-success">#number(payOrder.check_amount??, "#.##")</span>
+			</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col">
+					<span class="text-secondary">备注：</span><span>#(payOrder.remark??)</span>
+				</div>
+				<div class="col text-end" id="payOrder_order_img_list_preview">
+					#for(thumb : payOrder.orderImgList)
+					<img class="rounded" src="#(resourceUploadDomain)#(thumb)" layer-src="#(resourceUploadDomain)#(thumb)" style="width:30px" >
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+</div>
+
+
+<script type="application/javascript">
+	
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	beekit.photos("#payOrder_order_img_list_preview");
+	
+});
+
+
+payOrder.showPrint = function(orderId) {
+	beekit.modal("/fund/book/payOrder/showPrint?id="+orderId);
+}
+
+</script>

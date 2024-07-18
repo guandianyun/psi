@@ -1,0 +1,89 @@
+#if((purchaseOrderPage && purchaseOrderPage.list.size() > 0) || order_time_btn)
+<div class="card mt-2">
+<div class="card-header">
+	<div class="row align-items-center">
+		<div class="col-2 fw-bold" style="font-size: 15px;">核销欠款单据</div>
+		<div class="col">
+		<div class="float-end">
+			<div class="btn-group" role="group">
+				<input type="radio" class="btn-check" name="form_order_time_btn" id="payOrder_form_order_time_all_#(payOrder.id??0)" value="0" autocomplete="off" #if(!order_time_btn ||order_time_btn == '0') checked #end>
+				<label class="btn btn-outline-secondary" for="payOrder_form_order_time_all_#(payOrder.id??0)">所有</label>
+				<input type="radio" class="btn-check" name="form_order_time_btn" id="payOrder_form_order_time_preday_#(payOrder.id??0)" value="1" autocomplete="off" #if(order_time_btn == '1') checked #end>
+				<label class="btn btn-outline-secondary" for="payOrder_form_order_time_preday_#(payOrder.id??0)">昨日</label>
+				<input type="radio" class="btn-check" name="form_order_time_btn" id="payOrder_form_order_time_today_#(payOrder.id??0)" value="2" autocomplete="off" #if(order_time_btn == '2') checked #end>
+				<label class="btn btn-outline-secondary" for="payOrder_form_order_time_today_#(payOrder.id??0)">今日</label>
+				<input type="radio" class="btn-check" name="form_order_time_btn" id="payOrder_form_order_time_month_#(payOrder.id??0)" value="3" autocomplete="off" #if(order_time_btn == '3') checked #end>
+				<label class="btn btn-outline-secondary" for="payOrder_form_order_time_month_#(payOrder.id??0)">本月</label>
+				<input type="radio" class="btn-check" name="form_order_time_btn" id="payOrder_form_order_time_premonth_#(payOrder.id??0)" value="4" autocomplete="off" #if(order_time_btn == '4') checked #end>
+				<label class="btn btn-outline-secondary" for="payOrder_form_order_time_premonth_#(payOrder.id??0)">上月</label>
+				<input type="radio" class="btn-check" name="form_order_time_btn" id="payOrder_form_order_time_year_#(payOrder.id??0)" value="5" autocomplete="off" #if(order_time_btn == '5') checked #end>
+				<label class="btn btn-outline-secondary" for="payOrder_form_order_time_year_#(payOrder.id??0)">本年</label>
+			</div>
+			<input type="hidden"  name="start_time">
+			<input type="hidden"  name="end_time">
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<table class="table table-bordered bg-white border-bg-none">
+	<thead>
+		<tr class="table-header">
+			<th>单据日期</th>
+			<th>单据编号</th>
+			<th>应付金额</th>
+			<th>已付金额</th>
+			<th>未付金额</th>
+			<th>本次付款金额</th>
+			<th>优惠金额</th>
+		</tr>
+	</thead>
+	<tbody class="table-row table-order goods-list">
+		#for(x : purchaseOrderPage.list)
+		<tr>
+			<input type="hidden" name="purchase_order_id" value="#(x.id??)">
+			<td>#date(x.order_time, "yyyy-MM-dd")</td>
+			<td>#(x.order_code??)</td>
+			<td>#number(x.amount, '#.##')</td>
+			<td>#number(x.paid_amount, '#.##')</td>
+			<td class="text-danger">#number(x.amount-x.paid_amount, '#.##')</td>
+			#set(orderRef = payOrder.getOrderRef(x.id)??)
+			#if(payOrder && orderRef)
+			<input type="hidden" name="remain_amount" value="#number(x.amount-x.paid_amount+orderRef.amount??0, '#.##')">
+			#else
+			<input type="hidden" name="remain_amount" value="#number(x.amount-x.paid_amount, '#.##')">
+			#end
+			<td><input type="text" class="form-control-input" name="pay_amount" autocomplete="off" #if(payOrder) value="#number(orderRef.amount??, '#.##')" #end
+				onclick="$(this).select();"></td>
+			<td><input type="text" class="form-control-input" name="pay_discount_amount" autocomplete="off" #if(payOrder) value="#number(orderRef.discount_amount??, '#.##')" #end
+				onclick="$(this).select();"></td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-2">
+				<div class="input-group">
+					<span class="input-group-text">核销金额</span> <input type="text" class="form-control input-readonly" name="order_amount" value="#(payOrder.order_amount??0)" readonly>
+				</div>
+			</div>
+			<div class="col-2">
+				<div class="input-group">
+					<span class="input-group-text">优惠金额</span> <input type="text" class="form-control input-readonly" name="discount_amount" value="#(payOrder.discount_amount??0)" readonly>
+				</div>
+			</div>
+			<div class="col-2">
+				<div class="input-group">
+					<span class="input-group-text fw-bold text-secondary">实际核销</span> <input type="text" class="form-control input-readonly" name="check_amount" value="#(payOrder.check_amount??0)" readonly>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+#end

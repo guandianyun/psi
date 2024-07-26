@@ -1,0 +1,286 @@
+	#(token)
+	<input type="hidden" name="id" value="#(flowIncome.id??)">
+	<input type="hidden" name="order_status" value="#(flowIncome.order_status??)">
+	
+	<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">收入项目</span> 
+					<input type="hidden" name="fund_type_id" value="#(flowIncome.fund_type_id??)">
+					<input type="text" placeholder="选择收入项目" name="fund_type_keyword" value="#(flowIncome.fundType.name??)" autocomplete="off" #if(flowIncome) readonly class="form-control input-readonly"  #else class="form-control" #end>
+				</div>
+			</div>
+			
+			#if(draftCount && draftCount > 0)
+			<div class="col">
+			<div class="float-end">
+				<button type="button" class="btn btn-outline-primary position-relative" onclick="flowIncome.draftIndex();" name="draft_count_btn">
+				草稿箱 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" name="draft_count"> #(draftCount) </span>
+				</button>
+			</div>
+			</div>
+			#else
+			<div class="col">
+			<div class="float-end">
+				<span name="draft_count"></span>
+			</div>
+			</div>
+			#end
+		</div>
+		<div class="row mt-2">
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">经办人</span> 
+					<input type="hidden" name="handler_id" #if(flowIncome) value="#(flowIncome.handler_id??)" #else value="#(session.tenantAdminId)" #end>
+					<input type="text" class="form-control" placeholder="选择经办人" name="handler_keyword" #if(flowIncome) value="#(flowIncome.handler.real_name??)" #else value="#(session.realName)" #end autocomplete="off" >
+				</div>
+			</div>
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">单据日期</span> <input type="text" class="form-control" name="order_time" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" readonly #if(flowIncome) value="#date(flowIncome.order_time, "yyyy-MM-dd")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd")" #end>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<table class="table table-bordered bg-white border-bg-none mt-3">
+		<thead>
+			<tr class="table-header">
+				<th>收款账户</th>
+				<th>收款金额</th>
+				<th>收款时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody class="table-row table-order goods-list">
+			#set(orderRows = 5)
+			#set(orderFundList = flowIncome.orderFundList??)
+			#set(fundSize = 0)
+			#if(orderFundList)
+				#set(fundSize = orderFundList.size())
+			#end
+			#for(x : orderFundList)
+			<tr>
+				<input type="hidden" name="order_fund_id" value="#(x.id??)">
+				<td>
+				<input type="hidden" name="order_fund_balance_account_id" value="#(x.trader_balance_account_id)">
+						<input type="text" class="form-control-input" placeholder="" name="order_fund_balance_account_name" value="#(x.balanceAccount.name??)" autocomplete="off" >
+				</td>
+				<td><input type="text" class="form-control-input" name="order_fund_amount" value="#(x.amount)" onclick="$(this).select();" autocomplete="off"></td>
+				<td><input type="text" class="form-control-input" name="order_fund_fund_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" value="#date(x.fund_time, "yyyy-MM-dd")"  autocomplete="off"> </td> 
+				#if(for.index == orderRows -1)
+				<td onclick="flowIncome.addTableRow(this);"><i class="bi bi-plus-circle"></i></td> 
+				#else
+				<td onclick="formInput.removeTableRow(this);"><i class="bi bi-dash-circle"></i></td> 
+				#end
+			</tr>
+			#end
+			
+			#if(orderRows <= fundSize)
+			#set(orderRows = 0)
+			#else
+			#set(orderRows = orderRows - fundSize)
+			#end
+			#for(idx = 0; idx < orderRows; idx++)
+			<tr>
+				<input type="hidden" name="order_fund_id">
+				<td>
+				<input type="hidden" name="order_fund_balance_account_id">
+				<input type="text" class="form-control-input" placeholder="" name="order_fund_balance_account_name" autocomplete="off" >
+				</td>
+				<td><input type="text" class="form-control-input" name="order_fund_amount" onclick="$(this).select();" autocomplete="off"></td>
+				<td><input type="text" class="form-control-input" name="order_fund_fund_time" onfocus="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})" autocomplete="off"> </td> 
+				#if(for.index == orderRows -1)
+				<td onclick="flowIncome.addTableRow(this);"><i class="bi bi-plus-circle"></i></td> 
+				#else
+				<td onclick="formInput.removeTableRow(this);"><i class="bi bi-dash-circle"></i></td> 
+				#end
+			</tr>
+			#end
+
+		</tbody>
+	</table>
+	
+	<div class="card mt-2">
+		<div class="card-body">
+		<div class="row">
+			<div class="col-2">
+				<div class="input-group mb-2">
+					<span class="input-group-text">收款合计</span> <input type="text" class="form-control input-readonly" name="amount" value="#(flowIncome.amount??0.00)" readonly>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-5">
+				<div class="input-group">
+					<span class="input-group-text">备注</span>
+					<input type="text" class="form-control" name="remark" value="#(flowIncome.remark??)">
+				</div>
+			</div>
+			<div class="col">
+					<div class="row">
+						<div class="col">
+						<div class="add-pic-box add-pic">
+							<i class="bi bi-plus-lg"></i><br />上传图片 <input type="file" accept="image/jpeg, image/png, image/gif"  name="file_upload">
+						</div>
+						</div>
+						<div class="col-10 add-pic-list" name="img_list">
+						#if(flowIncome) 
+						#for(img : flowIncome.orderImgList)
+						<div class="add-pic-box">
+							<input type="hidden" name="order_imgs" value="#(img)"> <img src="#(resourceUploadDomain)#(img)">
+							<div class="delete-pic" onclick="$(this).parent().remove();">
+								<i class="bi bi-x-circle-fill text-danger"></i>
+							</div>
+						</div>
+						#end
+						#end
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script type="application/javascript">
+if(typeof(flowIncome) == "undefined") {
+	flowIncome = {};
+}
+
+flowIncome.uploadFileListener = function(formId) {
+	$(formId+" input[name=file_upload]").on("change", function(evt) {
+		common.uploadFile(this, function(ret) {
+			var html = "<div class=\"add-pic-box\">"+
+						"<input type=\"hidden\" name=\"order_imgs\" value=\""+ret.thumbPath+"\">"+
+						"<img src=\"#(resourceUploadDomain)"+ret.thumbPath+"\">"+
+						"<div class=\"delete-pic\" onclick=\"$(this).parent().remove();\"><i class=\"bi bi-x-circle-fill text-danger\"></i></div>"+
+						"</div>";
+			
+			$(formId).find("div[name=img_list]").first().append(html);
+		});
+	});
+}
+
+flowIncome.formChecking = function(formId) {
+	var fundTypeId = $(formId).find("input[name=fund_type_id]").first();
+	if($.trim(fundTypeId.val()) == '') {
+		var fundTypeKeyword = $(formId).find("input[name=fund_type_keyword]").first();
+		beekit.tips('收入项目不能为空！', fundTypeKeyword);
+		$(fundTypeKeyword).focus();
+		return false;
+	}
+	var handlerId = $(formId).find("input[name=handler_id]").first();
+	if($.trim(handlerId.val()) == '') {
+		var handlerKeyword = $(formId).find("input[name=handler_keyword]").first();
+		beekit.tips('经办人不能为空！', handlerKeyword);
+		$(handlerKeyword).focus();
+		return false;
+	}
+	var orderTime = $(formId).find("input[name=order_time]").first();
+	if($.trim(orderTime.val()) == '') {
+		beekit.tips('单据时间不能为空！', orderTime);
+		$(orderTime).focus();
+		return false;
+	}
+	var tableValid = true;
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		
+		if(orderFundAmount.val() != '' && parseFloat(orderFundAmount.val()) > 0) {
+			if(balanceAccountName.val() == '' || parseFloat(balanceAccountId.val()) < 0) {
+				beekit.tips("请选择收款账户", balanceAccountName);
+				balanceAccountName.focus();
+				balanceAccountName.select();
+				tableValid = false;
+				return false;
+			}
+		}
+		if((balanceAccountName.val() != '' && parseFloat(balanceAccountId.val()) > 0)) {
+			if(orderFundAmount.val() == '') {
+				beekit.tips("请输入收款金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+			
+			if(!formValidator.checkPositiveNumber(orderFundAmount.val())) {
+				beekit.tips("请输入合法的金额", orderFundAmount);
+				orderFundAmount.focus();
+				orderFundAmount.select();
+				tableValid = false;
+				return false;
+			}
+		}
+	});
+	
+	if(!tableValid) {
+		return false;
+	}
+	return true;
+};
+
+flowIncome.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+flowIncome.fundTypeList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=fund_type_keyword]").first();
+	var inputId = $(formId).find("input[name=fund_type_id]").first();
+	beekit.autocomplete(inputKeyword, "/fund/account/fundType/listByJson?fund_flow=#(FundFlowEnum.income.value)", inputId);
+};
+
+flowIncome.bindFundList = function(formId) {
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var currentFundRow = $(this).parent().parent();
+		var balanceAccountName = currentFundRow.find("input[name=order_fund_balance_account_name]").first();
+		var balanceAccountId = currentFundRow.find("input[name=order_fund_balance_account_id]").first();
+		
+		beekit.autocompleteNameByParams(balanceAccountName, "/fund/account/info/listByJson", {}, balanceAccountId, false);
+		
+		var orderFundAmount = currentFundRow.find("input[name=order_fund_amount]").first();
+		orderFundAmount.blur(function() {
+			if($.trim(balanceAccountId.val()) == '' || parseFloat(balanceAccountId.val()) <= 0) {
+				return;
+			}
+			flowIncome.totalAmount(formId);
+		})
+	});
+};
+
+flowIncome.addTableRow = function(othis) {
+	formInput.addTableRow(othis, function(formId) {
+		flowIncome.bindFundList(formId);
+	})
+}
+
+flowIncome.totalAmount = function(formId, discountAmountBlurFlag) {
+	var totalAmount = 0;
+	$(formId+" input[name=order_fund_balance_account_name]").each(function(index) {
+		var balanceAccountName = $(this);
+		if($.trim(balanceAccountName.val()) == '') {
+			return;
+		}
+		var currentRow = $(this).parent().parent();
+		var fundAmount = currentRow.find("input[name=order_fund_amount]").first();
+		if($.trim(fundAmount.val()) == '' || parseFloat(fundAmount.val()) <= 0) {
+			return;
+		}
+		totalAmount = totalAmount + parseFloat(fundAmount.val());
+	});
+	
+	$(formId+" input[name=amount]").first().val(totalAmount.toFixed(2));
+	
+}
+
+</script>

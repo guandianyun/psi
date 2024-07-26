@@ -1,0 +1,42 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+		<div class="modal-content">
+		<form id="flowIncome-audit-form" onsubmit="flowIncome.auditCreate();return false;">
+			<div class="modal-header">
+				<h6 class="modal-title">收入单据审核</h6>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" name="id" value="#(id)">
+				<div class="row">
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">审核说明</span>
+							<textarea class="form-control" name="audit_desc"></textarea>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="flowIncome.auditCreate(#(AuditStatusEnum.reject.value));">审核拒绝</button>
+				<button type="button" class="btn btn-primary" onclick="flowIncome.auditCreate(#(AuditStatusEnum.pass.value));">审核通过</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+			</div>
+			</form>
+		</div>
+	</div>
+
+
+<script type="application/javascript">
+
+flowIncome.auditCreate = function(auditStatus) {
+	beekit.ajaxPost("/fund/flow/income/auditCreate?audit_status="+auditStatus, $("#flowIncome-audit-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			flowIncome.list(#(id));
+		}
+	});
+};
+
+</script>

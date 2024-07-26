@@ -1,0 +1,108 @@
+<form id="flowIncome-add-form" onsubmit="flowIncome.submitConfirm();return false;">
+#include("_form.html")
+<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+	<div class="col">
+		<button type="button" class="btn btn-lg btn-outline-secondary fs-6 btn-wlg" onclick="dashboard.linkTab('/fund/flow/income/add')">清空</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6 btn-wlg" onclick="flowIncome.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6 btn-wlg" onclick="flowIncome.draft();">暂存草稿</button>
+	</div>
+</div>
+</form>
+
+<div id="flowIncome-add-confirm" style="display:none;">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="flowIncome.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6" onclick="flowIncome.draft();">暂存草稿</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+<script type="application/javascript">
+if(typeof(flowIncome) == "undefined") {
+	flowIncome = {};
+}
+
+$(function() {
+	var formId = "#flowIncome-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		flowIncome.handlerList(formId);
+		flowIncome.fundTypeList(formId);
+		flowIncome.bindFundList(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	#if(flowIncome)
+		setTimeout(function() {
+			$(formId).find("input[name=remark]").first().focus();
+		}, 500);
+	#end
+
+	flowIncome.uploadFileListener(formId)
+	
+});
+
+flowIncome.submitConfirm = function() {
+	var formId = "#flowIncome-add-form";
+	var result = flowIncome.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.modalConfirm("确定要保存收入单据吗？", $("#flowIncome-add-confirm").html());
+};
+
+flowIncome.normal = function() {
+	var formId = "#flowIncome-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.normal.value));
+	flowIncome.create();
+};
+
+flowIncome.draft = function() {
+	var formId = "#flowIncome-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.draft.value));
+	flowIncome.create();
+};
+
+
+flowIncome.create = function(msg) {
+	var formId = "#flowIncome-add-form";
+	var result = flowIncome.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	#if(flowIncome && flowIncome.id && flowIncome.id > 0)
+	var url = "/fund/flow/income/update";
+	#else
+	var url = "/fund/flow/income/create";
+	#end
+	
+	beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.modalConfirmClose();
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				var orderStatusVal = $(formId).find("input[name=order_status]").first().val();
+				if(orderStatusVal == #(OrderStatusEnum.draft.value)) {
+					beekit.flyer($(formId).find("button[name=draft_btn]").first(), $(formId).find("span[name=draft_count]").first(), "#flowIncome-add-form button[name=draft_count_btn]");
+				} else {
+					beekit.flyer($(formId).find("button[name=normal_btn]").first(), "#fund_flow_income");
+				}
+				dashboard.linkTab("/fund/flow/income/add");
+			}	
+		});
+	});
+};
+
+flowIncome.draftIndex = function() {
+	beekit.offcanvasMiddle("/fund/flow/income/draftIndex");
+};
+
+
+</script>

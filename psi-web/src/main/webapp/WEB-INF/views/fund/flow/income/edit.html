@@ -1,0 +1,65 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑收入单据</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="flowIncome-edit-form" onsubmit="flowIncome.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(flowIncome.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="flowIncome.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="flowIncome.update();">保存</button>
+						#end
+						
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+if(typeof(flowIncome) == "undefined") {
+	flowIncome = {};
+}
+
+$(function() {
+	var formId = "#flowIncome-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		flowIncome.handlerList(formId);
+		flowIncome.fundTypeList(formId);
+		flowIncome.bindFundList(formId);
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	flowIncome.uploadFileListener(formId)
+	
+});
+
+flowIncome.update = function() {
+	var formId = "#flowIncome-edit-form";
+	var result = flowIncome.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/fund/flow/income/update", $(formId).serialize(), function(ret) {
+	common.processRequestResult(ret, function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			flowIncome.list(#(flowIncome.id));
+		}
+	});
+	});
+};
+
+</script>

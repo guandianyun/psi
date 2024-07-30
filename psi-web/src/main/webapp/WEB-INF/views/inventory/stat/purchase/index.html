@@ -1,0 +1,111 @@
+<div class="card mb-2 mt-2">
+	<div class="card-body search-form">
+		<form id="statPurchase-search-form">
+			<input type="hidden" id="statPurchase_pageNumber" name="pageNumber">
+			<input type="hidden" id="statPurchase_statType" name="stat_type">
+			<div class="row align-items-center">
+				<div class="col">
+					<div class="row align-items-center">
+						<div class="col-3">
+							<div class="btn-group" role="group">
+								<input type="radio" class="btn-check" name="order_time_btn" id="statPurchase_order_time_preday" value="1" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statPurchase_order_time_preday">昨日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statPurchase_order_time_today" value="2" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statPurchase_order_time_today">今日</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statPurchase_order_time_month" value="3" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statPurchase_order_time_month">本月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statPurchase_order_time_premonth" value="4" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statPurchase_order_time_premonth">上月</label>
+								<input type="radio" class="btn-check" name="order_time_btn" id="statPurchase_order_time_year" value="5" autocomplete="off">
+								<label class="btn btn-outline-primary" for="statPurchase_order_time_year">本年</label>
+							</div>
+						</div>
+						<div class="col-2">
+							<select class="form-select search-input" name="supplier_category_id" id="statPurchase_search_supplier_category_id">
+								<option value="">供应商分类</option>
+								#for(x : supplierCategoryPage.list)
+								<option value="#(x.id)">#(x.name)</option> 
+								#end
+							</select>
+						</div>
+						<div class="col-2">
+							<input type="hidden" name="supplier_info_id" id="statPurchase_search_supplier_info_id">
+							<input type="text" class="form-control" placeholder="请输入供应商名称或简码"  id="statPurchase_search_supplier_info_keyword" autocomplete="off">
+						</div>
+						<div class="col align-self-center">
+							<button type="submit" class="btn btn-sm btn-primary" onclick="statPurchase.search(this);">
+								<i class="bi bi-search"></i>搜索
+							</button>
+							<span style="margin-left: 15px;"><a href="javascript:void(0);" onclick="common.expandFilter(this, 'statPurchase_expand_filter')">展开<i class="bi bi-chevron-double-down"></i></a></span>
+						</div>
+					</div>
+					<div id="statPurchase_expand_filter" style="display: none;">
+						<div class="row align-items-center mt-3">
+							<div class="col-2">
+								<input type="text" class="form-control" id="statPurchase_search_start_time" name="start_time" placeholder="开始时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+
+							<div class="col-2">
+								<input type="text" class="form-control" id="statPurchase_search_end_time" name="end_time" placeholder=" 结束时间" onClick="WdatePicker({el:this, startDate:'%y-%M-%d 00:00:00', dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+
+<div id="data-list-statPurchase"></div>
+
+<script type="application/javascript">
+if(typeof(statPurchase) == "undefined") {
+	statPurchase = {};
+}
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	statPurchase.list();
+	
+	$('#statPurchase-search-form input[name=order_time_btn]').on('click', function() {
+		var timeType = $(this).val();
+		var times = datetime.getFormatTime(timeType);
+		$("#statPurchase_search_start_time").val(times.startTime);
+		$("#statPurchase_search_end_time").val(times.endTime);
+		
+		statPurchase.list();
+	});
+	statPurchase.loadCustomerList();
+	
+	$('#statPurchase_search_supplier_category_id').on('change', function() {
+		statPurchase.list();
+	});
+	
+});
+
+
+statPurchase.list = function(targetId, callback) {
+	$("#statPurchase_pageNumber").val(1);
+	beekit.ajaxFillPage("/inventory/stat/purchase/list", "#statPurchase-search-form", "#data-list-statPurchase" ,"statPurchase-data-"+targetId, callback);
+};
+
+statPurchase.search = function(othis) {
+	common.loadingSearch(othis);
+	statPurchase.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+
+
+statPurchase.loadCustomerList = function() {
+	beekit.autocomplete("#statPurchase_search_supplier_info_keyword", "/inventory/supplier/info/listByJson", "#statPurchase_search_supplier_info_id", function() {
+		saleOrder.list();
+	});
+}
+
+</script>
+
+

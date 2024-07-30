@@ -1,0 +1,104 @@
+
+	<div class="card">
+		<div class="card-body">
+			<div class="row text-center align-items-center">
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">商品进货额<i class="bi bi-question-circle text-secondary" style="font-size:13px" data-bs-toggle="tooltip" data-bs-placement="top" title="进货单的应收总额"></i></span><br> 
+					<span class="fs-6 fw-bold text-secondary">￥#number(sumOrder.amount??0, "#.##")</span>
+				</div>
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">进货笔数</span><br> <span class="fs-6 fw-bold text-secondary">#number(sumOrder.order_count, "#.##")</span>
+				</div>
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">退货笔数</span><br> 
+					<span class="fs-6 fw-bold text-warning">#(sumOrder.reject_order_count??0)</span>
+				</div>
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">退货金额</span><br> 
+					<span class="fs-6 fw-bold text-warning">￥#number(sumOrder.reject_amount??0, "#.##")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+#if(page.totalPage > 1)
+<div class="card card-table mt-2">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-5">
+			</div>
+			<div class="col">
+			<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+
+<table class="table table-hover table-bordered bg-white mt-2">
+	<thead>
+		<tr class="table-header">
+			<th>供应商名称</th>
+			<th>供应商分类</th>
+			<th>进货笔数</th>
+			<th>商品进货额</th>
+			<th>退货笔数</th>
+			<th>退货金额</th>
+			<th style="width: 15%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="statPurchase-list">
+		#for (x : page.list)
+		#set(supplierInfo = x.supplierInfo)
+		<tr data-id="#(supplierInfo.id)" id="statPurchase-data-#(supplierInfo.id)">
+			<td><span class="fw-bold text-secondary">#(supplierInfo.name)</span></td>
+			<td>#(supplierInfo.supplierCategory.name??)</td>
+			<td><span >#(x.order_count??0)</span> </td>
+			<td><span >#number(x.amount??0, "#.##")</span> </td>
+			<td><span >#(x.reject_order_count??0)</span> </td>
+			<td><span >#number(x.reject_amount??0, "#.##")</span> </td>
+			<td>
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="statPurchase.show(#(supplierInfo.id));">单据明细</button> 
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary ms-1" onclick="statPurchase.showGoods(#(supplierInfo.id));">商品明细</button> 
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#statPurchase_pageNumber").val(#(page.pageNumber));
+	
+	$("#statPurchase-list tr").on("dblclick", function() {
+		statPurchase.show($(this).attr("data-id"));
+	});
+
+});
+
+statPurchase.show = function(supplierInfoId) {
+	var startTime = $("#statPurchase_search_start_time").val();
+	var endTime = $("#statPurchase_search_end_time").val();
+	
+	beekit.offcanvas("/inventory/stat/purchase/show?supplier_info_id="+supplierInfoId+"&start_time="+startTime+"&end_time="+endTime);
+};
+
+statPurchase.showGoods = function(supplierInfoId) {
+	var startTime = $("#statPurchase_search_start_time").val();
+	var endTime = $("#statPurchase_search_end_time").val();
+	
+	beekit.offcanvas("/inventory/stat/purchase/showGoods?supplier_info_id="+supplierInfoId+"&start_time="+startTime+"&end_time="+endTime);
+};
+
+
+</script>

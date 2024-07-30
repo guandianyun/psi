@@ -1,0 +1,50 @@
+#if(page.totalPage > 1)
+<div class="card mt-2">
+	<div class="card-body page-body">
+		<div class="row align-items-center">
+			<div class="col-5">
+			</div>
+			<div class="col align-self-center text-end">
+				<div class="float-end" style="height: 26px;">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+
+<table class="table table-hover table-bordered bg-white mt-2">
+	<thead>
+		<tr class="table-header">
+			<th>商品名称</th>
+			<th>商品进货额</th>
+			<th>进货数量</th>
+			<th>退货数量</th>
+			<th>退货金额</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="supplierBill-list">
+		#for (x : page.list)
+		#set(goodsInfo = x.goodsInfo)
+		<tr>
+			<td>#(goodsInfo.name)</td>
+			<td>#number(x.amount, "#.##")</td>
+			<td>#number(x.buy_number, "#.####")</td>
+			<td>
+			#if(x.reject_number??0 > 0)
+			<span class="text-warning">#number(x.reject_number, "#.####")</span> 
+			#else
+				0
+			#end
+			</td> 
+			<td>
+			#if(x.reject_amount??0 > 0)
+			<span class="text-warning">#number(x.reject_amount??0, "#.##")</span> 
+			#else
+				0
+			#end
+			</td> 
+		</tr>
+		#end
+
+	</tbody>
+</table>

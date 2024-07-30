@@ -1,0 +1,62 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>供应商商品详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">供应商：</span><span class="text-secondary fw-bold">#(supplierInfo.name)</span>
+				</div>
+				<div class="col-6">
+					<span class="text-secondary">日期：</span><span>#(startTime) ~ #(endTime)</span>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+
+	<div class="card mt-2">
+		<div class="card-body">
+			<div class="row text-center align-items-center">
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">商品进货额</span><br> <span class="fs-6 fw-bold text-secondary">￥#number(sumOrder.amount??0, "#.##")</span>
+				</div>
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">进货笔数</span><br> <span class="fs-6 fw-bold text-secondary">#(sumOrder.order_count??0)</span>
+				</div>
+				<div class="col right-border">
+					<span class="fw-bold text-secondary">退货笔数</span><br> <span class="fs-6 fw-bold text-warning">#(sumOrder.reject_order_count??0)</span>
+				</div>
+				<div class="col">
+					<span class="fw-bold text-secondary">退货总额</span><br> <span class="fs-6 fw-bold text-warning">￥#number(sumOrder.reject_amount??0, "#.##")</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<form id="statPurchase-show-search-form">
+	<input type="hidden" id="statPurchase_show_pageNumber" name="pageNumber">
+	</form>
+	<div id="statPurchase_showList">
+	</div>
+	
+</div>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	statPurchase.showList();
+});
+
+statPurchase.showList = function(callback) {
+	beekit.ajaxFillPage("/inventory/stat/purchase/showGoodsList?supplier_info_id=#(supplierInfo.id)&start_time=#(startTime??)&end_time=#(endTime??)", "#statPurchase-show-search-form", "#statPurchase_showList" ,"", callback);
+};
+
+</script>
+

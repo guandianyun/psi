@@ -1,0 +1,123 @@
+	#(token)
+	<input type="hidden" name="id" value="#(goodsSpec.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">商品规格名称<span class="text-danger">*</span></span> <input type="text" maxlength="30" class="form-control" name="name" id="goodsSpec_name" placeholder="请输入商品规格名称"
+					value="#(goodsSpec.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col-3">
+			<div class="input-group mb-3">
+				<span class="input-group-text">商品规格选项<span class="text-danger">*</span></span>
+			</div>
+		</div>
+		<div class="col" id="goodsSpec_options_list">
+			#if(goodsSpec)
+			#for(x : goodsSpec.options)
+			#if(x.data_status == DataStatusEnum.enable.value)
+			<div class="row mb-2 align-items-center">
+				<div class="col">
+					<input type="text" class="form-control" name="goods_spec_options_option_value" value="#(x.option_value)" placeholder="请输入规格内容">
+					<input type="hidden" name="goods_spec_options_id" value="#(x.id)">
+				</div>
+				<div class="col-2">
+					<a href="javascript:void(0)" class="text-danger" onclick="goodsSpec.removeOption(this);"> <i class="bi bi-dash-circle"></i></a>
+				</div>
+			</div>
+			#end
+			#end
+			
+			#else
+			<div class="row mb-2">
+				<div class="col">
+					<input type="text" class="form-control" name="goods_spec_options_option_value" placeholder="请输入规格内容">
+				</div>
+				<div class="col-2"></div>
+			</div>
+			<div class="row mb-2">
+				<div class="col">
+					<input type="text" class="form-control" name="goods_spec_options_option_value" placeholder="请输入规格内容"> 
+				</div>
+				<div class="col-2">
+				</div>
+			</div>
+			<div class="row mb-2 align-items-center">
+				<div class="col">
+					<input type="text" class="form-control" name="goods_spec_options_option_value" placeholder="请输入规格内容"> 
+				</div>
+				<div class="col-2">
+					<a href="javascript:void(0)" class="text-danger" onclick="goodsSpec.removeOption(this);"> <i class="bi bi-dash-circle"></i></a>
+				</div>
+			</div>
+			#end
+
+		</div>
+		<div class="col-1"></div>
+	</div>
+	
+	<div class="row mt-2">
+		<div class="col text-center">
+		<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="goodsSpec.appendOption();"><i class="bi bi-plus-circle"></i>继续添加</button>
+		</div>
+	</div>
+
+
+
+<script type="application/javascript">
+	
+
+goodsSpec.formChecking = function() {
+	if($.trim($("#goodsSpec_name").val()) == '') {
+		beekit.tips('商品规格名称不能为空！', '#goodsSpec_name');
+		$("#goodsSpec_name").focus();
+		return false;
+	}
+	if($.trim($("#goodsSpec_name").val()).length > 30) {
+		beekit.tips('商品规格名称不能过长！', '#goodsSpec_name');
+		$("#goodsSpec_name").focus();
+		return false;
+	}
+	var optionValueFlag = false;
+	$("#goodsSpec_options_list").find("input[name=goods_spec_options_option_value]").each(function() {
+		if($.trim($(this).val()) != '') {
+			optionValueFlag = true;
+			return;
+		}
+	});
+	if(!optionValueFlag) {
+		beekit.tips('商品规格选项不能为空！', '#goodsSpec_options_list');
+		$("#goodsSpec_options_list").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+goodsSpec.appendOption = function() {
+	var colHtml = "<div class=\"row mt-2 align-items-center\">"+
+					"<div class=\"col\"><input type=\"text\" class=\"form-control\" name=\"goods_spec_options_option_value\" placeholder=\"请输入规格内容\"> </a>"+
+					"<input type=\"hidden\" name=\"goods_spec_options_id\" value=\"\">"+
+					"</div>"+
+					"<div class=\"col-2\">"+
+					"<a href=\"javascript:void(0)\" class=\"text-danger\" onclick=\"goodsSpec.removeOption(this);\"> <i class=\"bi bi-dash-circle\"></i></a>"+
+					"</div>"+
+					"</div>";
+	$("#goodsSpec_options_list").append(colHtml);			
+}
+
+goodsSpec.removeOption = function(othis) {
+	var row = $(othis).parent().parent();
+	row.remove();
+}
+
+
+
+
+
+</script>

@@ -1,0 +1,105 @@
+#if(page.totalPage > 1)
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col">
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>商品规格名称</th>
+			<th>规格选项</th>
+			<th>状态</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : page.getList())
+		<tr id="goodsSpec-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(x.name)</td>
+			<td style="text-align: left;">
+			#for(e : x.options)
+				#if(e.data_status == DataStatusEnum.enable.value)
+					<span class="btn btn-outline-gray" style="min-width: 120px;">
+					#(e.option_value)
+					</span>
+				#end
+			#end
+			</td>
+			<td>
+			#if(x.data_status == DataStatusEnum.enable.value) 
+			<span class="text-success">启用中</span>
+			#elseif(x.data_status == DataStatusEnum.disable.value) 
+			<span class="text-danger">已停用</span>
+			#end
+			</td>
+			<td>
+				#if(session.hasOper(Permissions.goods_goods_spec_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="goodsSpec.edit(#(x.id));">修改</button>
+				#end
+				#if(session.hasOper(Permissions.goods_goods_spec_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsSpec.delete(#(x.id));">删除</button>
+				#end
+				#if(session.hasOper(Permissions.goods_goods_spec_disable))
+				#if(x.data_status == DataStatusEnum.enable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsSpec.disable(#(x.id));">停用</button>
+				#elseif(x.data_status == DataStatusEnum.disable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-success" onclick="goodsSpec.enable(#(x.id));">启用</button>
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+		
+	</tbody>
+</table>
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#goodsSpec_pageNumber").val(#(page.pageNumber));	
+	
+});
+
+goodsSpec.edit = function(id) {
+	beekit.modal("/goods/goods/spec/edit?id="+id);
+};
+
+goodsSpec.delete = function(id) {
+	beekit.focusColor("goodsSpec-data-"+id);
+	beekit.confirmByUrl("/goods/goods/spec/delete", {"id":id}, "确认要删除此商品规格吗？", function(ret) {
+		beekit.msg(ret);
+		goodsSpec.list(id);
+	});
+};
+
+
+goodsSpec.disable = function(id) {
+	beekit.confirmByUrl("/goods/goods/spec/disable", {"id":id}, "确认要停用此商品规格吗？", function(ret) {
+		beekit.msg(ret);
+		goodsSpec.list(id);
+	});
+};
+
+goodsSpec.enable = function(id) {
+	beekit.confirmByUrl("/goods/goods/spec/enable", {"id":id}, "确认要启用此商品规格吗？", function(ret) {
+		beekit.msg(ret);
+		goodsSpec.list(id);
+	});
+};
+
+
+</script>

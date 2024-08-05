@@ -1,0 +1,58 @@
+<script type="application/javascript">
+
+if(typeof(goodsSpec) == "undefined") {
+	goodsSpec = {};
+}
+</script>
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">新增商品规格</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="goodsSpec-add-form" onsubmit="goodsSpec.create();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="goodsSpec.create();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	formInput.listenkeyUp("#goodsSpec-add-form");
+	
+	setTimeout(function() {
+		$("#goodsSpec_name").focus();
+	}, 200);
+	
+});
+
+goodsSpec.create = function() {
+	var result = goodsSpec.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/goods/goods/spec/create", $("#goodsSpec-add-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			if('#(sourcePage)' == 'customerFormPage') {
+				beekit.modalChildClose();
+				beekit.ajaxFill("/goods/goods/spec/optionList", {}, "#customerInfo_customer_category_id");
+			} else {
+				beekit.modalClose();
+				goodsSpec.list(ret.targetId);
+			}
+		}
+	});
+};
+
+</script>

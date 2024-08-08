@@ -1,0 +1,48 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="goodsUnit-search-form">
+			<input type="hidden" id="goodsUnit_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.goods_goods_unit_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="goodsUnit.add();">
+						<i class="bi bi-plus-circle"></i>新增商品单位
+					</button>
+					#end
+				</div>
+				<div class="col align-self-center text-end">
+					<input class="form-check-input" type="checkbox" name="hide_stop_flag" id="goodsUnit_hide_stop_flag" #if(hideStopFlag) checked #end onclick="goodsUnit.list();"> 
+					<label class="form-check-label" for="goodsUnit_hide_stop_flag"> 隐藏停用单位</label>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-goodsUnit">
+	
+</div>
+
+<script type="application/javascript">
+var goodsUnit = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	goodsUnit.list();
+});
+
+goodsUnit.list = function(targetId) {
+	var hideStopFlag = $("#goodsUnit_hide_stop_flag").prop("checked");
+	$("#goodsUnit_pageNumber").val(1);
+	beekit.ajaxFillPage("/goods/goods/unit/list?hide_stop_flag="+hideStopFlag, "#goodsUnit-search-form", "#data-list-goodsUnit", "goodsUnit-data-"+targetId);
+};
+
+goodsUnit.add = function() {
+	beekit.modal("/goods/goods/unit/add");
+};
+
+			
+</script>
+
+

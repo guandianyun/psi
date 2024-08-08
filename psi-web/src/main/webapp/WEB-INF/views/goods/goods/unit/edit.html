@@ -1,0 +1,45 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑商品单位</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="goodsUnit-edit-form" onsubmit="goodsUnit.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="goodsUnit.update();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	setTimeout(function() {
+		$("#goodsUnit_name").focus();
+		$("#goodsUnit_name").select();
+	}, 200);
+	
+});
+
+goodsUnit.update = function() {
+	var result = goodsUnit.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/goods/goods/unit/update", $("#goodsUnit-edit-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			goodsUnit.list(#(goodsUnit.id));
+		}
+	});
+};
+
+</script>

@@ -1,0 +1,33 @@
+	#(token)
+	<input type="hidden" name="id" value="#(goodsUnit.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">商品单位名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="goodsUnit_name" placeholder="请输入商品单位名称" value="#(goodsUnit.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+
+<script type="application/javascript">
+
+goodsUnit.formChecking = function() {
+	if($.trim($("#goodsUnit_name").val()) == '') {
+		beekit.tips('商品单位名称不能为空！', '#goodsUnit_name');
+		$("#goodsUnit_name").focus();
+		return false;
+	}
+	if($.trim($("#goodsUnit_name").val()).length > 30) {
+		beekit.tips('商品单位名称不能过长！', '#goodsUnit_name');
+		$("#goodsUnit_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

@@ -1,0 +1,94 @@
+#if(page.totalPage > 1)
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col">
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>商品单位名称</th>
+			<th>状态</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : page.getList())
+		<tr id="goodsUnit-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(x.name)</td>
+			<td>
+			#if(x.data_status == DataStatusEnum.enable.value) 
+			<span class="text-success">启用中</span>
+			#elseif(x.data_status == DataStatusEnum.disable.value) 
+			<span class="text-danger">已停用</span>
+			#end
+			</td>
+			<td>
+				#if(session.hasOper(Permissions.goods_goods_unit_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="goodsUnit.edit(#(x.id));">修改</button>
+				#end
+				#if(session.hasOper(Permissions.goods_goods_unit_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsUnit.delete(#(x.id));">删除</button>
+				#end
+				#if(session.hasOper(Permissions.goods_goods_unit_disable))
+				#if(x.data_status == DataStatusEnum.enable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsUnit.disable(#(x.id));">停用</button>
+				#elseif(x.data_status == DataStatusEnum.disable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-success" onclick="goodsUnit.enable(#(x.id));">启用</button>
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+		
+	</tbody>
+</table>
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#goodsUnit_pageNumber").val(#(page.pageNumber));	
+});
+
+goodsUnit.edit = function(id) {
+	beekit.modal("/goods/goods/unit/edit?id="+id);
+};
+
+goodsUnit.delete = function(id) {
+	beekit.focusColor("goodsUnit-data-"+id);
+	beekit.confirmByUrl("/goods/goods/unit/delete", {"id":id}, "确认要删除此商品单位吗？", function(ret) {
+		beekit.msg(ret);
+		goodsUnit.list(id);
+	});
+};
+
+
+goodsUnit.disable = function(id) {
+	beekit.confirmByUrl("/goods/goods/unit/disable", {"id":id}, "确认要停用此商品单位吗？", function(ret) {
+		beekit.msg(ret);
+		goodsUnit.list(id);
+	});
+};
+
+goodsUnit.enable = function(id) {
+	beekit.confirmByUrl("/goods/goods/unit/enable", {"id":id}, "确认要启用此商品单位吗？", function(ret) {
+		beekit.msg(ret);
+		goodsUnit.list(id);
+	});
+};
+
+
+</script>

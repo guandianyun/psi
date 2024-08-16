@@ -1,0 +1,215 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>盘点单详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+					
+					#if(stockChecking.auditConfigFlag)
+					#if(stockChecking.order_status != OrderStatusEnum.disable.value)
+					#if(stockChecking.audit_status == AuditStatusEnum.waiting.value)
+					#if(session.hasOper(Permissions.inventory_stock_checking_audit))
+					<button type="button" class="btn btn-sm btn-outline-success" onclick="stockChecking.audit(#(stockChecking.id));">
+					<i class="bi bi-hand-index"></i>审核
+					</button> &nbsp;
+					#end
+					#end
+					#end
+					#end
+					
+					#if(!stockChecking.auditConfigFlag || (stockChecking.auditConfigFlag && (stockChecking.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.inventory_stock_checking_audit))))
+						#if(session.hasOper(Permissions.inventory_stock_checking_update))
+						<button type="button" class="btn btn-sm btn-outline-primary" onclick="stockChecking.edit(#(stockChecking.id));">
+							<i class="bi bi-pencil-square"></i>修改
+						</button>
+						#end 
+						&nbsp;
+					#end 
+					#if(!stockChecking.auditConfigFlag || (stockChecking.auditConfigFlag && stockChecking.audit_status != AuditStatusEnum.pass.value))
+						#if(session.hasOper(Permissions.inventory_stock_checking_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="stockChecking.disable(#(stockChecking.id));">
+							<i class="bi bi-trash"></i>作废
+						</button>
+						#end 
+					#end
+					
+					#if(stockChecking.order_status == OrderStatusEnum.draft.value)
+						#if(session.hasOper(Permissions.inventory_stock_checking_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="stockChecking.delete(#(stockChecking.id));">
+							<i class="bi bi-trash"></i>删除
+						</button>
+						#end 
+					#end
+				</div>
+				
+				<div class="col text-end">
+					<button type="button" class="btn btn-sm btn-primary" onclick="stockChecking.showPrint(#(stockChecking.id));">
+						<i class="bi bi-printer"></i>打印
+					</button>
+					#if(stockChecking.print_count > 0)
+					&nbsp; <span class="btn btn-sm btn-outline-danger sm-more">已打印:#(stockChecking.print_count)</span>
+					#end
+				</div>
+				
+				#if(stockChecking.order_status == OrderStatusEnum.disable.value)  
+					<img src="#(resourceDomain)/img/disable.png" class="order-status-pic">
+				#elseif(stockChecking.audit_status == AuditStatusEnum.reject.value) 
+					<img src="#(resourceDomain)/img/audit_reject.png" class="order-status-pic">
+				#elseif(stockChecking.audit_status == AuditStatusEnum.pass.value) 
+					<img src="#(resourceDomain)/img/checking_pass.png" class="order-status-pic">
+				#end
+				 
+			</div>
+		</div>
+	</div>
+
+
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">单据编号：</span><span>#(stockChecking.order_code)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">盘点员：</span><span>#(stockChecking.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单人：</span><span>#(stockChecking.makeMan.real_name??)</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">盘点类型：</span><span>#if(stockChecking.check_type == InventoryCheckTypeEnum.hand.value) 手动盘点 #elseif(stockChecking.check_type == InventoryCheckTypeEnum.scan.value) 扫码盘点 #end</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">盘点日期：</span><span>#date(stockChecking.order_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单时间：</span><span>#date(stockChecking.created_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">最近修改：</span><span>#date(stockChecking.updated_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			
+			#if(stockChecking.auditConfigFlag)
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">审核状态：</span>
+					#if(stockChecking.audit_status == AuditStatusEnum.waiting.value) 
+					<span class="badge bg-warning">待审核</span> 
+					#elseif(stockChecking.audit_status == AuditStatusEnum.pass.value) 
+					<span class="badge bg-success">审核通过</span>  
+					#elseif(stockChecking.audit_status == AuditStatusEnum.reject.value) 
+					<span class="badge bg-danger">审核拒绝</span>   
+					#end
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核人：</span><span>#(stockChecking.auditor.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核时间：</span><span>#date(stockChecking.audit_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核反馈：</span><span>#(stockChecking.audit_desc)</span>
+				</div>
+			</div>
+			#end
+			
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col">
+					<span class="text-secondary">备注：</span><span>#(stockChecking.remark??)</span>
+				</div>
+				<div class="col text-end" id="stockChecking_order_img_list_preview">
+					#for(thumb : stockChecking.orderImgList)
+					<img class="rounded" src="#(resourceUploadDomain)#(thumb)" layer-src="#(resourceUploadDomain)#(thumb)" style="width:30px" >
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row mt-2">
+		<div class="col">
+			<div class="card">
+				<div class="card-body">
+					<div class="row text-center">
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">盘点合计数量</span><br /> 
+							<span class="card-stat-body">#number(stockChecking.check_number??0, '#.####')</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">盈亏数量</span><br /> 
+							<span class="card-stat-body #if(stockChecking.differ_number < 0) text-danger #end">#number(stockChecking.differ_number??0, '#.####')</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0;">
+							<span class="card-stat-title">盈亏合计金额</span><br /> 
+							<span class="card-stat-body #if(stockChecking.profit_loss < 0) text-danger #end">￥#number(stockChecking.profit_loss??0, '#.##')</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row mt-2">
+		<div class="col">
+			<table class="table table-hover table-bordered bg-white">
+				<thead>
+				<tr class="table-header">
+					<th>商品名称</th>
+					<th>商品条码</th>
+					<th>规格</th>
+					<th style="width: 5%;">单位</th>
+					<th style="width: 8%;">现存量</th>
+					<th style="width: 8%;">实际数量</th>
+					<th style="width: 8%;">盈亏数量</th>
+					<th>备注</th>
+				</tr>
+				</thead>
+				<tbody class="table-row">
+				#for(x : stockChecking.orderGoodsList)
+				#set(goodsInfo = x.goodsInfo)
+					<tr>
+						<td>#(goodsInfo.name??)</td>
+						<td>#(goodsInfo.bar_code??)</td>
+						<td>#(x.goodsSpecNames??)</td>
+						<td>#(x.goodsUnit.name??)</td>
+						<td>#number(x.current_number, '#.####')</td>
+						<td>#number(x.check_number, '#.####')</td>
+						<td><span #if(x.check_number - x.current_number < 0) class="text-danger" #end> #number(x.check_number - x.current_number, '#.####') </span></td>
+						<td>#(x.remark)</td>
+					</tr>
+				#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+</div>
+
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	beekit.photos("#stockChecking_order_img_list_preview");
+	
+});
+
+stockChecking.showPrint = function(orderId) {
+	beekit.modal("/inventory/stock/checking/showPrint?id="+orderId);
+}
+
+</script>

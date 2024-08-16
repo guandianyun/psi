@@ -1,0 +1,140 @@
+
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-5"></div>
+			<div class="col">
+			#if(page.totalPage > 1)
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			#end
+			<div class="float-end me-3 mt-1">
+					#if(orderAuditFlag)
+					#if(session.hasOper(Permissions.inventory_stock_checking_audit))
+					<input class="form-check-input" type="checkbox" name="show_audit_flag" id="stockChecking_show_audit_flag" #if(showAuditFlag) checked #end onclick="stockChecking.list();"> 
+					<label class="form-check-label" for="stockChecking_show_audit_flag"> 待审核单据</label>
+					&nbsp;&nbsp;&nbsp;
+					#end
+					#end
+					<input class="form-check-input" type="checkbox" name="hide_disable_flag" id="stockChecking_hide_disable_flag" #if(hideDisableFlag) checked #end onclick="stockChecking.list();"> 
+					<label class="form-check-label" for="stockChecking_hide_disable_flag"> 隐藏作废单据</label>
+					&nbsp;&nbsp;&nbsp;
+					<input class="form-check-input" type="checkbox" name="hide_profit_loss_flag" id="stockChecking_hide_profit_loss_flag" #if(hideProfitLossFlag) checked #end onclick="stockChecking.list();"> 
+					<label class="form-check-label" for="stockChecking_hide_profit_loss_flag"> 隐藏无盈亏单据</label>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>单据编号</th>
+			<th>盘点日期</th>
+			<th>盘点员</th>
+			<th>盈亏数量</th>
+			<th>盈亏金额</th>
+			<th>盘点状态</th>
+			<th>备注</th>
+			<th style="width: 13%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="stockChecking-list">
+		#for (x : page.getList())
+		<tr data-id="#(x.id)" id="stockChecking-data-#(x.id)" #if(x.order_status == OrderStatusEnum.disable.value) class="disable-order"  #end>
+			<td>#(x.order_code)</td>
+			<td>#date(x.order_time, "yyyy-MM-dd HH:mm:ss")</td>
+			<td>#(x.handler.real_name??)</td>
+			<td><span class="fw-bold #if(x.differ_number < 0) text-danger #else text-secondary #end ">#number(x.differ_number, "#.####")</span> </td>
+			<td><span class="fw-bold #if(x.profit_loss < 0) text-danger #else text-secondary #end ">#number(x.profit_loss, "#.##") </span></td>
+			<td>
+			#if(x.order_status == OrderStatusEnum.disable.value)
+			<span class="text-decoration-line-through">已作废</span>
+			#elseif(x.audit_status == AuditStatusEnum.waiting.value)
+			<span class="badge bg-danger">待审核</span>
+			#elseif(x.audit_status == AuditStatusEnum.reject.value)
+			<span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="#(x.audit_desc)">审核拒绝</span>
+			#elseif(x.audit_status == AuditStatusEnum.pass.value)
+			<span class="badge bg-success">已盘点</span>
+			#end
+			</td>
+			<td>#(x.remark)</td>
+			<td>
+				#if(x.order_status == OrderStatusEnum.disable.value)
+				<span class="text-decoration-line-through">已作废</span>
+				#else
+				#if(x.audit_status == AuditStatusEnum.waiting.value)
+				#if(session.hasOper(Permissions.inventory_stock_checking_audit))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="stockChecking.audit(#(x.id));">审核</button> 
+				#end
+				#end
+				#if(!orderAuditFlag || (orderAuditFlag && (x.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.inventory_stock_checking_audit))))
+				#if(session.hasOper(Permissions.inventory_stock_checking_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="stockChecking.edit(#(x.id));">修改</button> 
+				#end 
+				#end
+				#end
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#stockChecking_pageNumber").val(#(page.pageNumber));
+	
+	$("#stockChecking-list tr").on("dblclick", function() {
+		stockChecking.show($(this).attr("data-id"));
+	});
+	
+});
+
+stockChecking.show = function(id) {
+	beekit.offcanvas("/inventory/stock/checking/show?id="+id);
+};
+
+
+stockChecking.edit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/inventory/stock/checking/edit?id="+id);
+};
+
+stockChecking.disable = function(id) {
+	beekit.confirmByUrl("/inventory/stock/checking/disable", {"id":id}, "确认要作废此盘点单吗？", function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			beekit.offcanvasClose();
+			stockChecking.list(id);
+		});
+	});
+};
+
+stockChecking.audit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/inventory/stock/checking/audit?id="+id);
+};
+
+
+stockChecking.delete = function(id) {
+	beekit.focusColor("goodsInfo-data-"+id);
+	beekit.confirmByUrl("/inventory/stock/checking/delete", {"id":id}, "确认要删除此盘点单吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		stockChecking.list();
+	});
+};
+
+
+
+</script>

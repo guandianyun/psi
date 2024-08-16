@@ -1,0 +1,65 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content" style="height:400px;">
+					<div class="modal-header">
+						<h6 class="modal-title">选择打印模板</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="row" id="print-template-list">
+							#set(templateId = 0)
+							#for(x : templateList)
+							#if(x.default_flag)
+							#set(templateId = x.id)
+							#end
+							<div class="print-template-list #if(x.default_flag) active #end" onclick="stockChecking.selectPrintTemplate(this, #(x.id))">
+								<span>#(x.name)</span><br>
+								<span class="text-secondary" style="font-size:11px;">#(x.paper_type) #if(x.print_mode==1) 平打 #else 套打 #end</span>
+							</div>
+							#end
+						</div>
+						<input type="hidden" id="print-template-select-id" value="#(templateId)">
+					</div>
+					<div class="modal-footer">
+						<div class="row" style="width: 100%;">
+							<div class="col text-secondary">
+								<span id="stockChecking_printer_name"></span>
+								#if(session.hasOper(Permissions.setting_config_print_printerSetting))
+								<button type="button" class="btn btn-sm btn-outline-primary ms-3" onclick="dashboard.linkTab('/setting/config/print');">设置打印机</button>
+								#end
+							</div>
+							<div class="col-3 text-end">
+								<button type="button" class="btn btn-secondary" onclick="stockChecking.print(true);">预览</button>
+								<button type="button" class="btn btn-primary" onclick="stockChecking.print(false);">打印</button>
+							</div>
+						</div>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	$("#stockChecking_printer_name").html("打印机："+lodopPrinter.getPrinter(#(PrintTemplateOrderTypeEnum.inventory_checking.value)));
+});
+
+stockChecking.print = function(isPreview) {
+	var templateId = $("#print-template-select-id").val();
+	if($.trim(templateId) == '') {
+		beekit.fail("请选择打印模板");
+		return;
+	}
+	lodopPrinter.stockCheckingPrint(templateId, #(stockChecking.id), isPreview);
+	if(!isPreview) {
+		beekit.modalClose();
+	}
+};
+
+stockChecking.selectPrintTemplate = function(_this, templateId) {
+	$("#print-template-list div").not($(_this)).removeClass("active");
+	$(_this).addClass("active");
+	$("#print-template-select-id").val(templateId);
+}
+
+</script>

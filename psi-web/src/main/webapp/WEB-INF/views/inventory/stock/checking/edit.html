@@ -1,0 +1,65 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑盘点单</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="stockChecking-edit-form" onsubmit="stockChecking.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(stockChecking.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="stockChecking.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="stockChecking.update();">保存</button>
+						#end
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+if(typeof(stockChecking) == "undefined") {
+	stockChecking = {};
+}
+
+$(function() {
+	var formId = "#stockChecking-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		stockChecking.handlerList(formId);
+		stockChecking.bindGoodsSelector(formId);
+		
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	stockChecking.uploadFileListener(formId)
+	
+});
+
+stockChecking.update = function() {
+	var formId = "#stockChecking-edit-form";
+	var result = stockChecking.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/inventory/stock/checking/update", $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				stockChecking.list(#(stockChecking.id));
+			}
+		});
+	});
+};
+
+</script>

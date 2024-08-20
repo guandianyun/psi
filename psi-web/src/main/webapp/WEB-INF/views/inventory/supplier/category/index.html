@@ -1,0 +1,43 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="supplierCategory-search-form">
+			<input type="hidden" id="supplierCategory_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.inventory_supplier_category_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="supplierCategory.add();">
+						<i class="bi bi-plus-circle"></i>新增供应商分类
+					</button>
+					#end
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="data-list-supplierCategory">
+	
+</div>
+
+<script type="application/javascript">
+var supplierCategory = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	supplierCategory.list();
+});
+
+supplierCategory.list = function(targetId) {
+	$("#supplierCategory_pageNumber").val(1);
+	beekit.ajaxFillPage("/inventory/supplier/category/list", "#supplierCategory-search-form", "#data-list-supplierCategory", "supplierCategory-data-"+targetId);
+};
+
+supplierCategory.add = function() {
+	beekit.modal("/inventory/supplier/category/add");
+};
+
+			
+</script>
+
+

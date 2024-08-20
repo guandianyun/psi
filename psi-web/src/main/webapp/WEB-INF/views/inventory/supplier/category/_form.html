@@ -1,0 +1,43 @@
+	#(token)
+	<input type="hidden" name="id" value="#(supplierCategory.id??)">
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">供应商分类名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="supplierCategory_name"
+					placeholder="请输入供应商分类名称" value="#(supplierCategory.name??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+	<div class="row">
+		<div class="col-1"></div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<input type="text" maxlength="30" class="form-control" name="remark"  placeholder="请输入备注" value="#(supplierCategory.remark??)">
+			</div>
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+
+<script type="application/javascript">
+
+supplierCategory.formChecking = function() {
+	if($.trim($("#supplierCategory_name").val()) == '') {
+		beekit.tips('供应商分类名称不能为空！', '#supplierCategory_name');
+		$("#supplierCategory_name").focus();
+		return false;
+	}
+	if($.trim($("#supplierCategory_name").val()).length > 30) {
+		beekit.tips('供应商分类名称不能过长！', '#supplierCategory_name');
+		$("#supplierCategory_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

@@ -1,0 +1,67 @@
+#if(page.totalPage > 1)
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col">
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>供应商分类名称</th>
+			<th>备注</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : page.getList())
+		<tr id="supplierCategory-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(x.name)</td>
+			<td>#(x.remark??)</td>
+			<td>
+				#if(session.hasOper(Permissions.inventory_supplier_category_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="supplierCategory.edit(#(x.id));">修改</button>
+				#end
+				#if(session.hasOper(Permissions.inventory_supplier_category_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="supplierCategory.delete(#(x.id));">删除</button>
+				#end
+			</td>
+		</tr>
+		#end
+		
+	</tbody>
+</table>
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	common.tableFixedWidth();
+	common.tableFixed();
+	$(".main").scroll(function() {
+		common.tableFixed();
+	});
+	$("#supplierCategory_pageNumber").val(#(page.pageNumber));
+	
+});
+
+supplierCategory.edit = function(id) {
+	beekit.modal("/inventory/supplier/category/edit?id="+id);
+};
+
+supplierCategory.delete = function(id) {
+	beekit.focusColor("supplierCategory-data-"+id);
+	beekit.confirmByUrl("/inventory/supplier/category/delete", {"id":id}, "确认要删除此供应商分类吗？", function(ret) {
+		beekit.msg(ret);
+		supplierCategory.list(id);
+	});
+};
+
+
+</script>

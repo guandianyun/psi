@@ -1,0 +1,57 @@
+<script type="application/javascript">
+if(typeof(supplierCategory) == "undefined") {
+	supplierCategory = {};
+}
+</script>
+
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered ">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">新增供应商分类</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="supplierCategory-add-form" onsubmit="supplierCategory.create();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="supplierCategory.create();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	formInput.listenkeyUp("#supplierCategory-add-form");
+	
+	setTimeout(function() {
+		$("#supplierCategory_name").focus();
+	}, 200);
+	
+});
+
+supplierCategory.create = function() {
+	var result = supplierCategory.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/inventory/supplier/category/create", $("#supplierCategory-add-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			if('#(sourcePage)' == 'supplierFormPage') {
+				beekit.modalChildClose();
+				beekit.ajaxFill("/inventory/supplier/category/optionList", {}, "#supplierInfo_supplier_category_id");
+			} else {
+				beekit.modalClose();
+				supplierCategory.list(ret.targetId);
+			}
+		}
+	});
+};
+
+</script>

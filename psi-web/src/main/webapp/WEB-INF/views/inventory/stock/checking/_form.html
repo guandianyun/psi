@@ -1,0 +1,324 @@
+
+#(token)
+<input type="hidden" name="id" value="#(stockChecking.id??)">
+	<input type="hidden" name="order_status" value="#(stockChecking.order_status??)">
+	<div class="card">
+	<div class="card-body">
+		<div class="row">
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">盘点员</span>
+					<input type="hidden" name="handler_id" #if(stockChecking) value="#(stockChecking.handler_id??)" #else value="#(session.tenantAdminId)" #end>
+					<input type="text" class="form-control" placeholder="选择盘点员" name="handler_keyword" #if(stockChecking) value="#(stockChecking.handler.real_name??)" #else value="#(session.realName)" #end autocomplete="off" >
+				</div>
+			</div>
+			<div class="col-3">
+				<div class="input-group">
+					<span class="input-group-text">盘点日期</span> <input type="text" class="form-control" name="order_time" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly #if(stockChecking) value="#date(stockChecking.order_time, "yyyy-MM-dd HH:mm:ss")" #else value="#date(DateUtil.currentTime, "yyyy-MM-dd HH:mm:ss")" #end>
+				</div>
+			</div>
+			#if(draftCount && draftCount > 0)
+			<div class="col">
+			<div class="float-end">
+				<button type="button" class="btn btn-outline-primary position-relative" onclick="stockChecking.draftIndex();" name="draft_count_btn">
+				草稿箱 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" name="draft_count"> #(draftCount) </span>
+				</button>
+			</div>
+			</div>
+			#else
+			<div class="col">
+			<div class="float-end">
+				<span name="draft_count"></span>
+			</div>
+			</div>
+			#end
+			
+		</div>
+
+	</div>
+</div>
+
+	<table class="table table-bordered bg-white border-bg-none mt-3">
+		<thead>
+			<tr class="table-header">
+				<th>商品名称</th>
+				<th>商品条码</th>
+				<th>规格</th>
+				<th style="width: 6%;">单位</th>
+				<th style="width: 8%;">现存量</th>
+				<th style="width: 8%;">实际数量</th>
+				<th style="width: 8%;">盈亏数量</th>
+				<th>备注</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody class="table-row table-order goods-list">
+			#set(orderGoodsList = stockChecking.orderGoodsList??)
+			#set(goodsSize = 0)
+			#if(orderGoodsList)
+				#set(goodsSize = orderGoodsList.size())
+			#end
+			
+			#for(x : orderGoodsList)
+			#set(goodsInfo = x.goodsInfo)
+			<tr>
+				<td><input type="text" class="form-control-input" autocomplete="off" name="goods_info_name" value="#(goodsInfo.name??)"><input type="hidden" name="goods_info_id" value="#(x.goods_info_id)"></td>
+				<td><input type="text" class="form-control-input readonly" name="bar_code" autocomplete="off" readonly value="#(goodsInfo.bar_code??)"></td>
+				<td><input type="text" class="form-control-input" name=goods_spec_name autocomplete="off" value="#(x.goodsSpecNames??)"><input type="hidden" name="goods_spec_id" value="#(x.goodsSpecIds??)"></td>
+				<td><input type="text" class="form-control-input" name="unit_name" autocomplete="off" value="#(x.goodsUnit.name??)"><input type="hidden" name="unit_id"  value="#(x.unit_id)"></td>
+				<td><input type="text" class="form-control-input readonly" name="current_number" autocomplete="off" readonly  value="#number(x.current_number, '#.####')"></td>
+				<td><input type="text" class="form-control-input" name="check_number" autocomplete="off" value="#number(x.check_number, '#.####')"></td>
+				<td><input type="text" class="form-control-input readonly #if(x.check_number - x.current_number < 0) text-danger #end" name="profit_loss_number" autocomplete="off" readonly  value="#number(x.check_number - x.current_number, '#.####')"></td>
+				<td><input type="text" class="form-control-input" name="goods_remark" autocomplete="off" value="#(x.remark)"></td> 
+				#if(for.index == orderRows -1)
+				<td onclick="stockChecking.addTableRow(this);"><i class="bi bi-plus-circle"></i></td> 
+				#else
+				<td onclick="formInput.removeTableRow(this);"><i class="bi bi-dash-circle"></i></td> 
+				#end
+			</tr>
+			#end
+			
+			#if(orderRows <= goodsSize)
+			#set(orderRows = 0)
+			#else
+			#set(orderRows = orderRows - goodsSize)
+			#end
+			#for(idx = 0; idx < orderRows; idx++)
+			<tr>
+				<td><input type="text" class="form-control-input" autocomplete="off" name="goods_info_name"><input type="hidden" name="goods_info_id"></td>
+				<td><input type="text" class="form-control-input readonly" name="bar_code" autocomplete="off" readonly></td>
+				<td><input type="text" class="form-control-input" name=goods_spec_name autocomplete="off"><input type="hidden" name="goods_spec_id"></td>
+				<td><input type="text" class="form-control-input" name="unit_name" autocomplete="off"><input type="hidden" name="unit_id"></td>
+				<td><input type="text" class="form-control-input readonly" name="current_number" autocomplete="off" readonly></td>
+				<td><input type="text" class="form-control-input" name="check_number" autocomplete="off"></td>
+				<td><input type="text" class="form-control-input readonly" name="profit_loss_number" autocomplete="off" readonly></td>
+				<td><input type="text" class="form-control-input" name="goods_remark" autocomplete="off"></td> 
+				#if(for.index == orderRows -1)
+				<td onclick="stockChecking.addTableRow(this);"><i class="bi bi-plus-circle"></i></td> 
+				#else
+				<td onclick="formInput.removeTableRow(this);"><i class="bi bi-dash-circle"></i></td> 
+				#end
+			</tr>
+			#end
+
+		</tbody>
+	</table>
+
+	<div class="card">
+	<div class="card-body">
+		<div class="row align-items-center">
+			<div class="col-5">
+				<div class="input-group">
+					<span class="input-group-text">备注</span>
+					<input type="text" class="form-control" name="remark" value="#(stockChecking.remark??)">
+				</div>
+			</div>
+			<div class="col">
+					<div class="row">
+						<div class="col">
+						<div class="add-pic-box add-pic">
+							<i class="bi bi-plus-lg"></i><br />上传图片 <input type="file" accept="image/jpeg, image/png, image/gif"  name="file_upload">
+						</div>
+						</div>
+						<div class="col-10 add-pic-list" name="img_list">
+						#if(stockChecking) 
+						#for(img : stockChecking.orderImgList)
+						<div class="add-pic-box">
+							<input type="hidden" name="order_imgs" value="#(img)"> <img src="#(resourceUploadDomain)#(img)">
+							<div class="delete-pic" onclick="$(this).parent().remove();">
+								<i class="bi bi-x-circle-fill text-danger"></i>
+							</div>
+						</div>
+						#end
+						#end
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<script type="application/javascript">
+if(typeof(stockChecking) == "undefined") {
+	stockChecking = {};
+}
+
+stockChecking.uploadFileListener = function(formId) {
+	$(formId+" input[name=file_upload]").on("change", function(evt) {
+		common.uploadFile(this, function(ret) {
+			var html = "<div class=\"add-pic-box\">"+
+						"<input type=\"hidden\" name=\"order_imgs\" value=\""+ret.thumbPath+"\">"+
+						"<img src=\"#(resourceUploadDomain)"+ret.thumbPath+"\">"+
+						"<div class=\"delete-pic\" onclick=\"$(this).parent().remove();\"><i class=\"bi bi-x-circle-fill text-danger\"></i></div>"+
+						"</div>";
+			
+			$(formId).find("div[name=img_list]").first().append(html);
+		});
+	});
+}
+
+stockChecking.formChecking = function(formId) {
+	var handlerId = $(formId).find("input[name=handler_id]").first();
+	if($.trim(handlerId.val()) == '') {
+		var handlerKeyword = $(formId).find("input[name=handler_keyword]").first();
+		beekit.tips('盘点员不能为空！', handlerKeyword);
+		$(handlerKeyword).focus();
+		return false;
+	}
+	var orderTime = $(formId).find("input[name=order_time]").first();
+	if($.trim(orderTime.val()) == '') {
+		beekit.tips('盘点时间不能为空！', orderTime);
+		$(orderTime).focus();
+		return false;
+	}
+	
+	var tableValid = true;
+	var goodsCount = 0;
+	$(formId+" input[name=goods_info_name]").each(function(index) {
+		var currentGoodsRow = $(this).parent().parent();
+		var goodsInfoName = currentGoodsRow.find("input[name=goods_info_name]").first();
+		var goodsInfoId = currentGoodsRow.find("input[name=goods_info_id]").first();
+		var unitName = currentGoodsRow.find("input[name=unit_name]").first();
+		var unitId = currentGoodsRow.find("input[name=unit_id]").first();
+		var checkNumber = currentGoodsRow.find("input[name=check_number]").first();
+		
+		if($.trim(goodsInfoName.val()) == '' || parseFloat(goodsInfoId.val()) <= 0) {
+			if(goodsCount > 0) { // 有输入部分商品，空行不提示
+				return true;
+			}
+			beekit.tips("请输入商品", goodsInfoName);
+			goodsInfoName.focus();
+			goodsInfoName.select();
+			tableValid = false;
+			return false;
+		}
+		if($.trim(unitName.val()) == '' || parseFloat(unitId.val()) <= 0) {
+			beekit.tips("请输入单位", unitName);
+			unitName.focus();
+			unitName.select();
+			tableValid = false;
+			return false;
+		}
+		if(checkNumber.val() == '') {
+			beekit.tips("请输入盘点数量", checkNumber);
+			checkNumber.focus();
+			checkNumber.select();
+			tableValid = false;
+			return false;
+		}
+		if(!formValidator.checkNotNegativeNumber4(checkNumber.val())) {
+			beekit.tips("请输入合法的盘点数量", checkNumber);
+			checkNumber.focus();
+			checkNumber.select();
+			tableValid = false;
+			return false;
+		}
+		goodsCount++;
+	});
+	
+	if(!tableValid) {
+		return false;
+	}
+	return true;
+};
+
+stockChecking.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+stockChecking.bindGoodsSelector = function(formId) {
+	$(formId+" input[name=goods_info_name]").each(function(index) {
+		var currentGoodsRow = $(this).parent().parent();
+		var goodsInfoId = currentGoodsRow.find("input[name=goods_info_id]").first();
+		
+		beekit.autocompleteByParams(this, "/goods/goods/info/listByJson?goods_type=#(GoodsTypeEnum.general.value)", {}, goodsInfoId, false, function(dataSelected) {
+			currentGoodsRow.find("input").each(function() {
+				var tagName = $(this).attr("name");
+				if(tagName == "goods_info_name" || tagName == "goods_info_id") {
+					return;
+				}
+				$(this).val("");
+			});	
+			currentGoodsRow.find("input[name=bar_code]").first().val(dataSelected.bar_code);
+			var goodsSpecName = currentGoodsRow.find("input[name=goods_spec_name]").first();
+			if(dataSelected.spec_flag == false) {
+				goodsSpecName.val(dataSelected.spec_name);
+				goodsSpecName.attr("readonly", true);
+				goodsSpecName.addClass("readonly");
+			} else {
+				goodsSpecName.attr("readonly", false);
+				goodsSpecName.removeClass("readonly");
+			}
+		});
+		
+		var goodsSpecName = currentGoodsRow.find("input[name=goods_spec_name]").first();
+		var goodsSpecId = currentGoodsRow.find("input[name=goods_spec_id]").first();
+		beekit.autocompleteNameByParams(goodsSpecName, "/goods/goods/info/listSpecByJson", {"id":goodsInfoId}, goodsSpecId, true);
+		
+		var unitName = currentGoodsRow.find("input[name=unit_name]").first();
+		var unitId = currentGoodsRow.find("input[name=unit_id]").first();
+		beekit.autocompleteNameByParams(unitName, "/goods/goods/info/listUnitByJson?unit_type=#(OrderUnitTypeEnum.stock.value)", {"id":goodsInfoId}, unitId, true, function() {
+			
+		});
+		
+		currentGoodsRow.find("input[name=check_number]").first().focus(function() {
+			if(goodsInfoId.val() == '' || unitId.val() == '') {
+				return;
+			}
+			beekit.ajaxPost("/inventory/stock/info/showByJson", {"goods_info_id":goodsInfoId.val(), "unit_id":unitId.val(),"goods_spec_ids":goodsSpecId.val()}, function(ret) {
+				if (ret.state != "ok") {
+					beekit.msg(ret);
+					return;
+				}
+				currentGoodsRow.find("input[name=current_number]").first().val(ret.data.stock);
+				stockChecking.stockAttrVal(currentGoodsRow);
+			})
+		});
+		
+		
+		currentGoodsRow.find("input[name=check_number]").first().blur(function() {
+			if($.trim($(this).val()) != '' && !formValidator.checkNotNegativeNumber4($(this).val())) {
+				beekit.tips("请输入合法的盘点数量", $(this));
+				$(this).focus();
+				$(this).select();
+				return;
+			}
+			stockChecking.stockAttrVal(currentGoodsRow);
+		})
+		
+	});
+	
+};
+
+stockChecking.stockAttrVal = function(currentGoodsRow) {
+	var currentNumber = currentGoodsRow.find("input[name=current_number]").first();
+	if(currentNumber.val() == "" || currentNumber.val == undefined) {
+		return;
+	}
+	var checkNumber = currentGoodsRow.find("input[name=check_number]").first();
+	var profitLossNumberCol = currentGoodsRow.find("input[name=profit_loss_number]").first();
+	if(checkNumber.val() == "" || checkNumber.val == undefined) {
+		return;
+	}
+	var difference = checkNumber.val() - currentNumber.val();
+	if(difference < 0) {
+		if(!profitLossNumberCol.hasClass("text-danger")) {
+			profitLossNumberCol.addClass("text-danger");
+		}
+	} else {
+		profitLossNumberCol.removeClass("text-danger");
+	}
+	profitLossNumberCol.val(difference);
+}
+
+stockChecking.addTableRow = function(othis) {
+	formInput.addTableRow(othis, function(formId) {
+		stockChecking.bindGoodsSelector(formId);
+	})
+}
+
+</script>

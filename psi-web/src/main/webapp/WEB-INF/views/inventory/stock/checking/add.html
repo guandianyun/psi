@@ -1,0 +1,120 @@
+<form id="stockChecking-add-form" onsubmit="stockChecking.submitConfirm();return false;">
+#include("_form.html")
+<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+	<div class="col">
+		<button type="button" class="btn btn-lg btn-outline-secondary fs-6 btn-wlg" onclick="dashboard.linkTab('/inventory/stock/checking/add')">清空</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6 btn-wlg" onclick="stockChecking.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6 btn-wlg" onclick="stockChecking.draft();">暂存草稿</button>
+	</div>
+</div>
+</form>
+
+<div id="stockChecking-add-confirm" style="display:none;">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="stockChecking.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6" onclick="stockChecking.draft();">暂存草稿</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+<script type="application/javascript">
+if(typeof(stockChecking) == "undefined") {
+	stockChecking = {};
+}
+
+$(function() {
+	var formId = "#stockChecking-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		stockChecking.handlerList(formId);
+		stockChecking.bindGoodsSelector(formId);
+		
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	#if(stockChecking)
+	setTimeout(function() {
+		$(formId).find("input[name=remark]").first().focus();
+	}, 500);
+	#end
+	
+	stockChecking.uploadFileListener(formId)
+	
+});
+
+stockChecking.submitConfirm = function() {
+	var formId = "#stockChecking-add-form";
+	var result = stockChecking.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.modalConfirm("确定要保存盘点单吗？", $("#stockChecking-add-confirm").html());
+};
+
+stockChecking.normal = function() {
+	var formId = "#stockChecking-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.normal.value));
+	stockChecking.create();
+};
+
+stockChecking.draft = function() {
+	var formId = "#stockChecking-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.draft.value));
+	stockChecking.create();
+};
+
+
+stockChecking.create = function(msg) {
+	var formId = "#stockChecking-add-form";
+	var result = stockChecking.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	#if(stockChecking && stockChecking.id > 0)
+	var url = "/inventory/stock/checking/update";
+	#else
+	var url = "/inventory/stock/checking/create";
+	#end
+	
+	beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.modalConfirmClose();
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				var orderStatusVal = $(formId).find("input[name=order_status]").first().val();
+				if(orderStatusVal == #(OrderStatusEnum.draft.value)) {
+					beekit.flyer($(formId).find("button[name=draft_btn]").first(), $(formId).find("span[name=draft_count]").first(), "#stockChecking-add-form button[name=draft_count_btn]");
+				} else {
+					beekit.flyer($(formId).find("button[name=normal_btn]").first(), "#inventory_stock_checking");
+					#if(orderPrintConfig.inventory_checking_flag)
+					#if(orderPrintConfig.inventory_checking_confirm)
+						setTimeout(function() {
+							beekit.confirm('是否打印单据？', function() {
+								lodopPrinter.stockCheckingPrint(0, ret.targetId, false);
+							});
+						}, 1500);
+					#else
+					lodopPrinter.stockCheckingPrint(0, ret.targetId, false);
+					#end
+					#end
+				}
+				dashboard.linkTab("/inventory/stock/checking/add");
+			}	
+		});
+	});
+};
+
+stockChecking.draftIndex = function() {
+	beekit.offcanvasMiddle("/inventory/stock/checking/draftIndex");
+};
+
+
+</script>

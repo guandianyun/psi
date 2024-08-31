@@ -1,0 +1,51 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑客户</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="customerInfo-edit-form" onsubmit="customerInfo.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="customerInfo.update();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	var formId = "#customerInfo-edit-form";
+	
+	setTimeout(function() {
+		customerInfo.handlerList(formId);
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+});
+
+customerInfo.update = function() {
+	var result = customerInfo.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/sale/customer/info/update", $("#customerInfo-edit-form").serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				customerInfo.list(#(customerInfo.id));
+			}
+		});
+	});
+};
+
+</script>

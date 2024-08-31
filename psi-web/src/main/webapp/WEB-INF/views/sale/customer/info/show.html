@@ -1,0 +1,264 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>客户信息
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.sale_customer_info_update))
+					<button type="button" class="btn btn-sm btn-outline-primary" onclick="customerInfo.edit(#(customerInfo.id));">
+						<i class="bi bi-pencil-square"></i>修改
+					</button>
+					#end 
+					&nbsp;
+					#if(!customerInfo.default_flag)
+					#if(session.hasOper(Permissions.sale_customer_info_delete))
+					<button type="button" class="btn btn-sm btn-outline-danger" onclick="customerInfo.delete(#(customerInfo.id));">
+						<i class="bi bi-trash"></i>删除
+					</button>
+					#end 
+					&nbsp;
+					#if(session.hasOper(Permissions.sale_customer_info_disable))
+					#if(customerInfo.data_status == DataStatusEnum.enable.value)
+					<button type="button" class="btn btn-sm btn-outline-danger" onclick="customerInfo.disable(#(customerInfo.id));"><i class="bi bi-x-square"></i>停用</button> 
+					#elseif(customerInfo.data_status == DataStatusEnum.disable.value)
+					<button type="button" class="btn btn-sm btn-outline-success" onclick="customerInfo.enable(#(customerInfo.id));"><i class="bi bi-check-square"></i>启用</button> 
+					#end 
+					#end 
+					#end 
+					&nbsp;
+				</div>
+				<div class="col text-end"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">客户名称：</span><span class="text-secondary fw-bold">#(customerInfo.name)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">客户分类：</span><span>#(customerInfo.customerCategory.name??)</span>
+				</div>
+
+				<div class="col-3">
+					<span class="text-secondary">联系人：</span><span>#(customerInfo.contact??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">联系电话：</span><span>
+					#if(session.hasOper(Permissions.sensitiveData_customer_mobile))
+					#(customerInfo.mobile??)
+					#else
+					#(StrUtil.encodeMobile(customerInfo.mobile))
+					#end
+					</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row mt-2">
+				<div class="col-3">
+					<span class="text-secondary">初始欠款：</span>
+					#if(session.hasOper(Permissions.sensitiveData_customer_due))
+					#set(traderBookAccount = customerInfo.traderBookAccount)
+					#if(traderBookAccount.open_balance > 0)
+					<span class="badge bg-secondary rounded-pill" style="font-size:5px;">欠</span>
+					<span class="text-secondary">#(traderBookAccount.open_balance)</span>
+					#elseif(traderBookAccount.open_balance < 0)
+					<span class="badge bg-secondary rounded-pill" style="font-size:5px;">余</span>
+					<span class="text-secondary">#(0-traderBookAccount.open_balance)</span>
+					#else
+					<span class="text-secondary">0.00</span>
+					#end
+				#else
+				<span class="text-secondary">***</span>
+				#end	
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">价格等级：</span><span class="badge bg-warning">#(customerInfo.customerPriceLevel.name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">专属折扣：</span><span class="badge bg-warning">#if(customerInfo.discount && customerInfo.discount < 1) #number(customerInfo.discount*10, "#.##")折 #else 无折扣 #end</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">来源渠道：</span><span>#(customerInfo.source_channel??)</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">所属业务员：</span><span>#(customerInfo.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">付款类型：</span><span class="badge bg-warning">#(customerInfo.payTypeName??)</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">开户银行：</span><span>#(customerInfo.bank_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">银行账号：</span><span">#(customerInfo.bank_no??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">生日：</span><span>#(customerInfo.birthday??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">微信号：</span><span>#(customerInfo.wechat??)</span>
+				</div>
+				
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">备注：</span><span>#(customerInfo.remark??)</span>
+				</div>
+				<div class="col">
+					<span class="text-secondary">收货地址： </span><span>#(customerInfo.adress??)</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="row mt-2">
+		<div class="col">
+			<div class="card">
+				<div class="card-body">
+					#set(saleStat = customerInfo.saleStat)
+					<div class="row text-center">
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">商品销售额</span><span data-bs-toggle="tooltip" data-bs-placement="top" title="指销售商品的金额，不包含运费"><i class="bi bi-question-circle"></i></span><br /> <span
+								class="card-stat-body">￥#(saleStat.sumAmount??0.00)</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">销售笔数</span><br /> 
+							<span class="card-stat-body">#(saleStat.orderCount??0)</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">销售成本</span><span data-bs-toggle="tooltip" data-bs-placement="top" title="指销售商品的成本，根据商品每次进货价加权平均计算得出"><i class="bi bi-question-circle"></i></span><br /> <span
+								class="card-stat-body">
+								#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+								￥#(saleStat.sumCostAmount??0.00)
+								#else 
+								￥***
+								#end
+								</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">销售毛利</span><span data-bs-toggle="tooltip" data-bs-placement="top" title="销售毛利 = 商品销售额 - 销售成本"><i class="bi bi-question-circle"></i></span><br /> <span
+								class="card-stat-body">
+								#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+								￥#(saleStat.sumAmount??0.00-saleStat.sumCostAmount??0.00)
+								#else 
+								￥***
+								#end
+								</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0; border-right: 1px solid #ebebec;">
+							<span class="card-stat-title">毛利率</span><span data-bs-toggle="tooltip" data-bs-placement="top" title="毛利率 = 销售毛利 / 商品销售额"><i class="bi bi-question-circle"></i></span><br /> <span
+								class="card-stat-body">
+								#if(session.hasOper(Permissions.sensitiveData_price_costProfit))
+								#if(saleStat.sumAmount)
+								#number((saleStat.sumAmount??0.00-saleStat.sumCostAmount??0.00)/saleStat.sumAmount??0.00, "#.##")%
+								#else
+								0.00%
+								#end
+								#else 
+								***%
+								#end
+								</span>
+						</div>
+						<div class="col" style="padding: 0 0.5rem 0 0;">
+							<span class="card-stat-title">客户欠款</span><br /> 
+							#if(session.hasOper(Permissions.sensitiveData_customer_due))
+							#set(debtAmount = traderBookAccount.customerDebtAmount)
+							#if(debtAmount > 0)
+							<span class="badge bg-danger rounded-pill" style="font-size:5px;">欠</span><span class="card-stat-body text-danger">￥#(debtAmount)</span> 
+							#elseif(debtAmount == 0)
+							<span class="card-stat-body">￥0.00</span>
+							#else 
+							<span class="badge bg-success rounded-pill" style="font-size:5px;">余</span><span class="card-stat-body text-success">￥#(0-debtAmount)</span>
+							#end
+							#else 
+							<span class="card-stat-body text-success">￥***</span>
+							#end
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row mt-2">
+		<div class="col">
+			<div class="card">
+				<div class="card-header" style="font-size:13px;">
+					<i class="bi bi-card-list"></i>最近开单
+					#if(customerInfo.last_order_time)
+					<div class="float-end">
+					首次开单时间：#date(customerInfo.first_order_time??, "yyyy-MM-dd hh:mm:ss") &nbsp;&nbsp;&nbsp;
+					最后开单时间：#date(customerInfo.last_order_time??, "yyyy-MM-dd hh:mm:ss")
+					</div>
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row mt-1">
+		<div class="col">
+			<table id="order-list" class="table table-hover table-bordered bg-white">
+				<thead>
+					<tr class="table-header">
+						<th>业务日期</th>
+						<th>单据编号</th>
+						<th>业务员</th>
+						<th>折后应收</th>
+						<th>抹零金额</th>
+						<th>其他应收</th>
+						<th>实际应收</th>
+						<th>已收金额</th>
+						<th>待收金额</th>
+					</tr>
+				</thead>
+				<tbody class="table-row">
+				#for(x : saleOrderPage.list)
+					<tr>
+						<td>#date(x.order_time, "yyyy-MM-dd")</td>
+						<td>#(x.order_code)</td>
+						<td>#(x.handler.name??)</td>
+						<td>#(x.discount_amount)</td>
+						<td>#(x.odd_amount)</td>
+						<td>#(x.other_amount)</td>
+						<td>#(x.amount)</td>
+						<td>#(x.paid_amount)</td>
+						<td class="text-danger">#(x.amount-x.paid_amount)</td>
+					</tr>
+				#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</div>
+
+
+<script type="application/javascript">
+	
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+});
+
+
+
+</script>

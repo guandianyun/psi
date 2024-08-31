@@ -24,16 +24,6 @@
 
 ---
 
-# Declaración de derechos de autor
-
-El código abierto no significa gratis, la nube de la tienda de gestión sigue publicando el acuerdo de código abierto [GPL-3.0](https://gitee.com/o88o/psi/blob/master/LICENSE) y proporciona la oportunidad de intercambiar y aprender técnicas, pero **absolutamente no se permite modificar y publicar el código derivado como software comercial de código cerrado!** Si necesita utilizar este producto localmente para cualquier comportamiento con características comerciales, **póngase en contacto con el líder del proyecto para obtener autorización comercial**, para cumplir con el acuerdo GPL y garantizar su uso normal.
-
-¿El manual de ayuda de la nube de la tienda de gestión requiere un pago?
-*   **Edición de la comunidad**: Prometemos que el código fuente de código abierto anteriormente, en la actualidad y en el futuro será gratuito para que los usuarios individuales lo aprendan, sin cargo alguno; lo que se debe tener en cuenta es que durante el aprendizaje o el uso es necesario cumplir con el acuerdo de código abierto.
-*   **Edición comercial**: Si la empresa desea utilizarlo o comercializarlo, debe elegir la versión con autorización comercial, también aceptamos adecuadamente el desarrollo personalizado del sistema según las necesidades de los clientes individuales / empresariales;
-
-El equipo de código abierto de la nube de la tienda de gestión tiene el derecho final de interpretación de este acuerdo de código abierto.
-
 # I. Acerca de la nube de la tienda de gestión
 
 ## 1.1 Introducción

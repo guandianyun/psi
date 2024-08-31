@@ -238,27 +238,6 @@
 			<version>5.2.3</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.huifu.adapay.core/adapay-core-sdk -->
-		<dependency>
-			<groupId>com.huifu.adapay.core</groupId>
-			<artifactId>adapay-core-sdk</artifactId>
-			<version>1.2.10</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/com.huifu.adapay/adapay-java-sdk -->
-		<dependency>
-			<groupId>com.huifu.adapay</groupId>
-			<artifactId>adapay-java-sdk</artifactId>
-			<version>1.2.10</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.huifu.adapay</groupId>
-			<artifactId>adapay-sdk-merchant</artifactId>
-			<version>1.2.7</version>
-			<scope>system</scope>
-			<systemPath>D:/eclipse/Workspaces/Oomph/psi-common/src/main/resources/lib/adapay-sdk-merchant-1.2.7.jar</systemPath>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>

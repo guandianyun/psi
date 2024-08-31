@@ -1,0 +1,176 @@
+
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col-6">
+			客户总数<span class="text-primary fw-bold ms-1 me-1">#(totalSum)</span>个 &nbsp;&nbsp; 欠款客户<span class="text-primary fw-bold ms-1 me-1">#(debtSum)</span>个 &nbsp;&nbsp;
+			余款客户<span class="text-primary fw-bold ms-1 me-1">#(balanceSum)</span>个 &nbsp;&nbsp; 30天未开单<span class="text-primary fw-bold ms-1 me-1">#(monthSum)</span>个 &nbsp;&nbsp;
+			半年内未开单<span class="text-primary fw-bold ms-1 me-1">#(halfYearSum)</span>个
+			</div>
+			<div class="col">
+			#if(page.totalPage > 1)
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			#end
+			<div class="float-end me-3 mt-1">
+					<input class="form-check-input" type="checkbox" name="hide_stop_flag" id="customerInfo_hide_stop_flag" #if(hideStopFlag) checked #end onclick="customerInfo.list();"> 
+					<label class="form-check-label" for="customerInfo_hide_stop_flag"> 隐藏停用客户</label>
+					&nbsp;&nbsp;
+					<input class="form-check-input" type="checkbox" name="hide_debt_flag" id="customerInfo_hide_debt_flag" #if(hideDebtFlag) checked #end onclick="customerInfo.list();"> 
+					<label class="form-check-label" for="customerInfo_hide_debt_flag"> 隐藏无欠款客户</label>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="table-header">
+			<th>客户名称</th>
+			<th>客户欠款</th>
+			<th>最近开单</th>
+			<th>联系人</th>
+			<th>联系电话</th>
+			<th>结算账期</th>
+			<th>分类</th>
+			<th>价格等级</th>
+			<th>所属业务员</th>
+			<th>状态</th>
+			<th style="width: 15%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row" id="customerInfo-list">
+		#for (x : page.getList())
+		<tr data-id="#(x.id)" id="customerInfo-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(x.name) #if(x.weixin_flag) <i class="bi bi-wechat text-success" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="已关注微信公众号"></i> #end</td>
+			<td>
+			#if(session.hasOper(Permissions.sensitiveData_customer_due))
+			#set(debtAmount = x.debtAmount)
+			#if(debtAmount > 0)
+			<span class="badge bg-danger rounded-pill" style="font-size:5px;">欠</span><span class="text-danger">#(debtAmount)</span> 
+			#elseif(debtAmount == 0)
+			0
+			#else 
+			<span class="badge bg-success rounded-pill" style="font-size:5px;">余</span><span class="text-success">#(0-debtAmount)</span>
+			#end
+			#else
+			<span class="text-success">***</span>
+			#end
+			</td>
+			
+			<td>
+			#set(lastOrderDays = x.lastOrderDays??0)
+			#if(lastOrderDays == 0)
+			<span class="text-success">今天</span>
+			#elseif(lastOrderDays > 0 && lastOrderDays <= 7)
+			<span class="text-success">#(lastOrderDays)天前</span>
+			#elseif(lastOrderDays > 7 && lastOrderDays <= 30)
+			<span class="text-danger">#(lastOrderDays)天前</span>
+			#else
+			#date(x.last_order_time??, "yyyy-MM-dd")
+			#end
+			</td>
+			<td>#(x.contact??)</td>
+			<td>
+			#if(session.hasOper(Permissions.sensitiveData_customer_mobile))
+			#(x.mobile)
+			#else
+			#(StrUtil.encodeMobile(x.mobile))
+			#end
+			</td>
+			<td>#(x.payTypeName??) #if(x.pay_day??0 > 0) (<span class="text-warning">#(x.pay_day)天</span>) #end</td>
+			<td>#(x.customerCategory.name??)</td>
+			<td>#(x.customerPriceLevel.name??)
+			#if(x.discount && x.discount < 1)
+			<span class="badge bg-secondary" style="font-size:5px;">#number(x.discount*10, "#.##")折</span>
+			#end
+			</td>
+			<td>#(x.handler.real_name??)</td>
+			<td>
+			#if(x.data_status == DataStatusEnum.enable.value) 
+			<span class="text-success">启用中</span>
+			#elseif(x.data_status == DataStatusEnum.disable.value) 
+			<span class="text-danger">已停用</span>
+			#end
+			</td>
+			<td>
+				#if(!x.default_flag)
+				#if(session.hasOper(Permissions.sale_customer_info_update))
+				<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="customerInfo.edit(#(x.id));">修改</button> 
+				#end 
+				#if(session.hasOper(Permissions.sale_customer_info_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="customerInfo.delete(#(x.id));">删除</button> 
+				#end 
+				#if(session.hasOper(Permissions.sale_customer_info_disable))
+				#if(x.data_status == DataStatusEnum.enable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="customerInfo.disable(#(x.id));">停用</button> 
+				#elseif(x.data_status == DataStatusEnum.disable.value)
+				<button type="button" class="btn btn-sm sm-more btn-outline-success" onclick="customerInfo.enable(#(x.id));">启用</button> 
+				#end 
+				#end 
+				#end
+			</td>
+		</tr>
+		#end
+
+	</tbody>
+</table>
+
+<script type="application/javascript">
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	var widthArray = new Array();
+	common.tableFixedWidth(widthArray);
+	common.tableFixed(widthArray);
+	$(".main").scroll(function() {
+		common.tableFixed(widthArray);
+	});
+	$("#customerInfo_pageNumber").val(#(page.pageNumber));
+	
+	$("#customerInfo-list tr").on("dblclick", function() {
+		customerInfo.show($(this).attr("data-id"));
+	});
+
+});
+
+customerInfo.show = function(id) {
+	beekit.offcanvas("/sale/customer/info/show?id="+id);
+};
+
+
+customerInfo.edit = function(id) {
+	beekit.offcanvasClose();
+	beekit.modal("/sale/customer/info/edit?id="+id);
+};
+
+customerInfo.delete = function(id) {
+	beekit.focusColor("customerInfo-data-"+id);
+	beekit.confirmByUrl("/sale/customer/info/delete", {"id":id}, "确认要删除此客户吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		customerInfo.list();
+	});
+};
+
+customerInfo.disable = function(id) {
+	beekit.confirmByUrl("/sale/customer/info/disable", {"id":id}, "确认要停用此客户吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		customerInfo.list(id);
+	});
+};
+
+customerInfo.enable = function(id) {
+	beekit.confirmByUrl("/sale/customer/info/enable", {"id":id}, "确认要启用此客户吗？", function(ret) {
+		beekit.msg(ret);
+		beekit.offcanvasClose();
+		customerInfo.list(id);
+	});
+};
+
+
+
+</script>

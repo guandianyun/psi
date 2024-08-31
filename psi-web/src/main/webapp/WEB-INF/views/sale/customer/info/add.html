@@ -1,0 +1,52 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">新增客户</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="customerInfo-add-form" onsubmit="customerInfo.create();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						<button type="button" class="btn btn-primary" onclick="customerInfo.create();">保存</button>
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	var formId = "#customerInfo-add-form";
+	
+	setTimeout(function() {
+		customerInfo.handlerList(formId);
+		
+		formInput.listenkeyUp(formId);
+		
+		$("#customerInfo_name").focus();
+	}, 500);
+	
+});
+
+customerInfo.create = function() {
+	var result = customerInfo.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/sale/customer/info/create", $("#customerInfo-add-form").serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				customerInfo.list(ret.targetId);
+			}
+		});
+	});
+};
+
+</script>

@@ -24,16 +24,6 @@
 
 ---
 
-# Copyright Declaration
-
-Open source does not mean free of charge. GuanDianYun is released in accordance with the [GPL-3.0](https://gitee.com/o88o/psi/blob/master/LICENSE) open-source agreement and provides technical exchange and learning, but **it is strictly forbidden to modify and release the derived code as closed-source commercial software for sale!** If you need to use this product locally for any commercial purposes, **please contact the project leader for commercial authorization** to comply with the GPL agreement and ensure your normal use.
-
-Help Manual - Is GuanDianYun free to use?
-*   **Community Edition**: We promise that all open-source code has been, is now, and will be free for individual users to learn from, without any charge; it should be noted that the open-source agreement must be followed during the learning or use process.
-*   **Commercial Edition**: If enterprises want to use it for their own purposes or for commercial use, they must choose the commercial authorization version, and we also accept customized development of the system according to individual/enterprise customer needs.
-
-The GuanDianYun open-source team has the final interpretation right of this open-source agreement.
-
 # I. About GuanDianYun
 
 ## 1.1 Introduction

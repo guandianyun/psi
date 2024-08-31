@@ -1,0 +1,200 @@
+	<input type="hidden" name="id" value="#(customerInfo.id??)">
+
+	<div class="row">
+		
+		<div class="col">
+			<ul class="nav nav-tabs" id="add-cust-tab">
+				<li class="nav-item"><a class="nav-link active text-primary fw-bold" aria-current="page" href="javascript:void(0)">基础信息</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="row mt-3">
+		
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">客户名称<span class="text-danger">*</span></span> 
+				<input type="text" maxlength="30" class="form-control" name="name" id="customerInfo_name" placeholder="请输入客户名称"
+					value="#(customerInfo.name??)">
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">客户分类<span class="text-danger">*</span></span> 
+				<select class="form-select" name="customer_category_id" id="customerInfo_customer_category_id">
+					#for(x : customerCategoryPage.list)
+					<option value="#(x.id)" #if(customerInfo && x.id == customerInfo.customer_category_id) selected  #end>#(x.name)</option>
+					#end
+				</select>
+				#if(session.hasOper(Permissions.sale_customer_category_create))
+				<button type="button" class="btn btn-sm btn-outline-primary" onclick="customerInfo.addCustomerCategory();">新建分类</button>
+				#end
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="row">
+		<div class="col-6">
+			<div class="input-group mb-3">
+				<span class="input-group-text">所属业务员</span> 
+				<input type="hidden" name="handler_id" #if(customerInfo)  value="#(customerInfo.handler_id??)" #else  value="#(session.tenantAdminId)" #end >
+				<input type="text" placeholder="选择业务员" name="handler_keyword" #if(customerInfo) value="#(customerInfo.handler.real_name??)" #else value="#(session.realName)" #end autocomplete="off"  #if(!customerInfo || session.tenantAdminId == customerInfo.handler_id?? || session.hasOper(Permissions.sale_customer_info_updateSaleman)) class="form-control" #else class="form-control input-readonly" readonly #end>
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">价格等级</span> 
+				<select class="form-select" name="customer_price_level_id" id="customerInfo_customer_price_level_id">
+					#for(x : priceLevelPage.list)
+					<option value="#(x.id)" #if(customerInfo && x.id == customerInfo.customer_price_level_id) selected  #end>#(x.name)</option>
+					#end
+				</select>
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">专属折扣</span> 
+				<input type="text" class="form-control" name="discount" placeholder="请输入优惠折扣" #if(customerInfo && customerInfo.discount) value="#number(customerInfo.discount*10,"#.##")" #end  id="customerInfo_discount" onclick="$(this).select();"> <span class="input-group-text">折</span>
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">联系电话</span> <input type="text" class="form-control" placeholder="请输入手机号" value="#(customerInfo.mobile??)" name="mobile" id="customerInfo_mobile">
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">联系人</span> <input type="text" class="form-control" placeholder="请输入联系人" value="#(customerInfo.contact??)" name="contact" id="customerInfo_contact">
+			</div>
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">结算方式</span> 
+				<select class="form-select" name="pay_type" id="customerInfo_pay_type">
+					#for(x : SalePayTypeEnum)
+					<option value="#(x.value.value)" #if(customerInfo && customerInfo.pay_type == x.value.value) selected  #end>#(x.value.name)</option>
+					#end
+				</select>
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">结算账期</span> 
+				<input type="number" class="form-control" placeholder="请输入结算的账期" value="#(customerInfo.pay_day??0)" name="pay_day" id="customerInfo_pay_day" onclick="$(this).select();">
+				<span class="input-group-text">天</span> 
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">收货地址</span> 
+				<input type="text" class="form-control" placeholder="请输入详细地址" value="#(customerInfo.address??)" name="address" id="customerInfo_address">
+			</div>
+		</div>
+	</div>
+	
+	<div class="row">
+		
+		<div class="col">
+			<ul class="nav nav-tabs">
+				<li class="nav-item"><a class="nav-link active text-secondary fw-bold" aria-current="page" href="javascript:void(0)">辅助信息</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="row mt-3">
+		
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">开户银行</span> <input type="text" class="form-control" placeholder="请输入开户银行" value="#(customerInfo.bank_name??)" name="bank_name" id="customerInfo_bank_name">
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">银行账号</span> <input type="text" class="form-control" placeholder="请输入银行账号" value="#(customerInfo.bank_no??)" name="bank_no" id="customerInfo_bank_no">
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="row">
+		
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">生日</span> <input type="text" class="form-control" placeholder="请输入生日" value="#(customerInfo.birthday??)" name="birthday" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})">
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">微信号</span> <input type="text" class="form-control" placeholder="请输入微信号" value="#(customerInfo.wechat??)" name="wechat" >
+			</div>
+		</div>
+		
+	</div>
+
+
+	<div class="row">
+		
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">来源渠道</span> <input type="text" class="form-control" placeholder="请输入客户的来源渠道" value="#(customerInfo.source_channel??)" name="source_channel" >
+			</div>
+		</div>
+		<div class="col">
+			<div class="input-group mb-3">
+				<span class="input-group-text">备注</span>
+				<input type="text" class="form-control" placeholder="请输入备注" value="#(customerInfo.remark??)" name="remark" >
+			</div>
+		</div>
+		
+	</div>
+	
+<script type="application/javascript">
+
+customerInfo.formChecking = function() {
+	if($.trim($("#customerInfo_name").val()) == '') {
+		beekit.tips('客户名称不能为空！', '#customerInfo_name');
+		$("#customerInfo_name").focus();
+		return false;
+	}
+	if($.trim($("#customerInfo_name").val()).length > 30) {
+		beekit.tips('客户名称不能过长！', '#customerInfo_name');
+		$("#customerInfo_name").focus();
+		return false;
+	}
+	if($.trim($("#customerInfo_customer_category_id").val()) == '') {
+		beekit.tips('必须选择客户分类！', '#customerInfo_customer_category_id');
+		$("#customerInfo_customer_category_id").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+customerInfo.addCustomerCategory = function() {
+	beekit.modalChild("/sale/customer/category/add?sourcePage=customerFormPage");
+};
+
+customerInfo.handlerList = function(formId) {
+	var inputKeyword = $(formId).find("input[name=handler_keyword]").first();
+	var inputId = $(formId).find("input[name=handler_id]").first();
+	beekit.autocomplete(inputKeyword, "/setting/tenant/admin/listByJson", inputId);
+};
+
+
+</script>

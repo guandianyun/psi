@@ -1,0 +1,95 @@
+
+<div class="card mb-2">
+	<div class="card-body search-form">
+		<form id="customerInfo-search-form">
+			<input type="hidden" id="customerInfo_pageNumber" name="pageNumber">
+			<div class="row align-items-center">
+				<div class="col">
+					#if(session.hasOper(Permissions.sale_customer_info_create))
+					<button type="button" class="btn btn-sm btn-primary" onclick="customerInfo.add();">
+						<i class="bi bi-plus-circle"></i>新增客户
+					</button>
+					#end
+				</div>
+				
+				<div class="col-2">
+					<select class="form-select search-input" name="customer_price_level_id" id="customerInfo_search_customer_price_level_id">
+						<option value="">价格等级</option> 
+						#for(x : priceLevelPage.list)
+						<option value="#(x.id)">#(x.name)</option> 
+						#end
+					</select>
+				</div>
+				<div class="col-2">
+					<select class="form-select search-input" name="customer_category_id" id="customerInfo_search_customer_category_id">
+						<option value="">客户分类</option> 
+						#for(x : customerCategoryPage.list)
+						<option value="#(x.id)">#(x.name)</option> 
+						#end
+					</select>
+				</div>
+				<div class="col-3">
+					<input type="text" class="form-control search-input" placeholder="客户名称/联系人/手机号/备注" name="keyword" onclick="$(this).select();">
+				</div>
+				<div class="col-1 align-self-center">
+					<button type="submit" class="btn btn-sm btn-primary" onclick="customerInfo.search(this);">
+						<i class="bi bi-search"></i>搜索
+					</button>
+				</div>
+
+
+			</div>
+
+		</form>
+	</div>
+</div>
+<div id="data-list-customerInfo"></div>
+
+<script type="application/javascript">
+var customerInfo = {};
+
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载列表
+	customerInfo.list();
+	
+	$('#customerInfo_search_customer_price_level_id').on('change', function() {
+		customerInfo.list();
+	});
+	
+	$('#customerInfo_search_customer_category_id').on('change', function() {
+		customerInfo.list();
+	});
+	
+});
+
+customerInfo.list = function(targetId, callback) {
+	var hideStopFlag = $("#customerInfo_hide_stop_flag").prop("checked");
+	if(typeof(hideStopFlag) == 'undefined') {
+		hideStopFlag = true;
+	}
+	var hideDebtFlag = $("#customerInfo_hide_debt_flag").prop("checked");
+	if(typeof(hideDebtFlag) == 'undefined') {
+		hideDebtFlag = false;
+	}
+	$("#customerInfo_pageNumber").val(1);
+	beekit.ajaxFillPage("/sale/customer/info/list?hide_stop_flag="+hideStopFlag+"&hide_debt_flag="+hideDebtFlag, "#customerInfo-search-form", "#data-list-customerInfo" ,"customerInfo-data-"+targetId, callback);
+};
+
+customerInfo.add = function() {
+	beekit.modal("/sale/customer/info/add");
+};
+
+customerInfo.search = function(othis) {
+	common.loadingSearch(othis);
+	customerInfo.list("", function(ret) {
+		common.restoreSearch(othis);
+	});
+};
+	
+			
+
+</script>
+
+

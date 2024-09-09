@@ -1,0 +1,21 @@
+<div id="data-list-tenantInfo">
+	
+</div>
+
+<script type="application/javascript">
+var tenantInfo = {};
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 加载主页
+	tenantInfo.list();
+});
+
+tenantInfo.list = function() {
+	beekit.ajaxFill("/setting/tenant/info/list", {}, "#data-list-tenantInfo");
+};
+
+
+			
+</script>
+

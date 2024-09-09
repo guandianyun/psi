@@ -1,0 +1,73 @@
+#if(page.totalPage > 1)
+<div class="card card-table mb-1">
+	<div class="card-body page-body">
+		<div class="row align-items-center oper-list">
+			<div class="col">
+				<div class="float-end">#@paginate(page.pageNumber, page.totalPage, "")</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<table class="table table-hover table-bordered bg-white">
+	<thead>
+		<tr class="">
+			<th>商品</th>
+			<th>条码</th>
+			<th>规格</th>
+			<th>单位</th>
+			<th>份数</th>
+			<th style="width: 20%">操作</th>
+		</tr>
+	</thead>
+	<tbody class="table-row">
+		#for (x : page.getList())
+		#set(goodsInfo = x.goodsInfo)
+		<tr id="goodsPrintTag-data-#(x.id)">
+			<td class="fw-bold text-secondary">#(goodsInfo.name)</td>
+			<td>#(goodsInfo.bar_code??)</td>
+			<td>
+			#if(goodsInfo.spec_flag)
+			#(x.goodsSpecNames??)
+			#else
+			#(goodsInfo.spec_name??)						
+			#end
+			</td>
+			<td>#(x.goodsUnit.name??)</td>
+			<td>#(x.goods_number)</td>
+			<td>
+				#if(session.hasOper(Permissions.goods_goods_printTag_delete))
+				<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="goodsPrintTag.delete(#(x.id));">删除</button>
+				#end
+			</td>
+		</tr>
+		#end
+		
+	</tbody>
+</table>
+
+
+<script type="application/javascript">
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 滚动表头处理
+	$("#goodsPrintTag_pageNumber").val(#(page.pageNumber));	
+});
+
+goodsPrintTag.edit = function(id) {
+	beekit.modal("/goods/goods/printTag/edit?id="+id);
+};
+
+goodsPrintTag.delete = function(id) {
+	beekit.focusColor("goodsPrintTag-data-"+id);
+	beekit.confirmByUrl("/goods/goods/printTag/delete", {"id":id}, "确认要删除吗？", function(ret) {
+		beekit.msg(ret);
+		goodsPrintTag.list(id);
+	});
+};
+
+
+
+
+</script>

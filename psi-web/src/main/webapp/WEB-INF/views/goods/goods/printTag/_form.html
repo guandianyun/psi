@@ -1,0 +1,151 @@
+
+<div class="row">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text">商品名称<span class="text-danger">*</span></span> 
+			<input type="text" class="form-control" autocomplete="off" name="goods_info_name"><input type="hidden" name="goods_info_id">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+<div class="row" name="spec_1" style="display:none;">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text" name="spec_1_name"></span> 
+			<input type="hidden" name="spec_1_id">
+			<input type="text" class="form-control" autocomplete="off" name="spec_option_1_name"><input type="hidden" name="spec_option_1_id">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+<div class="row" name="spec_2" style="display:none;">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text" name="spec_2_name"></span> 
+			<input type="hidden" name="spec_2_id">
+			<input type="text" class="form-control" autocomplete="off" name="spec_option_2_name"><input type="hidden" name="spec_option_2_id">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+<div class="row" name="spec_3" style="display:none;">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text" name="spec_3_name"></span> 
+			<input type="hidden" name="spec_3_id">
+			<input type="text" class="form-control" autocomplete="off" name="spec_option_3_name"><input type="hidden" name="spec_option_3_id">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+<div class="row">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text">商品单位</span> 
+			<input type="text" class="form-control" autocomplete="off" name="goods_unit_name"><input type="hidden" name="unit_id">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+
+<div class="row">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text">销售价格</span> 
+			<input type="text" class="form-control" autocomplete="off" name="sale_price" onclick="$(this).select();">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+<div class="row">
+	<div class="col-2"></div>
+	<div class="col-8">
+		<div class="input-group mb-3">
+			<span class="input-group-text">打印份数<span class="text-danger">*</span></span> 
+			<input type="number" class="form-control" autocomplete="off" name="goods_number" value="1" onclick="$(this).select();">
+		</div>
+	</div>
+	<div class="col-2"></div>
+</div>
+
+<script type="application/javascript">
+var goodsPrintTag = {};
+
+goodsPrintTag.formChecking = function(formId) {
+	var goodsInfoName = $(formId).find("input[name=goods_info_name]").first();
+	if($.trim(goodsInfoName.val()) == '') {
+		beekit.tips('商品不能为空！', goodsInfoName);
+		goodsInfoName.focus();
+		return false;
+	}
+	var goodsNumber = $(formId).find("input[name=goods_number]").first();
+	if($.trim(goodsNumber.val()) == '') {
+		beekit.tips('打印份数不能为空！', goodsNumber);
+		goodsNumber.focus();
+		return false;
+	}
+	return true;
+};
+
+goodsPrintTag.bindGoodsSelector = function(formId) {
+	var currentGoodsRow = $(formId);
+	var goodsInfoId = currentGoodsRow.find("input[name=goods_info_id]").first();
+	var goodsInfoName = currentGoodsRow.find("input[name=goods_info_name]").first();
+	var unitName = currentGoodsRow.find("input[name=goods_unit_name]").first();
+	var unitId = currentGoodsRow.find("input[name=unit_id]").first();
+	
+	for(var index = 1; index <=3; index++) {
+		var spec = $(currentGoodsRow).find("div[name=spec_"+(index)+"]").first();
+		spec.find("input[type=text]").each(function() {
+			$(this).attr("type", "hidden");
+		});
+	}
+	
+	beekit.autocompleteByParams(goodsInfoName, "/goods/goods/info/listByJson", {}, goodsInfoId, true, function(dataSelected) {
+		beekit.ajaxPost("/goods/goods/spec/listByJson?id="+dataSelected.id, {}, function(ret) {
+			for(var index = 1; index <=3; index++) {
+				var spec = $(currentGoodsRow).find("div[name=spec_"+(index)+"]").first();
+				spec.hide();
+			}
+			$.each(ret.data, function (index, value) {
+				var spec = $(currentGoodsRow).find("div[name=spec_"+(index+1)+"]").first();
+				var specName = $(currentGoodsRow).find("span[name=spec_"+(index+1)+"_name]").first();
+				var specId = $(currentGoodsRow).find("input[name=spec_"+(index+1)+"_id]").first();
+				var specValueName = currentGoodsRow.find("input[name=spec_option_"+(index+1)+"_name]").first();
+				specValueName.attr("type", "text");
+				specName.html(value.name);
+				specId.val(value.goods_spec_id);
+				spec.show();
+			});
+			
+		});
+		
+	});
+	
+	beekit.autocompleteNameByParams(unitName, "/goods/goods/info/listUnitByJson", {"id":goodsInfoId}, unitId, true);
+	
+	for(var index = 1; index <=3; index++) {
+		var specId = $(currentGoodsRow).find("input[name=spec_"+(index)+"_id]").first();
+		var specValueId = currentGoodsRow.find("input[name=spec_option_"+(index)+"_id]").first();
+		var specValueName = currentGoodsRow.find("input[name=spec_option_"+(index)+"_name]").first();
+		beekit.autocompleteNameByParams(specValueName, "/goods/goods/spec/specOptionJson", {"id":specId, "goods_info_id":goodsInfoId}, specValueId, true);
+	}
+	
+}
+
+
+
+
+</script>

@@ -1,0 +1,157 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h6 class="modal-title">修改商户</h6>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+		<form id="tenantInfo-form" onsubmit="tenantInfo.update();return false;">
+			#(token)
+			<div class="row">
+				<div class="col-1"></div>
+				<div class="col-5">
+					<div class="input-group">
+						<span class="input-group-text">公司简称<span class="text-danger fw-bold">*</span></span> 
+						<input type="text" maxlength="10" name="name" id="tenantInfo_name" class="form-control" placeholder="请输入公司简称" value="#(tenantInfo.name??)">
+					</div>
+				</div>
+				<div class="col-5">
+					<div class="input-group">
+						<span class="input-group-text">公司全称<span class="text-danger fw-bold">*</span></span> 
+						<input type="text" maxlength="30" name="full_name" id="tenantInfo_full_name" class="form-control" placeholder="请输入公司全称" value="#(tenantInfo.full_name??)">
+					</div>
+				</div>
+				<div class="col-1"></div>
+			</div>
+			
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-5">
+					<div class="input-group">
+						<span class="input-group-text">企业法人<span class="text-danger fw-bold">*</span></span> 
+						<input type="text" maxlength="10" name="corporate" id="tenantInfo_corporate" class="form-control" placeholder="请输入企业法人" value="#(tenantInfo.corporate??)">
+					</div>
+				</div>
+				<div class="col-5">
+					<div class="input-group">
+						<span class="input-group-text">营业执照号<span class="text-danger fw-bold">*</span></span> 
+						<input type="text" maxlength="30" name="license" id="tenantInfo_license" class="form-control" placeholder="请输入营业执照号" value="#(tenantInfo.license??)">
+					</div>
+				</div>
+				<div class="col-1"></div>
+			</div>
+			
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col">
+					<div class="input-group align-items-center">
+						<label class="input-group-text" for="inputGroupFile01">品牌LOGO</label> &nbsp;&nbsp;
+						<div class="shop-logo-box">
+							<input type="hidden" name="logo" id="tenantInfo_logo" value="#(tenantInfo.logo??)">
+							<img src="#(resourceUploadDomain)#(tenantInfo.logo??)" style="width: 50px;" id="tenantInfo_logo_img"/> 
+							<span class="upload-btn"><input type="file" class="form-control" accept="image/*" name="file_upload"> <span class="text-primary">更改</span>
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-1"></div>
+			</div>
+
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-2">
+					<span class="input-group-text">经营模式</span>
+				</div>
+				<div class="col">
+					#for(x : SaleModeEnum)
+					#set(value = x.value.value)
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" name="mode" id="tenantInfo_mode_#(value)" value="#(value)" #if(tenantInfo && tenantInfo.mode == value) checked #end> <label class="form-check-label" for="tenantInfo_mode_#(value)">#(x.value.name)</label>
+					</div>
+					#end
+				</div>
+				<div class="col-1"></div>
+			</div>
+
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-5">
+					<div class="input-group">
+						<span class="input-group-text">行业类型</span> 
+						<select class="form-select" name="industry" id="tenantInfo_industry">
+						#for(x : IndustryEnum)
+						<option value="#(x.value.value)" #if(tenantInfo.industry == x.value.value) selected #end>#(x.value.name)</option>
+						#end
+						</select>
+					</div>
+				</div>
+				<div class="col-5">
+					<div class="input-group">
+						<span class="input-group-text">服务电话</span> <input type="text" name="mobile" id="tenantInfo_mobile" class="form-control" placeholder="请输入服务电话" value="#(tenantInfo.mobile)">
+					</div>
+				</div>
+				<div class="col-1"></div>
+			</div>
+
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col">
+					<div class="input-group">
+						<span class="input-group-text">商户地址</span> <input type="text" name="address" id="tenantInfo_address" class="form-control" placeholder="请输入商户地址" value="#(tenantInfo.address)">
+					</div>
+				</div>
+				<div class="col-1"></div>
+			</div>
+		</form>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+			<button type="button" class="btn btn-primary" onclick="tenantInfo.update();">保存</button>
+		</div>
+	</div>
+</div>
+
+
+<script type="application/javascript">
+$(function() {
+	formInput.listenkeyUp("#tenantInfo-form");
+	
+	$("#tenantInfo-form input[name=file_upload]").on("change", function(evt) {
+		common.uploadFile(this, function(ret) {
+			$("#tenantInfo_logo").val(ret.thumbPath);
+			$("#tenantInfo_logo_img").attr("src", "#(resourceUploadDomain)"+ret.thumbPath);
+		});
+	});
+});
+
+tenantInfo.update = function() {
+	var result = tenantInfo.formChecking();
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/setting/tenant/info/update", $("#tenantInfo-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			tenantInfo.list();
+		}
+	});
+};
+
+tenantInfo.formChecking = function() {
+	if($.trim($("#tenantInfo_name").val()) == '') {
+		beekit.tips('公司简称不能为空！', '#tenantInfo_name');
+		$("#tenantInfo_name").focus();
+		return false;
+	}
+	if($.trim($("#tenantInfo_name").val()).length > 10) {
+		beekit.tips('公司简称不能过长！', '#tenantInfo_name');
+		$("#tenantInfo_name").focus();
+		return false;
+	}
+	
+	return true;
+};
+
+</script>

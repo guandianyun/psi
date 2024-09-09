@@ -1,0 +1,78 @@
+<div class="row m-0">
+	<div class="col-5">
+		<div class="card mb-2">
+			<div class="card-header">打印标签</div>
+			<div class="card-body">
+				<form id="goodsPrintTag-add-form" onsubmit="goodsPrintTag.create();return false;">
+				#include("_form.html")
+				<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+				<div class="col">
+					<button type="button" class="btn btn-lg btn-outline-secondary btn-wlg" onclick="dashboard.linkTab('/goods/goods/printTag')">清空</button>
+					&nbsp;&nbsp;&nbsp;
+					<button type="button" name="normal_btn" class="btn btn-primary btn-lg btn-wlg" onclick="goodsPrintTag.create();">打印</button>
+				</div>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="col">
+		<form id="goodsPrintTag-search-form" onsubmit="return false;">
+		<input type="hidden" id="goodsPrintTag_pageNumber" name="pageNumber">
+		</form>
+	<div class="card mb-2">
+		<div class="card-header">打印记录</div>
+			<div class="card-body" id="data-list-goodsPrintTag">
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+<script type="application/javascript">
+
+$(function() {
+	var formId = "#goodsPrintTag-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	goodsPrintTag.list();
+	// 加载列表
+	setTimeout(function() {
+		goodsPrintTag.bindGoodsSelector(formId);
+		formInput.listenkeyUp(formId);
+	}, 500);
+	
+});
+
+goodsPrintTag.list = function(targetId) {
+	$("#goodsPrintTag_pageNumber").val(1);
+	beekit.ajaxFillPage("/goods/goods/printTag/list", "#goodsPrintTag-search-form", "#data-list-goodsPrintTag", "goodsPrintTag-data-"+targetId);
+};
+
+goodsPrintTag.create = function() {
+	var formId = "#goodsPrintTag-add-form";
+	var result = goodsPrintTag.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	var url = "/goods/goods/printTag/create";
+	beekit.confirm('是否确认打印标签？', function() {
+		beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				lodopPrinter.goodsTagPrint(0, ret.targetId, false);
+				dashboard.linkTab("/goods/goods/printTag");
+			}	
+		});
+		
+	});
+	
+	
+}
+			
+
+</script>
+
+

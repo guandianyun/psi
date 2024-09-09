@@ -1,0 +1,74 @@
+<div class="card">
+		<div class="card-body">
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">公司简称</div>
+				<div class="col">#(tenantInfo.name??)</div>
+			</div>
+	
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">公司全称</div>
+				<div class="col">#(tenantInfo.full_name??)</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">品牌Logo</div>
+				<div class="col">
+					<img src="#(resourceUploadDomain)#(tenantInfo.logo??)" style="width: 50px;" />
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">经营模式</div>
+				<div class="col">#(tenantInfo.modeName)</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">行业类型</div>
+				<div class="col">#(tenantInfo.industryName)</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">服务电话</div>
+				<div class="col">#(tenantInfo.mobile??)</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">企业法人</div>
+				<div class="col">#(tenantInfo.corporate??)</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">营业执照号</div>
+				<div class="col">#(tenantInfo.license??)</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-1"></div>
+				<div class="col-1">商户地址</div>
+				<div class="col">#(tenantInfo.address??)</div>
+			</div>
+			
+			#if(session.hasOper(Permissions.setting_tenant_info_update))
+			<div class="row mt-3">
+				<div class="col-2"></div>
+				<div class="col">
+					<button class="btn btn-primary btn-lg" onclick="tenantInfo.edit();">修改</button>
+				</div>
+			</div>
+			#end
+	
+		</div>
+	</div>
+	
+<script type="application/javascript">
+
+tenantInfo.edit = function() {
+	beekit.modal("/setting/tenant/info/edit");
+};
+
+
+			
+</script>
+
+	

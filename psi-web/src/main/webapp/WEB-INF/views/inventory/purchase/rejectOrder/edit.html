@@ -1,0 +1,67 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑进货退货单</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="purchaseRejectOrder-edit-form" onsubmit="purchaseRejectOrder.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(purchaseRejectOrder.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="purchaseRejectOrder.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="purchaseRejectOrder.update();">保存</button>
+						#end
+						
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+if(typeof(purchaseRejectOrder) == "undefined") {
+	purchaseRejectOrder = {};
+}
+
+$(function() {
+	var formId = "#purchaseRejectOrder-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		purchaseRejectOrder.handlerList(formId);
+		purchaseRejectOrder.supplierList(formId);
+		purchaseRejectOrder.bindGoodsSelector(formId);
+		purchaseRejectOrder.balanceAccountList(formId);
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	purchaseRejectOrder.uploadFileListener(formId)
+	
+});
+
+purchaseRejectOrder.update = function() {
+	var formId = "#purchaseRejectOrder-edit-form";
+	var result = purchaseRejectOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/inventory/purchase/rejectOrder/update", $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				purchaseRejectOrder.list(#(purchaseRejectOrder.id));
+			}
+		});
+	});
+};
+
+</script>

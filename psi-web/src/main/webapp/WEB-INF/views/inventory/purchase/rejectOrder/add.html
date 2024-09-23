@@ -1,0 +1,121 @@
+<form id="purchaseRejectOrder-add-form" onsubmit="purchaseRejectOrder.submitConfirm();return false;">
+#include("_form.html")
+<div class="row p-3 text-center" style="margin: 0 0 0 0;">
+	<div class="col">
+		<button type="button" class="btn btn-lg btn-outline-secondary fs-6 btn-wlg" onclick="dashboard.linkTab('/inventory/purchase/rejectOrder/add')">清空</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6 btn-wlg" onclick="purchaseRejectOrder.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6 btn-wlg" onclick="purchaseRejectOrder.draft();">暂存草稿</button>
+	</div>
+</div>
+</form>
+
+<div id="purchaseRejectOrder-add-confirm" style="display:none;">
+		<button type="button" name="normal_btn" class="btn btn-primary btn-lg fs-6" onclick="purchaseRejectOrder.normal();">确认保存</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" name="draft_btn" class="btn btn-outline-primary btn-lg fs-6" onclick="purchaseRejectOrder.draft();">暂存草稿</button>
+		&nbsp;&nbsp;&nbsp;
+		<button type="button" class="btn btn-outline-primary btn-lg fs-6" data-bs-dismiss="modal" aria-label="Close">取消</button>
+</div>
+
+<script type="application/javascript">
+if(typeof(purchaseRejectOrder) == "undefined") {
+	purchaseRejectOrder = {};
+}
+
+$(function() {
+	var formId = "#purchaseRejectOrder-add-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		purchaseRejectOrder.handlerList(formId);
+		purchaseRejectOrder.supplierList(formId);
+		purchaseRejectOrder.bindGoodsSelector(formId);
+		purchaseRejectOrder.balanceAccountList(formId);
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	#if(purchaseRejectOrder)
+	setTimeout(function() {
+		$(formId).find("input[name=remark]").first().focus();
+	}, 500);
+	#end
+
+	purchaseRejectOrder.uploadFileListener(formId)
+	
+});
+
+purchaseRejectOrder.submitConfirm = function() {
+	var formId = "#purchaseRejectOrder-add-form";
+	var result = purchaseRejectOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.modalConfirm("确定要保存进货退货单吗？", $("#purchaseRejectOrder-add-confirm").html());
+};
+
+purchaseRejectOrder.normal = function() {
+	var formId = "#purchaseRejectOrder-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.normal.value));
+	purchaseRejectOrder.create();
+};
+
+purchaseRejectOrder.draft = function() {
+	var formId = "#purchaseRejectOrder-add-form";
+	$(formId).find("input[name=order_status]").first().val(#(OrderStatusEnum.draft.value));
+	purchaseRejectOrder.create();
+};
+
+
+purchaseRejectOrder.create = function(msg) {
+	var formId = "#purchaseRejectOrder-add-form";
+	var result = purchaseRejectOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	#if(purchaseRejectOrder && purchaseRejectOrder.id && purchaseRejectOrder.id > 0)
+	var url = "/inventory/purchase/rejectOrder/update";
+	#else
+	var url = "/inventory/purchase/rejectOrder/create";
+	#end
+	
+	beekit.ajaxPost(url, $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.modalConfirmClose();
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				var orderStatusVal = $(formId).find("input[name=order_status]").first().val();
+				if(orderStatusVal == #(OrderStatusEnum.draft.value)) {
+					beekit.flyer($(formId).find("button[name=draft_btn]").first(), $(formId).find("span[name=draft_count]").first(), "#purchaseRejectOrder-add-form button[name=draft_count_btn]");
+				} else {
+					beekit.flyer($(formId).find("button[name=normal_btn]").first(), "#inventory_purchase_rejectOrder");
+					#if(orderPrintConfig.purchase_reject_order_flag)
+					#if(orderPrintConfig.purchase_reject_order_confirm)
+						setTimeout(function() {
+							beekit.confirm('是否打印单据？', function() {
+								lodopPrinter.purchaseRejectOrderPrint(0, ret.targetId, false);
+							});
+						}, 1500);
+					#else
+					lodopPrinter.purchaseRejectOrderPrint(0, ret.targetId, false);
+					#end
+					#end
+				}
+				dashboard.linkTab("/inventory/purchase/rejectOrder/add");
+			}	
+		});
+	});
+};
+
+purchaseRejectOrder.draftIndex = function() {
+	beekit.offcanvasMiddle("/inventory/purchase/rejectOrder/draftIndex");
+};
+
+
+</script>

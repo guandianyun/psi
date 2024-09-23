@@ -1,0 +1,42 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+		<div class="modal-content">
+		<form id="purchaseRejectOrder-audit-form" onsubmit="purchaseRejectOrder.auditCreate();return false;">
+			<div class="modal-header">
+				<h6 class="modal-title">进货退货单审核</h6>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" name="id" value="#(id)">
+				<div class="row">
+					<div class="col">
+						<div class="input-group mb-3">
+							<span class="input-group-text">审核说明</span>
+							<textarea class="form-control" name="audit_desc"></textarea>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" onclick="purchaseRejectOrder.auditCreate(#(AuditStatusEnum.reject.value));">审核拒绝</button>
+				<button type="button" class="btn btn-primary" onclick="purchaseRejectOrder.auditCreate(#(AuditStatusEnum.pass.value));">审核通过</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+			</div>
+			</form>
+		</div>
+	</div>
+
+
+<script type="application/javascript">
+
+purchaseRejectOrder.auditCreate = function(auditStatus) {
+	beekit.ajaxPost("/inventory/purchase/rejectOrder/auditCreate?audit_status="+auditStatus, $("#purchaseRejectOrder-audit-form").serialize(), function(ret) {
+		beekit.msg(ret);
+		if (ret.state == "ok") {
+			beekit.modalClose();
+			purchaseRejectOrder.list(#(id));
+		}
+	});
+};
+
+</script>

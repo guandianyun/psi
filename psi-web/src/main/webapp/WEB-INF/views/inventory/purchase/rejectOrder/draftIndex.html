@@ -1,0 +1,30 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>草稿箱
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1" id="data-draftlist-purchaseRejectOrder">
+	#include("draftList.html")
+</div>
+
+
+<script type="application/javascript">
+	
+purchaseRejectOrder.editDraft = function(id) {
+	beekit.offcanvasMiddleClose();
+	beekit.ajaxFill("/inventory/purchase/rejectOrder/editDraft", {"id":id}, $("#purchaseRejectOrder-add-form").parent() ,"");
+};
+
+purchaseRejectOrder.deleteDraft = function(id) {
+	beekit.confirmByUrl("/inventory/purchase/rejectOrder/delete", {"id":id}, "确认要删除此进货退货单吗？", function(ret) {
+		beekit.msg(ret);
+		purchaseRejectOrder.draftList();
+	});
+};
+
+purchaseRejectOrder.draftList = function() {
+	beekit.ajaxFillPage("/inventory/purchase/rejectOrder/draftList", "", "#data-draftlist-purchaseRejectOrder" ,"");
+}
+
+</script>

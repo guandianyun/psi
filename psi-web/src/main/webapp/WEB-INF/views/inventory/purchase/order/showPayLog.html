@@ -1,0 +1,36 @@
+<div class="row mt-2">
+	<div class="col">
+		<table class="table table-hover table-bordered bg-white">
+			<thead>
+				<tr class="table-header">
+					<th>付款类型</th>
+					<th>付款账户</th>
+					<th>付款金额</th>
+					<th>付款时间</th>
+					<th>创建时间</th>
+					<th>备注</th>
+				</tr>
+			</thead>
+			<tbody class="table-row">
+				#for(x : purchaseOrder.orderFundList)
+				<tr>
+					#if(x.pay_type == FundTypeEnum.cash.value) 
+					<td>本单现付</td>
+					<td>#(x.balanceAccount.name??)</td>
+					#elseif(x.pay_type == FundTypeEnum.balance.value) 
+					<td>余额扣款</td>
+					<td>供应商账户</td>
+					#elseif(x.pay_type == FundTypeEnum.checking.value)  
+					<td>核销清账</td>
+					<td>付款单</td>
+					#end
+					<td>#number(x.amount, "#.##")</td>
+					<td>#date(x.pay_time, "yyyy-MM-dd HH:mm:ss")</td>
+					<td>#date(x.created_at, "yyyy-MM-dd HH:mm:ss")</td>
+					<td></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+</div>

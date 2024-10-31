@@ -1,0 +1,30 @@
+<div class="row mt-1">
+		<div class="col">
+			<table class="table table-hover table-bordered bg-white">
+				<thead>
+					<tr class="table-header">
+						<th>单据编号</th>
+						<th>进货日期</th>
+						<th>供应商</th>
+						<th>备注</th>
+						<th style="width: 20%">操作</th>
+					</tr>
+				</thead>
+				<tbody class="table-row">
+				#for(x : page.list)
+					<tr>
+					<td>#(x.order_code)</td>
+					<td>#date(x.order_time, "yyyy-MM-dd HH:mm:ss")</td>
+					<td class="fw-bold">#(x.supplierInfo.name??)</td>
+					<td>#(x.remark)</td>
+					<td>
+						<button type="button" class="btn btn-sm sm-more btn-outline-danger" onclick="purchaseOrder.deleteDraft(#(x.id));">删除</button> 
+						&nbsp;&nbsp;
+						<button type="button" class="btn btn-sm sm-more btn-outline-primary" onclick="purchaseOrder.editDraft(#(x.id));">选择</button>
+					</td>
+					</tr>
+				#end
+				</tbody>
+			</table>
+		</div>
+	</div>

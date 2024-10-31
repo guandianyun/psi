@@ -1,0 +1,67 @@
+<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+	<div class="modal-content">
+					<div class="modal-header">
+						<h6 class="modal-title">编辑进货单</h6>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+					<form id="purchaseOrder-edit-form" onsubmit="purchaseOrder.update();return false;">
+					#include("_form.html")
+					</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">关闭</button>
+						#if(purchaseOrder.audit_status == AuditStatusEnum.reject.value) 
+						<button type="button" class="btn btn-primary" onclick="purchaseOrder.update();">重新提交审核</button>
+						#else
+						<button type="button" class="btn btn-primary" onclick="purchaseOrder.update();">保存</button>
+						#end
+						
+					</div>
+				</div>
+</div>
+
+<script type="application/javascript">
+if(typeof(purchaseOrder) == "undefined") {
+	purchaseOrder = {};
+}
+
+$(function() {
+	var formId = "#purchaseOrder-edit-form";
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	// 绑定tablink
+	dashboard.bindTablink();
+	
+	setTimeout(function() {
+		purchaseOrder.handlerList(formId);
+		purchaseOrder.supplierList(formId);
+		purchaseOrder.bindGoodsSelector(formId);
+		purchaseOrder.balanceAccountList(formId);
+		
+		formInput.listenkeyUp(formId);
+		
+	}, 500);
+	
+	purchaseOrder.uploadFileListener(formId)
+	
+});
+
+purchaseOrder.update = function() {
+	var formId = "#purchaseOrder-edit-form";
+	var result = purchaseOrder.formChecking(formId);
+	if(!result) {
+		return;
+	}
+	beekit.ajaxPost("/inventory/purchase/order/update", $(formId).serialize(), function(ret) {
+		common.processRequestResult(ret, function(ret) {
+			beekit.msg(ret);
+			if (ret.state == "ok") {
+				beekit.modalClose();
+				purchaseOrder.list(#(purchaseOrder.id));
+			}
+		});
+	});
+};
+
+</script>

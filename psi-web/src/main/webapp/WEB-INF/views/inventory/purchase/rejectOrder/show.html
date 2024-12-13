@@ -1,0 +1,304 @@
+<div class="offcanvas-header">
+	<h6 class="text-white">
+		<i class="bi bi-grid"></i>进货退货单详情
+	</h6>
+	<i class="bi bi-x-square-fill" style="font-size: 1.5rem; color: #ffffff; cursor: pointer;" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+</div>
+<div class="offcanvas-body pt-1">
+	<div class="card">
+		<div class="card-body" style="padding: 0.5rem 0.5rem;">
+			<div class="row align-items-center">
+				<div class="col">
+					
+					#if(purchaseRejectOrder.auditConfigFlag)
+					#if(purchaseRejectOrder.order_status != OrderStatusEnum.disable.value)
+					#if(purchaseRejectOrder.audit_status == AuditStatusEnum.waiting.value)
+					#if(session.hasOper(Permissions.inventory_purchase_rejectOrder_audit))
+					<button type="button" class="btn btn-sm btn-outline-success" onclick="purchaseRejectOrder.audit(#(purchaseRejectOrder.id));">
+					<i class="bi bi-hand-index"></i>审核
+					</button> &nbsp;
+					#end
+					#end
+					#end
+					#end
+					
+					#if(!purchaseRejectOrder.auditConfigFlag || (purchaseRejectOrder.auditConfigFlag && (purchaseRejectOrder.audit_status != AuditStatusEnum.pass.value || session.hasOper(Permissions.inventory_purchase_rejectOrder_audit))))
+						#if(session.hasOper(Permissions.inventory_purchase_rejectOrder_update))
+						<button type="button" class="btn btn-sm btn-outline-primary" onclick="purchaseRejectOrder.edit(#(purchaseRejectOrder.id));">
+							<i class="bi bi-pencil-square"></i>修改
+						</button>&nbsp;
+						#end 
+					#end 
+					#if(!purchaseRejectOrder.auditConfigFlag || (purchaseRejectOrder.auditConfigFlag && purchaseRejectOrder.audit_status != AuditStatusEnum.pass.value))
+						#if(session.hasOper(Permissions.inventory_purchase_rejectOrder_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="purchaseRejectOrder.disable(#(purchaseRejectOrder.id));">
+							<i class="bi bi-trash"></i>作废
+						</button>&nbsp;
+						#end 
+					#end
+					
+					#if(purchaseRejectOrder.order_status == OrderStatusEnum.draft.value)
+						#if(session.hasOper(Permissions.inventory_purchase_rejectOrder_disable))
+						<button type="button" class="btn btn-sm btn-outline-danger" onclick="purchaseRejectOrder.delete(#(purchaseRejectOrder.id));">
+							<i class="bi bi-trash"></i>删除
+						</button>&nbsp;
+						#end 
+					#end
+					
+				</div>
+
+				<div class="col text-end">
+					<button type="button" class="btn btn-sm btn-primary" onclick="purchaseRejectOrder.showPrint(#(purchaseRejectOrder.id));">
+						<i class="bi bi-printer"></i>打印
+					</button>
+					#if(purchaseRejectOrder.print_count > 0)
+					&nbsp; <span class="btn btn-sm btn-outline-danger sm-more">已打印:#(purchaseRejectOrder.print_count)</span>
+					#end
+				</div>
+
+				#if(purchaseRejectOrder.order_status == OrderStatusEnum.disable.value)  
+					<img src="#(resourceDomain)/img/disable.png" class="order-status-pic">
+				#else
+					#if(purchaseRejectOrder.pay_status == OrderPayStatusEnum.finish.value)
+					<img src="#(resourceDomain)/img/payover.png" class="order-status-pic">
+					#elseif(purchaseRejectOrder.pay_status == OrderPayStatusEnum.part.value)
+					<img src="#(resourceDomain)/img/paypart.png" class="order-status-pic">
+					#end
+				#end
+				 
+			</div>
+		</div>
+	</div>
+
+	<ul class="nav nav-tabs mt-2">
+		<li class="nav-item"><a class="nav-link active fw-bold" aria-current="page" href="javascript:void(0);" _target="showDetail" onclick="purchaseRejectOrder.showInfo(this);">单据详情</a></li>
+		<li class="nav-item"><a class="nav-link fw-bold" aria-current="page" href="javascript:void(0);" _target="showPayLog" onclick="purchaseRejectOrder.showInfo(this);">退款记录</a></li>
+		<li class="nav-item"><a class="nav-link fw-bold" aria-current="page" href="javascript:void(0);" _target="showOrderLog" onclick="purchaseRejectOrder.showInfo(this);">单据日志</a></li>
+	</ul>
+	
+	<div id="purchaseRejectOrder_showDetail">
+	<div class="card mt-2">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">单据编号：</span><span>#(purchaseRejectOrder.order_code)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">供应商：</span><span class="text-secondary fw-bold">#(purchaseRejectOrder.supplierInfo.name??)</span>
+				</div>
+				
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">退货员：</span><span>#(purchaseRejectOrder.handler.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">退货日期：</span><span>#date(purchaseRejectOrder.order_time, "yyyy-MM-dd")</span>
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">制单人：</span><span>#(purchaseRejectOrder.makeMan.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">制单时间：</span><span>#date(purchaseRejectOrder.created_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">最近修改：</span><span>#date(purchaseRejectOrder.updated_at, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+			</div>
+			
+			#if(purchaseRejectOrder.auditConfigFlag)
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">审核状态：</span>
+					#if(purchaseRejectOrder.audit_status == AuditStatusEnum.waiting.value) 
+					<span class="badge bg-warning">待审核</span> 
+					#elseif(purchaseRejectOrder.audit_status == AuditStatusEnum.pass.value) 
+					<span class="badge bg-success">审核通过</span>  
+					#elseif(purchaseRejectOrder.audit_status == AuditStatusEnum.reject.value) 
+					<span class="badge bg-danger">审核拒绝</span>   
+					#end
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核人：</span><span>#(purchaseRejectOrder.auditor.real_name??)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核时间：</span><span>#date(purchaseRejectOrder.audit_time, "yyyy-MM-dd HH:mm:ss")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">审核反馈：</span><span>#(purchaseRejectOrder.audit_desc)</span>
+				</div>
+			</div>
+			#end
+		</div>
+	</div>
+	
+	<div class="row mt-2">
+		<div class="col">
+			<table class="table table-hover table-bordered bg-white">
+				<thead>
+				<tr class="table-header">
+					<th>商品名称</th>
+					<th>商品条码</th>
+					<th>规格</th>
+					<th style="width: 6%;">单位</th>
+					<th style="width: 6%;">单价</th>
+					#if(orderGoodsDiscountFlag)
+					<th style="width: 8%;">折扣(%)</th>
+					<th style="width: 6%;">折后价</th>
+					#end
+					<th style="width: 6%;">数量</th>
+					<th style="width: 6%;">金额</th>
+					<th>备注</th>
+				</tr>
+				</thead>
+				<tbody class="table-row">
+				#for(x : purchaseRejectOrder.orderGoodsList)
+				#set(goodsInfo = x.goodsInfo)
+					<tr>
+						<td>#(goodsInfo.name??)</td>
+						<td>#(goodsInfo.bar_code??)</td>
+						<td>#(x.goodsSpecNames??)</td>
+						<td>#(x.goodsUnit.name??)</td>
+						<td>#number(x.price, '#.####')</td>
+						#if(orderGoodsDiscountFlag)
+						<td>#number(x.discount, '#.####')</td>
+						<td>#number(x.discount_amount, '#.####')</td>
+						#end
+						<td>#number(x.buy_number, '#.####')</td>
+						<td>#number(x.amount, '#.####')</td>
+						<td>#(x.remark)</td> 
+					</tr>
+				#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="card-body" style="padding: 1rem 1rem;">
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">商品合计： </span><span class="fw-bold text-secondary">#(purchaseRejectOrder.goods_amount)</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">折扣： </span><span class="fw-bold text-secondary">#(purchaseRejectOrder.discount)%</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">折后金额：</span><span class="fw-bold text-secondary">#number(purchaseRejectOrder.discount_amount, "#.##")</span>
+				</div>
+				
+			</div>
+			
+			#if(feeList && feeList.size() > 0)
+			<hr class="row-hr" />
+			<div class="row">
+					#for(x : feeList)
+					<div class="col-3">
+					<span class="text-secondary">#(x.name??)： </span><span class="fw-bold text-secondary me-5">#number(purchaseRejectOrder.getOrderFee(x.id)??, "#.##")</span>
+					</div>
+					#end
+			</div>
+			#end
+			
+			#if(costList && costList.size() > 0)
+			<hr class="row-hr" />
+			<div class="row">
+					#for(x : costList)
+					<div class="col-3">
+					<span class="text-secondary">#(x.name??)： </span><span class="fw-bold text-secondary me-5">#number(purchaseRejectOrder.getOrderCost(x.id)??, "#.##")</span>
+					</div>
+					#end
+			</div>
+			#end
+			
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col-3">
+					<span class="text-secondary">应退金额：</span><span class="fw-bold text-secondary">#number(purchaseRejectOrder.amount, "#.##")</span>
+				</div>
+				<div class="col-3">
+					<span class="text-secondary">已退金额：</span>
+					#if(purchaseRejectOrder.paid_amount > 0)
+					<span class="badge bg-success">#number(purchaseRejectOrder.paid_amount, "#.##")</span>
+					#else
+					<span class="badge bg-secondary">#number(purchaseRejectOrder.paid_amount, "#.##")</span>
+					#end
+				</div>
+				<div class="col-3">
+					#set(lastAmount = purchaseRejectOrder.amount??0 - purchaseRejectOrder.paid_amount??0 ) <span class="text-secondary">剩余金额：</span> 
+					#if(lastAmount > 0) 
+					<span class="badge bg-danger">#number(lastAmount,"#.##")</span>
+					#else 
+					<span class="badge bg-secondary">0</span> 
+					#end
+				</div>
+			</div>
+			<hr class="row-hr" />
+			<div class="row">
+				<div class="col">
+					<span class="text-secondary">备注：</span><span>#(purchaseRejectOrder.remark??)</span>
+				</div>
+				
+				<div class="col text-end" id="purchaseRejectOrder_order_img_list_preview">
+					#for(thumb : purchaseRejectOrder.orderImgList)
+					<img class="rounded" src="#(resourceUploadDomain)#(thumb)" layer-src="#(resourceUploadDomain)#(thumb)" style="width:30px" >
+					#end
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	</div>
+	
+	<div id="purchaseRejectOrder_showPayLog" style="display:none;"></div>
+	
+	<div id="purchaseRejectOrder_showOrderLog" style="display:none;"></div>
+	
+</div>
+
+
+<script type="application/javascript">
+	
+	
+$(function() {
+	// 初始化bootstrap相关组件
+	common.initBootstrap();
+	
+	beekit.photos("#purchaseRejectOrder_order_img_list_preview");
+	
+});
+
+purchaseRejectOrder.showInfo = function(othis) {
+	var target = $(othis).attr("_target");
+	var targetHtml = $("#purchaseRejectOrder_"+target).html();
+	if(targetHtml == '') {
+		if(target == 'showPayLog') {
+			beekit.ajaxFill("/inventory/purchase/rejectOrder/showPayLog", {"id": #(purchaseRejectOrder.id)}, "#purchaseRejectOrder_"+target);
+		} else if(target == 'showOrderLog') {
+			beekit.ajaxFill("/inventory/purchase/rejectOrder/showOrderLog", {"id": #(purchaseRejectOrder.id)}, "#purchaseRejectOrder_"+target);
+		}
+	}
+	$(othis).parent().parent().find("a").each(function() {
+		if(this == othis) {
+			$(othis).toggleClass("active");
+			$("#purchaseRejectOrder_"+target).show();
+		} else {
+			$(this).removeClass("active");
+			$("#purchaseRejectOrder_"+$(this).attr("_target")).hide();
+		}
+	});
+	
+}
+
+
+purchaseRejectOrder.showPrint = function(orderId) {
+	beekit.modal("/inventory/purchase/rejectOrder/showPrint?id="+orderId);
+}
+
+
+</script>

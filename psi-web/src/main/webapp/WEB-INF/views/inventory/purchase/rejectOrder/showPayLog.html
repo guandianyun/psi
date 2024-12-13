@@ -1,0 +1,36 @@
+<div class="row mt-2">
+	<div class="col">
+		<table class="table table-hover table-bordered bg-white">
+			<thead>
+				<tr class="table-header">
+					<th>退款类型</th>
+					<th>退款账户</th>
+					<th>退货金额</th>
+					<th>退款时间</th>
+					<th>创建时间</th>
+					<th>备注</th>
+				</tr>
+			</thead>
+			<tbody class="table-row">
+				#for(x : purchaseRejectOrder.orderFundList)
+				<tr>
+					#if(x.pay_type == FundTypeEnum.cash.value) 
+					<td>本单现收</td>
+					<td>#(x.balanceAccount.name??)</td>
+					#elseif(x.pay_type == FundTypeEnum.balance.value) 
+					<td>存入余额</td>
+					<td>供应商账户</td>
+					#elseif(x.pay_type == FundTypeEnum.checking.value)  
+					<td>核销清账</td>
+					<td>收款单</td>
+					#end
+					<td>#number(x.amount, "#.##")</td>
+					<td>#date(x.pay_time, "yyyy-MM-dd HH:mm:ss")</td>
+					<td>#date(x.created_at, "yyyy-MM-dd HH:mm:ss")</td>
+					<td></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+</div>
